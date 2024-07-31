@@ -29,6 +29,7 @@ export const currentUser = (userData) => async (dispatch) => {
     }
     const response = await axios.post(`/user/curr`, {}, config());
     dispatch(setUser(response?.data?.user));
+    console.log(response?.data?.user)
     dispatch(currentSchool());
   } catch (error) {
     dispatch(

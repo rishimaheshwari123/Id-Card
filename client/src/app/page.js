@@ -1,5 +1,5 @@
-"use client"
-import { currentUser } from "@/redux/actions/userAction";
+"use client";
+import { currentUser, logoutUser } from "@/redux/actions/userAction";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -7,9 +7,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Nav from "./components/Nav";
 
-
 export default function Home() {
-
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -25,40 +23,44 @@ export default function Home() {
     if (!user) {
       router.push("./signin");
     }
-    router.push("/Addschool")
-  }
+    router.push("/Addschool");
+  };
 
   const redirectToSchools = () => {
     if (!user) {
       router.push("./signin");
     }
-    router.push("/SchoolList")
-  }
+    router.push("/SchoolList");
+  };
 
   const redirectToAdddata = () => {
     if (!user) {
       router.push("./signin");
     }
-    router.push("/Adddata")
-  }
+    router.push("/Adddata");
+  };
 
   const redirectToExcel = () => {
     if (user) {
       router.push("./signin");
     }
-    router.push("/Addexcel")
-  }
+    router.push("/Addexcel");
+  };
 
   const redirectToViewData = () => {
     if (user) {
       router.push("./signin");
     }
-    router.push("/Viewdata")
-  }
+    router.push("/Viewdata");
+  };
+
+  const LogoutUser = () => {
+    dispatch(logoutUser());
+  };
   return (
     <>
       <Nav />
-      <section className="text-gray-700 body-font">
+      {/* <section className="text-gray-700 body-font">
         <div className="container mx-auto flex px-5 py-10 sm:py-24 md:flex-row flex-col items-center">
           <div className="lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 mt-10 sm:mt-0 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center">
             <h1 className="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900 mt-10 sm:mt-0">
@@ -246,9 +248,196 @@ export default function Home() {
             <p className="text-gray-500">ID CARD DATA PORTAL</p>
           </div>
         </div>
-      </section>
+      </section> */}
 
+      <div className="relative min-h-screen min-w-full overflow-hidden">
+        <Image
+          src="/bg.jpg"
+          alt="Background"
+          layout="fill"
+          // objectFit="cover"
+          quality={100}
+          className="z-0 mt-[60px]"
+        />
+        <div className="relative z-10 flex  min-h-screen w-[80vw] pt-[60px] mx-auto">
+          {!user && (
+            <div className=" items-center justify-center flex w-full">
+              <div className=" text-white p-4 flex min-w-[100%] flex-wrap flex-row    ">
+                {/* Name */}
+                <div className=" lg:w-[55%] md:w-[55%] w-full  mx-auto min-h-full lg:ml-[100px] md:ml-[100px]   flex-1 items-center justify-center mt-[13%]">
+                  <h3 className="text-6xl font-bold my-1">
+                    Card<span className=" text-yellow-400">Pro</span>
+                  </h3>
+                  <p className="text-2xl text-yellow-400 font-semibold">
+                    Id Card Data Portal
+                  </p>
+                </div>
+                {/* Content */}
+                <div className=" lg:w-[40%] md:w-[40%] w-full font-normal mr-10 flex-1">
+                  <ul>
+                    <li className=" border-b border-white py-5 border-t text-xl">
+                      <Link
+                        href={"/"}
+                        className="font-semibold  hover:text-white rounded-lg py-1.5 px-3 cursor-pointer"
+                      >
+                        Home
+                      </Link>
+                    </li>
+                    <li className=" border-b border-white py-5 border-t text-xl">
+                      <Link
+                        href={"/Signin"}
+                        className="font-semibold  hover:text-white rounded-lg py-1.5 px-3 cursor-pointer"
+                      >
+                        Distributor Login
+                      </Link>
+                    </li>
+
+                    <li className=" border-b border-white py-5 border-t text-xl">
+                      <Link
+                        href={"/SchoolSignin"}
+                        className="font-semibold  hover:text-white rounded-lg py-1.5 px-3 cursor-pointer"
+                      >
+                        School Login
+                      </Link>
+                    </li>
+
+                    <li className=" border-b border-white py-5 border-t text-xl">
+                      <Link
+                        href={"/Signin"}
+                        className="font-semibold  hover:text-white rounded-lg py-1.5 px-3 cursor-pointer"
+                      >
+                        About Us
+                      </Link>
+                    </li>
+                    <li className=" border-b border-white py-5 border-t text-xl">
+                      <Link
+                        href={"/"}
+                        className="font-semibold  hover:text-white rounded-lg py-1.5 px-3 cursor-pointer"
+                      >
+                        Contact Us
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {user && (
+            <div className=" text-white flex items-center   min-w-full flex-col  justify-center mt-[150px] lg:-mt-[60px] md:-mt-[60px] ">
+              {/* Name */}
+              <div className=" mb-[20px] lg:hidden md:hidden">
+              <h3 className="lg:text-[16px] text-[10px] font-bold ">
+                    Card<span className=" text-yellow-400">Pro</span>
+                  </h3>
+                  <p className="text-[15px] text-yellow-400 font-semibold">
+                    Id Card Data Portal
+                  </p>
+              </div>
+
+              <div className=" flex justify-between w-full lg:px-5   ">
+                <div className="mobile">
+                  <h3 className="lg:text-[16px] text-[10px] font-bold ">
+                    Card<span className=" text-yellow-400">Pro</span>
+                  </h3>
+                  <p className="text-[15px] text-yellow-400 font-semibold">
+                    Id Card Data Portal
+                  </p>
+                </div>
+
+                <div className=" flex items-center gap-1    text-[14px]" >
+                  <p className="text-yellow-400">
+                    {user?.role !== "school" ? "Distributor " : "School "}
+                  </p>
+                  {" :- "}
+
+                  {user?.name ? user.name : user?.school?.name}
+              
+                </div>
+
+                <div>
+                  <Link
+                    href={"/"}
+                    className="font-semibold text-yellow-400  hover:text-white rounded-lg py-1.5 px-3 cursor-pointer"
+                  >
+                    Home 
+                  </Link>
+                </div>
+              </div>
+
+              {/* Links */}
+
+              <div className=" my-[50px] w-full lg:px-10">
+                <div className=" grid lg:grid-cols-3 w-full  place-content-between  gap-20">
+                 {
+                  user?.role != "school" && <div>
+                    <Link
+                      href={"/Addschool"}
+                      className="text-2xl font-semibold  hover:text-white rounded-full min-w-full py-1.5 px-6 cursor-pointer bg-gray-900 bg-opacity-90"
+                    >
+                      Add School
+                    </Link>
+                  </div>
+                 } 
+                 {
+                  user?.role != "school" && 
+                  <div>
+                    <Link
+                      href={"/SchoolList"}
+                      className="text-2xl font-semibold  hover:text-white rounded-full py-1.5 px-6 cursor-pointer bg-gray-900 bg-opacity-90"
+                    >
+                       School List
+                    </Link>
+                  </div>
+                 }
+            
+
+                  {
+                     user?.role != "school" && 
+                     <div>
+                    <Link
+                      href={"/Addexcel"}
+                      className="text-2xl font-semibold  hover:text-white rounded-full py-1.5 px-6 cursor-pointer bg-gray-900 bg-opacity-90"
+                    >
+                       Import Data
+                    </Link>
+                  </div>
+                  }
+               
+                  <div>
+                    <Link
+                      href={"/Adddata"}
+                      className="text-2xl font-semibold  hover:text-white rounded-full py-1.5 px-6 cursor-pointer bg-gray-900 bg-opacity-90"
+                    >
+                      Add Data Manually
+                    </Link>
+                  </div>
+                  <div>
+                    <Link
+                      href={"/Viewdata"}
+                      className="text-2xl font-semibold  hover:text-white rounded-full py-1.5 px-6 cursor-pointer bg-gray-900 bg-opacity-90"
+                    >
+                      View Data 
+                    </Link>
+                  </div>
+                  <div>
+                    <Link
+                      href={"/"}
+                      onClick={LogoutUser}
+                      className="text-2xl font-semibold  hover:text-white rounded-full py-1.5 px-6 cursor-pointer bg-gray-900 bg-opacity-90 text-yellow-400"
+                    >
+                     Logout
+                    </Link>
+                  </div>
+
+
+
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </>
-
   );
 }

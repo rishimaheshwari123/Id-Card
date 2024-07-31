@@ -2,3 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+@media only screen and (max-width:639px) {
+    .mobile{
+     display: none;
+    }}
