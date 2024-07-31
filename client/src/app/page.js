@@ -303,7 +303,7 @@ export default function Home() {
 
                     <li className=" border-b border-white py-5 border-t text-xl">
                       <Link
-                        href={"/Signin"}
+                        href={"/"}
                         className="font-semibold  hover:text-white rounded-lg py-1.5 px-3 cursor-pointer"
                       >
                         About Us
