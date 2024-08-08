@@ -143,7 +143,7 @@ const Addexcel = () => {
 
   const handleSubmitnowfuntiion = async (event) => {
     event.preventDefault();
-  
+    const loadingToastId = toast.loading('Uploading photos...');
     const formData = new FormData();
     console.log("Selected photos:", selectedPhotos); // Log selectedPhotos array
     selectedPhotos.forEach((file, index) => {
@@ -165,10 +165,12 @@ const Addexcel = () => {
           },
         });
         console.log(response.data);
-        toast.success(response.data.message)
+        toast.update(loadingToastId, { render: response.data.message, type: "success", isLoading: false, autoClose: 5000 });
+        // toast.success(response.data.message)
         selectedPhotos = [];
   
       } catch (error) {
+        toast.update(loadingToastId, { render: 'Failed to upload photos', type: "error", isLoading: false, autoClose: 5000 });
         console.error('Error uploading photos:', error);
       }
     }
