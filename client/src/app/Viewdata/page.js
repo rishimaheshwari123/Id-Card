@@ -786,7 +786,7 @@ const Viewdata = () => {
             className="fixed bottom-4 left-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full shadow-lg"
             onClick={toggleChatBox}
           >
-            More
+            Move
           </button>
         )}
 
@@ -798,7 +798,7 @@ const Viewdata = () => {
                 className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
                 onClick={modeToPrinted}
               >
-                More to Printed
+                Move to Printed
               </button>
             )}
             {status != "Ready to print" && (
@@ -806,7 +806,7 @@ const Viewdata = () => {
                 className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
                 onClick={modeToReadytoprint}
               >
-                More to Ready to Print
+                Move to Ready to Print
               </button>
             )}
             {status != "Panding" && (
@@ -814,7 +814,7 @@ const Viewdata = () => {
                 className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
                 onClick={modeToPending}
               >
-                More to Pending
+                Move to Pending
               </button>
             )}
             {user?.exportExcel && (

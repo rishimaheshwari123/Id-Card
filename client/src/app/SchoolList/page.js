@@ -12,7 +12,7 @@ const SchoolList = () => {
   const { schools, error } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
-  const currdeletSchool = (id) =>{
+  const currdeletSchool = (id) => {
     dispatch(deletSchool(id))
   }
 
@@ -87,7 +87,7 @@ const SchoolList = () => {
                   Edit School
                 </Link>
                 <button className="bg-red-500 text-xs text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600" onClick={() => currdeletSchool(school._id)}>
-                  Delet School
+                  Delete School
                 </button>
               </div>
             </div>
