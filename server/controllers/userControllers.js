@@ -1,11 +1,11 @@
 const env = require("dotenv");
-env.config({ path: "./.env" });
-const { catchAsyncErron } = require("../middlewares/catchAsyncError");
+env.config({path: "./.env"});
+const {catchAsyncErron} = require("../middlewares/catchAsyncError");
 const errorHandler = require("../utils/errorHandler");
 const sendmail = require("../utils/sendmail");
 const activationToken = require("../utils/activationToken");
 const jwt = require("jsonwebtoken");
-const { v4: uuidv4 } = require("uuid");
+const {v4: uuidv4} = require("uuid");
 const Student = require("../models/studentModel");
 const School = require("../models/schoolModel");
 const User = require("../models/userModel");
@@ -18,7 +18,7 @@ const Staff = require("../models/staffModel");
 const ExcelJS = require("exceljs");
 const request = require("request");
 const yazl = require("yazl");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 
 // var nodeExcel = require('excel-export');
 // const generateTokens = require("../utils/generateTokens");
@@ -37,7 +37,7 @@ cloudinary.v2.config({
 const xlsx = require("xlsx");
 const fs = require("fs");
 const getDataUri = require("../middlewares/daraUri");
-const { log } = require("console");
+const {log} = require("console");
 
 exports.currUser = catchAsyncErron(async (req, res, next) => {
   const id = req.id;
@@ -54,7 +54,7 @@ exports.currUser = catchAsyncErron(async (req, res, next) => {
       // If school is found, assign the school to user
       user = {
         school,
-        role: "school"
+        role: "school",
       };
     } else {
       // If neither user nor school is found, return an error
@@ -64,7 +64,7 @@ exports.currUser = catchAsyncErron(async (req, res, next) => {
     // If user is found, add the role field to user
     user.role = "student";
   }
-  console.log(user)
+  console.log(user);
   res.status(201).json({
     success: true,
     message: "Successfully",
@@ -72,9 +72,8 @@ exports.currUser = catchAsyncErron(async (req, res, next) => {
   });
 });
 
-
 exports.userRegistration = catchAsyncErron(async (req, res, next) => {
-  const { name, email, password, contact, city, district, state, companyName } =
+  const {name, email, password, contact, city, district, state, companyName} =
     req.body;
   console.log(req.body);
 
@@ -90,7 +89,7 @@ exports.userRegistration = catchAsyncErron(async (req, res, next) => {
   )
     return next(new errorHandler(`fill all deatils`));
 
-  const isEmailExit = await User.findOne({ email: email });
+  const isEmailExit = await User.findOne({email: email});
   if (isEmailExit)
     return next(new errorHandler("User With This Email Address Already Exits"));
 
@@ -107,7 +106,7 @@ exports.userRegistration = catchAsyncErron(async (req, res, next) => {
     companyName,
   };
 
-  const data = { name: name, activationCode: ActivationCode };
+  const data = {name: name, activationCode: ActivationCode};
 
   try {
     await sendmail(
@@ -136,11 +135,11 @@ exports.userRegistration = catchAsyncErron(async (req, res, next) => {
 });
 
 exports.userForgetPasswordsendMail = catchAsyncErron(async (req, res, next) => {
-  const { email } = req.body;
+  const {email} = req.body;
 
   if (!email) return next(new errorHandler(`pleas provide email`));
 
-  const user = await User.findOne({ email: email });
+  const user = await User.findOne({email: email});
 
   if (!user)
     return next(
@@ -149,7 +148,7 @@ exports.userForgetPasswordsendMail = catchAsyncErron(async (req, res, next) => {
 
   const ActivationCode = Math.floor(1000 + Math.random() * 9000);
 
-  const data = { name: user.name, activationCode: ActivationCode };
+  const data = {name: user.name, activationCode: ActivationCode};
 
   user.resetpasswordToken = 1;
   user.save();
@@ -180,7 +179,7 @@ exports.userForgetPasswordsendMail = catchAsyncErron(async (req, res, next) => {
 });
 
 exports.userForgetPasswordVerify = catchAsyncErron(async (req, res, next) => {
-  let { activationCode, password } = req.body;
+  let {activationCode, password} = req.body;
 
   if (!activationCode)
     return next(new errorHandler("Provide Reset Password Code"));
@@ -189,7 +188,7 @@ exports.userForgetPasswordVerify = catchAsyncErron(async (req, res, next) => {
 
   if (!token) return next(new errorHandler("please provide token", 401));
 
-  const { user, ActivationCode } = await jwt.verify(
+  const {user, ActivationCode} = await jwt.verify(
     token,
     process.env.ACCESS_TOKEN_SECRET
   );
@@ -221,7 +220,7 @@ exports.userForgetPasswordVerify = catchAsyncErron(async (req, res, next) => {
   // currUser.save();
   // currUser.password = ""
 
-  const { accesToken } = generateTokens(currUser);
+  const {accesToken} = generateTokens(currUser);
 
   currUser.password = "";
 
@@ -250,28 +249,28 @@ exports.userProfile = catchAsyncErron(async (req, res, next) => {
 });
 
 exports.userActivation = catchAsyncErron(async (req, res, next) => {
-  let { activationCode } = req.body;
-  console.log(req.body)
+  let {activationCode} = req.body;
+  console.log(req.body);
 
   if (!activationCode) return next(new errorHandler("Provide Activation Code"));
 
   const token = req.header("Authorization");
-  console.log(token)
-  const { user, ActivationCode } = await jwt.verify(
+  console.log(token);
+  const {user, ActivationCode} = await jwt.verify(
     token,
     process.env.ACCESS_TOKEN_SECRET
   );
 
   if (!user) return next(new errorHandler("Invelide Token"));
 
-  const isEmailExit = await User.findOne({ email: user.email });
+  const isEmailExit = await User.findOne({email: user.email});
   if (isEmailExit)
     return next(new errorHandler("User With This Email Address Already Exits"));
 
   if (activationCode != ActivationCode)
     return next(new errorHandler("Wrong Activation Code"));
 
-  let { name, email, password, contact, city, district, state, companyName } =
+  let {name, email, password, contact, city, district, state, companyName} =
     user;
 
   const newUser = await User.create({
@@ -287,7 +286,7 @@ exports.userActivation = catchAsyncErron(async (req, res, next) => {
   });
   await newUser.save();
 
-  const { accesToken } = generateTokens(newUser);
+  const {accesToken} = generateTokens(newUser);
 
   user.password = "";
 
@@ -306,19 +305,19 @@ exports.userActivation = catchAsyncErron(async (req, res, next) => {
 });
 
 exports.userLogin = catchAsyncErron(async (req, res, next) => {
-  const { email, password } = req.body;
-  console.log(req.body)
+  const {email, password} = req.body;
+  console.log(req.body);
 
   if (!email || !password)
     return next(new errorHandler("Pleas fill all details"));
 
-  const user = await User.findOne({ email: email }).select("+password").exec();
+  const user = await User.findOne({email: email}).select("+password").exec();
   if (!user) return next(new errorHandler("User Not Found", 404));
 
   const isMatch = await user.comparePassword(password);
   if (!isMatch) return next(new errorHandler("Wrong Credientials", 500));
 
-  const { accesToken } = generateTokens(user);
+  const {accesToken} = generateTokens(user);
 
   await user.save();
   user.password = "";
@@ -339,29 +338,29 @@ exports.userLogin = catchAsyncErron(async (req, res, next) => {
 });
 
 exports.SchooluserLogin = catchAsyncErron(async (req, res, next) => {
-  const { email, password } = req.body;
+  const {email, password} = req.body;
 
   if (!email || !password)
     return next(new errorHandler("Pleas fill all details"));
-  console.log(password)
+  console.log(password);
 
-  const school = await School.findOne({ email: email })
+  const school = await School.findOne({email: email})
     .select("+password")
     .exec();
-  console.log(school)
+  console.log(school);
   if (!school) return next(new errorHandler("School Not Found", 404));
   // console.log(school.password)
 
-  console.log(password)
-  console.log(school.password)
+  console.log(password);
+  console.log(school.password);
 
   const isMatch = await school.comparepassword(password);
   // const isMatch = await bcrypt.compare(password, school.password);
-  console.log(isMatch)
+  console.log(isMatch);
 
   if (!isMatch) return next(new errorHandler("Wrong Credientials", 500));
 
-  const { accesToken } = generateTokens(school);
+  const {accesToken} = generateTokens(school);
 
   await school.save();
   school.password = "";
@@ -387,10 +386,10 @@ exports.EditUser = catchAsyncErron(async (req, res, next) => {
   const updates = req.body;
 
   // Find the user by ID and update their details
-  const user = await User.findByIdAndUpdate(id, updates, { new: true });
+  const user = await User.findByIdAndUpdate(id, updates, {new: true});
 
   if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    return res.status(404).json({message: "User not found"});
   }
 
   // Respond with the updated user details
@@ -399,7 +398,7 @@ exports.EditUser = catchAsyncErron(async (req, res, next) => {
 
 exports.updatePassword = catchAsyncErron(async (req, res, next) => {
   const id = req.id;
-  const { currentPassword, newPassword } = req.body;
+  const {currentPassword, newPassword} = req.body;
 
   const user = await User.findById(id).select("+password");
 
@@ -463,7 +462,7 @@ exports.userAvatar = catchAsyncErron(async (req, res, next) => {
 });
 
 exports.addSchool = catchAsyncErron(async (req, res, next) => {
-  console.log(req.body)
+  console.log(req.body);
   const id = req.id;
   // <<<<<<< HEAD
   const file = null;
@@ -471,14 +470,12 @@ exports.addSchool = catchAsyncErron(async (req, res, next) => {
   if (req.files && req.files[0]) {
     file = req.files[0];
   }
-  console.log(file)
+  console.log(file);
 
   const user = await User.findById(id);
 
-  let { name, email, contact, password, requiredFields, requiredFieldsStaff } =
+  let {name, email, contact, password, requiredFields, requiredFieldsStaff} =
     req.body;
-
-
 
   if (!name) return next(new errorHandler("School name is Required"));
 
@@ -489,7 +486,7 @@ exports.addSchool = catchAsyncErron(async (req, res, next) => {
   if (!password) return next(new errorHandler("Password is Required"));
 
   const currSchool = await School.create(req.body);
-  console.log(currSchool)
+  console.log(currSchool);
 
   if (typeof requiredFields === "string") {
     try {
@@ -560,7 +557,7 @@ exports.editSchool = catchAsyncErron(async (req, res, next) => {
   if (req.files && req.files[0]) {
     file = req.files[0];
   }
-  console.log(file)
+  console.log(file);
 
   if (file) {
     const currentSchool = await School.findById(schoolId);
@@ -610,14 +607,14 @@ exports.deleteSchool = catchAsyncErron(async (req, res, next) => {
   const school = await School.findById(schoolId);
 
   if (!school) {
-    return res.status(404).json({ message: "School not found" });
+    return res.status(404).json({message: "School not found"});
   }
 
   // Delete all associated students
-  await Student.deleteMany({ school: schoolId });
+  await Student.deleteMany({school: schoolId});
 
   // Delete all associated students
-  await Staff.deleteMany({ school: schoolId });
+  await Staff.deleteMany({school: schoolId});
 
   // Delete the school itself
   await School.findByIdAndDelete(schoolId);
@@ -656,7 +653,7 @@ exports.ChangeActive = catchAsyncErron(async (req, res, next) => {
 
 exports.addStudent = catchAsyncErron(async (req, res, next) => {
   const id = req.id;
-  const file = null;
+  let file = null;
 
   if (req.files && req.files[0]) {
     file = req.files[0];
@@ -669,7 +666,7 @@ exports.addStudent = catchAsyncErron(async (req, res, next) => {
 
     if (!currSchool) return next(new errorHandler("invalidate School ID"));
 
-    const { name } = req.body;
+    const {name} = req.body;
 
     console.log(req.body);
     if (!name) return next(new errorHandler("name is Required"));
@@ -775,7 +772,7 @@ exports.addStudent = catchAsyncErron(async (req, res, next) => {
 
     if (!currSchool) return next(new errorHandler("invalidate School ID"));
 
-    const { name, fatherName } = req.body;
+    const {name, fatherName} = req.body;
 
     console.log(req.body);
     if (!name) return next(new errorHandler("name is Required"));
@@ -879,7 +876,7 @@ exports.editStudent = catchAsyncErron(async (req, res, next) => {
   const studentId = req.params.id;
   console.log(studentId);
   const updates = req.body; // The updates from the request body.
-  console.log(updates)
+  console.log(updates);
 
   const updatedStudent = await Student.findByIdAndUpdate(studentId, updates, {
     new: true,
@@ -938,7 +935,7 @@ exports.editStudent = catchAsyncErron(async (req, res, next) => {
 
 exports.addStaff = catchAsyncErron(async (req, res, next) => {
   const id = req.id;
-  const file = null;
+  let file = null;
 
   if (req.files && req.files[0]) {
     file = req.files[0];
@@ -952,7 +949,7 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
 
     if (!currSchool) return next(new errorHandler("invalidate School ID"));
 
-    const { name, fatherName } = req.body;
+    const {name, fatherName} = req.body;
 
     console.log(req.body);
     if (!name) return next(new errorHandler("name is Required"));
@@ -1056,7 +1053,7 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
 
     if (!currSchool) return next(new errorHandler("invalidate School ID"));
 
-    const { name, fatherName } = req.body;
+    const {name, fatherName} = req.body;
 
     console.log(req.body);
     if (!name) return next(new errorHandler("name is Required"));
@@ -1289,7 +1286,7 @@ exports.allSchool = catchAsyncErron(async (req, res, next) => {
   const id = req.id; // Assuming the student ID is in the URL.
 
   // Attempt to find the student by ID and delete it.
-  const schools = await School.find({ user: id });
+  const schools = await School.find({user: id});
 
   // Prepare an array to store modified school data with student count.
   const modifiedSchools = [];
@@ -1297,7 +1294,7 @@ exports.allSchool = catchAsyncErron(async (req, res, next) => {
   // Iterate through each school to find the count of students in it.
   for (const school of schools) {
     // Find the count of students belonging to the current school.
-    const studentCount = await Student.countDocuments({ school: school._id });
+    const studentCount = await Student.countDocuments({school: school._id});
 
     // Create a modified school object with the student count.
     const modifiedSchool = {
@@ -1336,8 +1333,6 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
   // const studentClass = req.body.class;
   // const section = req.body.section;
 
-
-
   // let queryObj = { school: schoolId };
   // if (status) {
   //   queryObj.status = status; // Assuming your student schema has a 'state' field
@@ -1345,7 +1340,6 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
 
   // // Find all students in the given school using the school ID
   // let students = await Student.find(queryObj);
-
 
   // if (!students || students.length === 0) {
   //   // If no students are found for the given school, return an appropriate response
@@ -1374,7 +1368,6 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
   //   };
   // });
 
-
   // // Respond with the list of students found in the school
   // res.status(200).json({
   //   success: true,
@@ -1385,9 +1378,9 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
   try {
     const schoolId = req.params.id; // School ID from request params
     const status = req.query.status; // State from query parameters
-    const { studentClass, section } = req.body; // Class and section from request body
+    const {studentClass, section} = req.body; // Class and section from request body
 
-    let queryObj = { school: schoolId };
+    let queryObj = {school: schoolId};
     if (status) {
       queryObj.status = status; // Assuming your student schema has a 'state' field
     }
@@ -1396,7 +1389,7 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
     // if (studentClass) {
     //   queryObj.class = { $regex: studentClass, $options: "i" };
     // }
-    console.log(studentClass)
+    console.log(studentClass);
 
     if (studentClass) {
       // Check if studentClass is a numeric value or a string value like "1st", "2nd", etc.
@@ -1406,12 +1399,12 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
       //   queryObj.class = { $regex: studentClass, $options: "i" }; // Case-insensitive string matching
       // }
       // queryObj.class = studentClass;
-      queryObj.class = { $regex: studentClass, $options: "i" };
+      queryObj.class = {$regex: studentClass, $options: "i"};
     }
-    console.log(queryObj)
+    console.log(queryObj);
 
     if (section) {
-      queryObj.section = { $regex: section, $options: "i" }; // Case-insensitive
+      queryObj.section = {$regex: section, $options: "i"}; // Case-insensitive
     }
 
     // Find all students in the given school using the school ID and optional status
@@ -1419,7 +1412,6 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
     // let newcalss = { $regex: studentClass, $options: "i" };
     // queryObj.class = { $regex: studentClass, $options: "i" };
     // let students = await Student.find({ school:schoolId, class:"6th"});
-
 
     if (!students || students.length === 0) {
       // If no students are found for the given school, return an appropriate response
@@ -1430,10 +1422,10 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
       });
     }
 
-    const studentsWithRole = students.map(student => {
+    const studentsWithRole = students.map((student) => {
       return {
         ...student.toObject(),
-        role: "student"
+        role: "student",
       };
     });
 
@@ -1445,7 +1437,7 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error in getAllStudentsInSchool route:", error);
-    res.status(500).json({ success: false, error: "Internal Server Error" });
+    res.status(500).json({success: false, error: "Internal Server Error"});
   }
 });
 
@@ -1453,7 +1445,7 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
   const schoolId = req.params.id; // School ID from request params
   const status = req.query.status; // State from query parameters
 
-  let queryObj = { school: schoolId };
+  let queryObj = {school: schoolId};
   if (status) {
     queryObj.status = status; // Assuming your student schema has a 'state' field
   }
@@ -1471,10 +1463,10 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
     });
   }
 
-  const staffWithRole = staff.map(student => {
+  const staffWithRole = staff.map((student) => {
     return {
       ...student.toObject(),
-      role: "staff"
+      role: "staff",
     };
   });
 
@@ -1491,7 +1483,7 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
 
 exports.updateStudentStatusToPrint = catchAsyncErron(async (req, res, next) => {
   const schoolID = req.params.id;
-  let { studentIds } = req.body; // Assuming both are passed in the request body
+  let {studentIds} = req.body; // Assuming both are passed in the request body
 
   if (typeof studentIds === "string") {
     try {
@@ -1516,11 +1508,11 @@ exports.updateStudentStatusToPrint = catchAsyncErron(async (req, res, next) => {
   // Update status of students
   const updated = await Student.updateMany(
     {
-      _id: { $in: studentIds }, // Filter documents by student IDs
+      _id: {$in: studentIds}, // Filter documents by student IDs
       school: schoolID, // Ensure the students belong to the specified school
     },
     {
-      $set: { status: "Ready to print" }, // Set the status to "Ready to print"
+      $set: {status: "Ready to print"}, // Set the status to "Ready to print"
     }
   );
 
@@ -1543,7 +1535,7 @@ exports.updateStudentStatusToPrint = catchAsyncErron(async (req, res, next) => {
 exports.updateStudentStatusToPending = catchAsyncErron(
   async (req, res, next) => {
     const schoolID = req.params.id;
-    let { studentIds } = req.body; // Assuming both are passed in the request body
+    let {studentIds} = req.body; // Assuming both are passed in the request body
 
     if (typeof studentIds === "string") {
       try {
@@ -1568,11 +1560,11 @@ exports.updateStudentStatusToPending = catchAsyncErron(
     // Update status of students
     const updated = await Student.updateMany(
       {
-        _id: { $in: studentIds }, // Filter documents by student IDs
+        _id: {$in: studentIds}, // Filter documents by student IDs
         school: schoolID, // Ensure the students belong to the specified school
       },
       {
-        $set: { status: "Panding" }, // Set the status to "Ready to print"
+        $set: {status: "Panding"}, // Set the status to "Ready to print"
       }
     );
 
@@ -1597,7 +1589,7 @@ exports.updateStudentStatusToPending = catchAsyncErron(
 exports.updateStudentStatusToPrinted = catchAsyncErron(
   async (req, res, next) => {
     const schoolID = req.params.id;
-    let { studentIds } = req.body; // Assuming both are passed in the request body
+    let {studentIds} = req.body; // Assuming both are passed in the request body
 
     if (typeof studentIds === "string") {
       try {
@@ -1622,11 +1614,11 @@ exports.updateStudentStatusToPrinted = catchAsyncErron(
     // Update status of students
     const updated = await Student.updateMany(
       {
-        _id: { $in: studentIds }, // Filter documents by student IDs
+        _id: {$in: studentIds}, // Filter documents by student IDs
         school: schoolID, // Ensure the students belong to the specified school
       },
       {
-        $set: { status: "Printed" }, // Set the status to "Ready to print"
+        $set: {status: "Printed"}, // Set the status to "Ready to print"
       }
     );
 
@@ -1648,7 +1640,7 @@ exports.updateStudentStatusToPrinted = catchAsyncErron(
 
 exports.deleteStudents = catchAsyncErron(async (req, res, next) => {
   const schoolID = req.params.id;
-  let { studentIds } = req.body;
+  let {studentIds} = req.body;
 
   // Check if studentIds is a string; if so, try to convert it to an array
   if (typeof studentIds === "string") {
@@ -1672,7 +1664,7 @@ exports.deleteStudents = catchAsyncErron(async (req, res, next) => {
 
   // Delete students
   const deletionResult = await Student.deleteMany({
-    _id: { $in: studentIds },
+    _id: {$in: studentIds},
     school: schoolID,
   });
 
@@ -1694,7 +1686,7 @@ exports.deleteStudents = catchAsyncErron(async (req, res, next) => {
 
 exports.updateStaffStatusToPrint = catchAsyncErron(async (req, res, next) => {
   const schoolID = req.params.id;
-  let { staffIds } = req.body; // Assuming both are passed in the request body
+  let {staffIds} = req.body; // Assuming both are passed in the request body
 
   if (typeof staffIds === "string") {
     try {
@@ -1719,11 +1711,11 @@ exports.updateStaffStatusToPrint = catchAsyncErron(async (req, res, next) => {
   // Update status of students
   const updated = await Staff.updateMany(
     {
-      _id: { $in: staffIds }, // Filter documents by student IDs
+      _id: {$in: staffIds}, // Filter documents by student IDs
       school: schoolID, // Ensure the students belong to the specified school
     },
     {
-      $set: { status: "Ready to print" }, // Set the status to "Ready to print"
+      $set: {status: "Ready to print"}, // Set the status to "Ready to print"
     }
   );
 
@@ -1745,7 +1737,7 @@ exports.updateStaffStatusToPrint = catchAsyncErron(async (req, res, next) => {
 
 exports.updateStaffStatusToPending = catchAsyncErron(async (req, res, next) => {
   const schoolID = req.params.id;
-  let { staffIds } = req.body; // Assuming both are passed in the request body
+  let {staffIds} = req.body; // Assuming both are passed in the request body
 
   if (typeof staffIds === "string") {
     try {
@@ -1770,11 +1762,11 @@ exports.updateStaffStatusToPending = catchAsyncErron(async (req, res, next) => {
   // Update status of students
   const updated = await Staff.updateMany(
     {
-      _id: { $in: staffIds }, // Filter documents by student IDs
+      _id: {$in: staffIds}, // Filter documents by student IDs
       school: schoolID, // Ensure the students belong to the specified school
     },
     {
-      $set: { status: "Panding" }, // Set the status to "Ready to print"
+      $set: {status: "Panding"}, // Set the status to "Ready to print"
     }
   );
 
@@ -1796,7 +1788,7 @@ exports.updateStaffStatusToPending = catchAsyncErron(async (req, res, next) => {
 
 exports.updateStaffStatusToPrinted = catchAsyncErron(async (req, res, next) => {
   const schoolID = req.params.id;
-  let { staffIds } = req.body; // Assuming both are passed in the request body
+  let {staffIds} = req.body; // Assuming both are passed in the request body
 
   if (typeof staffIds === "string") {
     try {
@@ -1821,11 +1813,11 @@ exports.updateStaffStatusToPrinted = catchAsyncErron(async (req, res, next) => {
   // Update status of students
   const updated = await Staff.updateMany(
     {
-      _id: { $in: staffIds }, // Filter documents by student IDs
+      _id: {$in: staffIds}, // Filter documents by student IDs
       school: schoolID, // Ensure the students belong to the specified school
     },
     {
-      $set: { status: "Printed" }, // Set the status to "Ready to print"
+      $set: {status: "Printed"}, // Set the status to "Ready to print"
     }
   );
 
@@ -1845,7 +1837,7 @@ exports.updateStaffStatusToPrinted = catchAsyncErron(async (req, res, next) => {
 
 exports.deleteStaff = catchAsyncErron(async (req, res, next) => {
   const schoolID = req.params.id;
-  let { staffIds } = req.body;
+  let {staffIds} = req.body;
 
   // Check if studentIds is a string; if so, try to convert it to an array
   if (typeof staffIds === "string") {
@@ -1869,7 +1861,7 @@ exports.deleteStaff = catchAsyncErron(async (req, res, next) => {
 
   // Delete students
   const deletionResult = await Staff.deleteMany({
-    _id: { $in: staffIds },
+    _id: {$in: staffIds},
     school: schoolID,
   });
 
@@ -1958,7 +1950,7 @@ exports.studentListExcel = catchAsyncErron(async (req, res, next) => {
 
   try {
     // Find all students belonging to the specified school
-    const students = await Student.find({ school: schoolID });
+    const students = await Student.find({school: schoolID});
 
     if (students.length === 0) {
       return res
@@ -2003,7 +1995,7 @@ exports.studentListExcel = catchAsyncErron(async (req, res, next) => {
     xlsx.utils.book_append_sheet(wb, ws, "Students");
 
     // Write the workbook to a buffer
-    const buffer = xlsx.write(wb, { type: "buffer", bookType: "xlsx" });
+    const buffer = xlsx.write(wb, {type: "buffer", bookType: "xlsx"});
     buffer;
 
     // Set response headers to indicate that you're sending an Excel file
@@ -2034,14 +2026,14 @@ exports.SerchSchool = catchAsyncErron(async (req, res, next) => {
     res.json(jobs);
   } catch (error) {
     console.error("Error in SearchJobs route:", error);
-    res.status(500).json({ success: false, error: "Internal Server Error" });
+    res.status(500).json({success: false, error: "Internal Server Error"});
   }
 
   async function searchSchool(query, location) {
     const searchRegex = new RegExp(query, "i"); // 'i' for case-insensitive
     console.log("call");
     const queryObj = {
-      name: { $regex: searchRegex },
+      name: {$regex: searchRegex},
       user: req.id,
     };
 
@@ -2065,12 +2057,12 @@ exports.SchoolrequiredFields = catchAsyncErron(async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error in SearchJobs route:", error);
-    res.status(500).json({ success: false, error: "Internal Server Error" });
+    res.status(500).json({success: false, error: "Internal Server Error"});
   }
 });
 
 exports.GraphData = catchAsyncErron(async (req, res, next) => {
-  let { year, month } = req.query;
+  let {year, month} = req.query;
 
   // If year and month are not provided, default to the current month and year
   if (!year || !month) {
@@ -2140,11 +2132,11 @@ exports.GraphData = catchAsyncErron(async (req, res, next) => {
       weeklyCountsStrudent.push(count);
     }
 
-    const schoolCount = await School.countDocuments({ user: req.id });
+    const schoolCount = await School.countDocuments({user: req.id});
 
-    const studntCount = await Student.countDocuments({ user: req.id });
+    const studntCount = await Student.countDocuments({user: req.id});
 
-    const staffCount = await Staff.countDocuments({ user: req.id });
+    const staffCount = await Staff.countDocuments({user: req.id});
 
     // Format the data for the bar chart
     const barChartData = {
@@ -2160,7 +2152,7 @@ exports.GraphData = catchAsyncErron(async (req, res, next) => {
     res.json(barChartData);
   } catch (error) {
     console.error("Error fetching school registration data:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({error: "Internal server error"});
   }
 });
 
@@ -2213,9 +2205,9 @@ exports.GraphData = catchAsyncErron(async (req, res, next) => {
 // });
 
 exports.StudentsAvatars = catchAsyncErron(async (req, res, next) => {
-  console.log("enter")
+  console.log("enter");
   const studentId = req.params.id;
-  console.log("enter")
+  console.log("enter");
 
   const school = await School.findById(studentId);
 
@@ -2250,7 +2242,7 @@ exports.StudentsAvatars = catchAsyncErron(async (req, res, next) => {
           publicId: myavatar.public_id,
           url: myavatar.secure_url,
         };
-        currStudent.photoName = ""
+        currStudent.photoName = "";
         await currStudent.save();
 
         console.log(currStudent);
@@ -2537,13 +2529,13 @@ exports.StaffAvatars = catchAsyncErron(async (req, res, next) => {
 
 exports.StaffAvatarsDownload = catchAsyncErron(async (req, res, next) => {
   const schoolId = req.params.id;
-  let { status } = req.body;
+  let {status} = req.body;
 
   try {
     // Fetch students' avatars from the database based on school id and status
-    const students = await Student.find({ school: schoolId, status: status });
-    console.log(students)
-    const studentAvatars = students.map(student => student.avatar.url);
+    const students = await Student.find({school: schoolId, status: status});
+    console.log(students);
+    const studentAvatars = students.map((student) => student.avatar.url);
     console.log(studentAvatars);
 
     res.status(200).json({
@@ -2551,7 +2543,6 @@ exports.StaffAvatarsDownload = catchAsyncErron(async (req, res, next) => {
       role: "Student",
       studentImages: studentAvatars,
     });
-
   } catch (error) {
     console.error("Error downloading student avatars:", error);
     res.status(500).send("Error downloading student avatars");
@@ -2560,12 +2551,12 @@ exports.StaffAvatarsDownload = catchAsyncErron(async (req, res, next) => {
 
 exports.StaffNewAvatarsDownload = catchAsyncErron(async (req, res, next) => {
   const schoolId = req.params.id;
-  let { status } = req.body;
+  let {status} = req.body;
 
   try {
     // Fetch students' avatars from the database based on school id and status
-    const students = await Staff.find({ school: schoolId, status: status })
-    const studentAvatars = students.map(student => student.avatar.url);
+    const students = await Staff.find({school: schoolId, status: status});
+    const studentAvatars = students.map((student) => student.avatar.url);
     console.log(studentAvatars);
 
     res.status(200).json({
@@ -2573,7 +2564,6 @@ exports.StaffNewAvatarsDownload = catchAsyncErron(async (req, res, next) => {
       role: "Staff",
       staffImages: studentAvatars,
     });
-
   } catch (error) {
     console.error("Error downloading student avatars:", error);
     res.status(500).send("Error downloading student avatars");
@@ -2623,7 +2613,6 @@ exports.StaffNewAvatarsDownload = catchAsyncErron(async (req, res, next) => {
 //     // // End the zip stream
 //     // zipStream.end();
 
-
 //   } catch (error) {
 //     console.error("Error downloading student avatars:", error);
 //     res.status(500).send("Error downloading student avatars");
@@ -2639,7 +2628,7 @@ exports.ExcelData = catchAsyncErron(async (req, res, next) => {
 
   try {
     // Fetch all users from the database
-    const users = await Student.find({ school: schoolId, status: status });
+    const users = await Student.find({school: schoolId, status: status});
     // console.log(users)
 
     // Create a new Excel workbook and worksheet
@@ -2647,23 +2636,23 @@ exports.ExcelData = catchAsyncErron(async (req, res, next) => {
     const worksheet = workbook.addWorksheet("Users");
 
     worksheet.columns = [
-      { header: "Name", key: "name", width: 20 },
-      { header: "Father Name", key: "fatherName", width: 20 },
-      { header: "Mother Name", key: "motherName", width: 20 },
-      { header: "Date of Birth", key: "dob", width: 15 },
-      { header: "Contact", key: "contact", width: 15 },
-      { header: "Email", key: "email", width: 20 },
-      { header: "Address", key: "address", width: 30 },
-      { header: "Roll No", key: "rollNo", width: 30 },
-      { header: "Class", key: "class", width: 30 },
-      { header: "Session", key: "session", width: 30 },
-      { header: "AdmissionNo", key: "admissionNo", width: 30 },
-      { header: "Bus No", key: "busNo", width: 30 },
-      { header: "BloodGroup", key: "bloodGroup", width: 30 },
-      { header: "Student ID", key: "studentID", width: 30 },
-      { header: "Aadhar No", key: "aadharNo", width: 30 },
-      { header: "Ribbion Colour", key: "ribbionColour", width: 30 },
-      { header: "Route No", key: "routeNo", width: 30 },
+      {header: "Name", key: "name", width: 20},
+      {header: "Father Name", key: "fatherName", width: 20},
+      {header: "Mother Name", key: "motherName", width: 20},
+      {header: "Date of Birth", key: "dob", width: 15},
+      {header: "Contact", key: "contact", width: 15},
+      {header: "Email", key: "email", width: 20},
+      {header: "Address", key: "address", width: 30},
+      {header: "Roll No", key: "rollNo", width: 30},
+      {header: "Class", key: "class", width: 30},
+      {header: "Session", key: "session", width: 30},
+      {header: "AdmissionNo", key: "admissionNo", width: 30},
+      {header: "Bus No", key: "busNo", width: 30},
+      {header: "BloodGroup", key: "bloodGroup", width: 30},
+      {header: "Student ID", key: "studentID", width: 30},
+      {header: "Aadhar No", key: "aadharNo", width: 30},
+      {header: "Ribbion Colour", key: "ribbionColour", width: 30},
+      {header: "Route No", key: "routeNo", width: 30},
       // Add more columns as needed
     ];
 
@@ -2719,10 +2708,9 @@ exports.ExcelData = catchAsyncErron(async (req, res, next) => {
     res.end();
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({message: "Internal Server Error"});
   }
 });
-
 
 exports.ExcelDataStaff = catchAsyncErron(async (req, res, next) => {
   const schoolId = req.params.id;
@@ -2730,34 +2718,34 @@ exports.ExcelDataStaff = catchAsyncErron(async (req, res, next) => {
 
   try {
     // Fetch all staff members from the database
-    const staffMembers = await Staff.find({ school: schoolId, status: status });
+    const staffMembers = await Staff.find({school: schoolId, status: status});
 
     // Create a new Excel workbook and worksheet
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Staff");
 
     worksheet.columns = [
-      { header: "Name", key: "name", width: 20 },
-      { header: "Father Name", key: "fatherName", width: 20 },
-      { header: "Husband Name", key: "husbandName", width: 20 },
-      { header: "Date of Birth", key: "dob", width: 15 },
-      { header: "Contact", key: "contact", width: 15 },
-      { header: "Email", key: "email", width: 20 },
-      { header: "Address", key: "address", width: 30 },
-      { header: "Qualification", key: "qualification", width: 20 },
-      { header: "Designation", key: "designation", width: 20 },
-      { header: "Staff Type", key: "staffType", width: 15 },
-      { header: "Date of Joining", key: "doj", width: 15 },
-      { header: "UID", key: "uid", width: 20 },
-      { header: "Staff ID", key: "staffID", width: 15 },
-      { header: "UDISE Code", key: "udiseCode", width: 20 },
-      { header: "School Name", key: "schoolName", width: 30 },
-      { header: "Blood Group", key: "bloodGroup", width: 15 },
-      { header: "Dispatch No", key: "dispatchNo", width: 15 },
-      { header: "Date of Issue", key: "dateOfIssue", width: 15 },
-      { header: "IHRMS No", key: "ihrmsNo", width: 15 },
-      { header: "Belt No", key: "beltNo", width: 15 },
-      { header: "Photo Name", key: "photoName", width: 20 },
+      {header: "Name", key: "name", width: 20},
+      {header: "Father Name", key: "fatherName", width: 20},
+      {header: "Husband Name", key: "husbandName", width: 20},
+      {header: "Date of Birth", key: "dob", width: 15},
+      {header: "Contact", key: "contact", width: 15},
+      {header: "Email", key: "email", width: 20},
+      {header: "Address", key: "address", width: 30},
+      {header: "Qualification", key: "qualification", width: 20},
+      {header: "Designation", key: "designation", width: 20},
+      {header: "Staff Type", key: "staffType", width: 15},
+      {header: "Date of Joining", key: "doj", width: 15},
+      {header: "UID", key: "uid", width: 20},
+      {header: "Staff ID", key: "staffID", width: 15},
+      {header: "UDISE Code", key: "udiseCode", width: 20},
+      {header: "School Name", key: "schoolName", width: 30},
+      {header: "Blood Group", key: "bloodGroup", width: 15},
+      {header: "Dispatch No", key: "dispatchNo", width: 15},
+      {header: "Date of Issue", key: "dateOfIssue", width: 15},
+      {header: "IHRMS No", key: "ihrmsNo", width: 15},
+      {header: "Belt No", key: "beltNo", width: 15},
+      {header: "Photo Name", key: "photoName", width: 20},
     ];
 
     // Populate worksheet with staff data
@@ -2801,23 +2789,22 @@ exports.ExcelDataStaff = catchAsyncErron(async (req, res, next) => {
     res.end();
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({message: "Internal Server Error"});
   }
 });
-
 
 exports.SerchStudent = catchAsyncErron(async (req, res, next) => {
   try {
     const schoolId = req.params.id;
-    const { q } = req.query;
+    const {q} = req.query;
 
     // Define the search criteria
     const searchCriteria = {
       school: schoolId, // Filter by school ID
       $or: [
-        { name: { $regex: `^${q}`, $options: 'i' } }, // Search by name
-        { class: q } // Search by class
-      ]
+        {name: {$regex: `^${q}`, $options: "i"}}, // Search by name
+        {class: q}, // Search by class
+      ],
     };
 
     // Find students matching the search criteria
@@ -2825,8 +2812,8 @@ exports.SerchStudent = catchAsyncErron(async (req, res, next) => {
 
     res.json(students);
   } catch (error) {
-    console.error('Error searching for students:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    console.error("Error searching for students:", error);
+    res.status(500).json({message: "Internal Server Error"});
   }
 });
 
@@ -2835,8 +2822,7 @@ exports.getStudent = catchAsyncErron(async (req, res, next) => {
   console.log(studentId);
 
   const student = await Student.findById(studentId);
-  console.log(student)
-
+  console.log(student);
 
   // Respond with the updated student information.
   res.status(200).json({
@@ -2851,7 +2837,6 @@ exports.getStaff = catchAsyncErron(async (req, res, next) => {
   console.log(staffId);
 
   const staff = await Staff.findById(staffId);
-
 
   // Respond with the updated student information.
   res.status(200).json({
