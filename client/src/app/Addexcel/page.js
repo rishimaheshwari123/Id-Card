@@ -17,6 +17,7 @@ const Addexcel = () => {
   const dispatch = useDispatch();
   let currentExcel = {};
   let selectedPhotos = [];
+  const [fileName, setFileName] = useState(""); // State to store file name
 
   const handleRoleSelect = (e) => {
     setCurrRole(e.target.value);
@@ -31,38 +32,64 @@ const Addexcel = () => {
     const file = e.target.files[0];
     console.log(file)
     currentExcel = file;
+
+    setFileName(file);
+
     // Your file handling logic here
   };
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmitExcel = async (event) => {
     event.preventDefault();
-    // if (resumetem) {
-    //   dispatch(uploadResuma(resumetem));
-    // } else {
-    //   console.warn("No Resuma selected");
-    // }
-    console.log(currentExcel)
-    console.log(currRole)
-    if (currentExcel && currRole == "student") {
-      const response = await dispatch(aadExcel(currentExcel,currSchool));
-      toast.success(response)
-    } 
-    else if(currentExcel && currRole == "staff"){
-      const response = await dispatch(aadExcelstaff(currentExcel,currSchool));
-      toast.success(response)
-    }
-    else {
-      toast.error("NO File or School Selected", {
-        position: "top-right",
+    setIsLoading(true); // Set loading state to true when function is called
+  
+    // Show loading toast with a specific toastId
+    const toastId = toast.loading('Uploading...', { toastId: 'uploadToast' });
+  
+    try {
+      console.log(fileName);
+      console.log(currRole);
+  
+      let response;
+  
+      // Check conditions for 'student' and 'staff'
+      if (fileName && currRole === "student") {
+        response = await dispatch(aadExcel(fileName, currSchool));
+      } else if (fileName && currRole === "staff") {
+        response = await dispatch(aadExcelstaff(fileName, currSchool));
+      } else {
+        // If no file or school is selected, show an error toast and stop the loading toast
+        toast.update(toastId, {
+          render: "No File or School Selected",
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
+        return;
+      }
+  
+      // Update the loading toast to a success toast once the response is received
+      toast.update(toastId, {
+        render: response,
+        type: "success",
+        isLoading: false,
         autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
       });
+    } catch (error) {
+      // If there's an error, update the loading toast to an error toast
+      toast.update(toastId, {
+        render: "Something went wrong!",
+        type: "error",
+        isLoading: false,
+        autoClose: 5000,
+      });
+    } finally {
+      setIsLoading(false); // Set loading state to false after operation
     }
   };
+  
+  
+  
 
   const handlePhotoFileSelect = (e) => {
     e.preventDefault();
@@ -263,7 +290,14 @@ const Addexcel = () => {
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                 />
               </svg>
-              <h2 className="mx-3 text-gray-400">Excel File</h2>
+              {fileName ? (
+                  <p className="mt-2 text-sm text-gray-600 text-center">
+                    Selected File:{" "}
+                    <span className="font-medium">{fileName.name}</span>
+                  </p>
+                ) : (
+                  <h2 className="mx-3 text-gray-400">Excel File</h2>
+                )}
               <input
                 id="excelFile"
                 type="file"

@@ -2611,9 +2611,9 @@ exports.StaffAvatarsDownload = catchAsyncErron(async (req, res, next) => {
       return res.status(404).json({ success: false, message: "No students found" });
     }
 
-    const studentAvatars = students.map((student) => ({
+    const studentAvatars = students.map((student,index) => ({
       url: student.avatar.url,
-      name: student.name || `Student_${student._id}`,
+      name: `Photo_${index + 1}` ,
     }));
 
     // Create a temporary directory to store the avatars
@@ -2758,60 +2758,49 @@ exports.StaffNewAvatarsDownload = catchAsyncErron(async (req, res, next) => {
 // });
 
 exports.ExcelData = catchAsyncErron(async (req, res, next) => {
-  console.log("end");
   const schoolId = req.params.id;
   const status = req.query.status;
-  console.log(status);
-  console.log(schoolId);
 
   try {
     // Fetch all users from the database
-    const users = await Student.find({school: schoolId, status: status});
-    // console.log(users)
+    const users = await Student.find({ school: schoolId, status: status });
 
     // Create a new Excel workbook and worksheet
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Users");
 
+    // Define columns including PhotoName
     worksheet.columns = [
-      {header: "Name", key: "name", width: 20},
-      {header: "Father Name", key: "fatherName", width: 20},
-      {header: "Mother Name", key: "motherName", width: 20},
-      {header: "Date of Birth", key: "dob", width: 15},
-      {header: "Contact", key: "contact", width: 15},
-      {header: "Email", key: "email", width: 20},
-      {header: "Address", key: "address", width: 30},
-      {header: "Roll No", key: "rollNo", width: 30},
-      {header: "Class", key: "class", width: 30},
-      {header: "Session", key: "session", width: 30},
-      {header: "AdmissionNo", key: "admissionNo", width: 30},
-      {header: "Bus No", key: "busNo", width: 30},
-      {header: "BloodGroup", key: "bloodGroup", width: 30},
-      {header: "Student ID", key: "studentID", width: 30},
-      {header: "Aadhar No", key: "aadharNo", width: 30},
-      {header: "Ribbion Colour", key: "ribbionColour", width: 30},
-      {header: "Route No", key: "routeNo", width: 30},
-      // Add more columns as needed
+      { header: "PhotoName", key: "photoName", width: 15 },
+      { header: "Name", key: "name", width: 20 },
+      { header: "Father Name", key: "fatherName", width: 20 },
+      { header: "Mother Name", key: "motherName", width: 20 },
+      { header: "Date of Birth", key: "dob", width: 15 },
+      { header: "Contact", key: "contact", width: 15 },
+      { header: "Email", key: "email", width: 20 },
+      { header: "Address", key: "address", width: 30 },
+      { header: "Roll No", key: "rollNo", width: 30 },
+      { header: "Class", key: "class", width: 30 },
+      { header: "Session", key: "session", width: 30 },
+      { header: "AdmissionNo", key: "admissionNo", width: 30 },
+      { header: "Bus No", key: "busNo", width: 30 },
+      { header: "BloodGroup", key: "bloodGroup", width: 30 },
+      { header: "Student ID", key: "studentID", width: 30 },
+      { header: "Aadhar No", key: "aadharNo", width: 30 },
+      { header: "Ribbion Colour", key: "ribbionColour", width: 30 },
+      { header: "Route No", key: "routeNo", width: 30 },
     ];
 
-    // Define the columns
-    // worksheet.columns = [
-    //   { header: 'Name', key: 'name', width: 30 },
-    //   { header: 'Email', key: 'email', width: 30 },
-    //   // Add more columns as needed
-    // ];
-
-    // Populate worksheet with user data
-    users.forEach((user) => {
-      console.log("run loop");
+    // Add data rows with sequential PhotoName
+    users.forEach((user, index) => {
       worksheet.addRow({
+        photoName: `Photo_${index + 1}`, // Sequential PhotoName field
         name: user.name,
         fatherName: user.fatherName,
         motherName: user.motherName,
         dob: user.dob,
         contact: user.contact,
         email: user.email,
-        address: user.address,
         address: user.address,
         rollNo: user.rollNo,
         class: user.class,
@@ -2823,14 +2812,8 @@ exports.ExcelData = catchAsyncErron(async (req, res, next) => {
         aadharNo: user.aadharNo,
         ribbionColour: user.ribbionColour,
         routeNo: user.routeNo,
-        // Add more fields as needed
       });
     });
-
-    // Add rows for each user
-    // users.forEach(user => {
-    //   worksheet.addRow({ name: user.name, email: user.email /* Add more properties */ });
-    // });
 
     // Set headers for file download
     res.setHeader(
@@ -2845,10 +2828,12 @@ exports.ExcelData = catchAsyncErron(async (req, res, next) => {
     // End the response
     res.end();
   } catch (error) {
-    console.error(error);
-    res.status(500).json({message: "Internal Server Error"});
+    console.error("Error generating Excel file:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
+
 
 exports.ExcelDataStaff = catchAsyncErron(async (req, res, next) => {
   const schoolId = req.params.id;

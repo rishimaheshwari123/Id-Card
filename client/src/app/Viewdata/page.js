@@ -34,6 +34,7 @@ const Viewdata = () => {
   const [staffData, setStaffData] = useState([])
 
   useEffect(() => {
+    console.log(user)
     if (!user) {
       redirect("/");
     }
