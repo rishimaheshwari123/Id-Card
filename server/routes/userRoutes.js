@@ -45,7 +45,9 @@ const { ExcelUpload,
     currUser,
     deleteStaffcurr,
     getStudent,
-    getStaff} = require("../controllers/userControllers");
+    getStaff,
+    setImagesData,
+    setExcleData} = require("../controllers/userControllers");
 const isAuthenticated = require("../middlewares/auth");
 const router = express.Router();
 
@@ -116,6 +118,10 @@ router.post("/delete/staff/:id", isAuthenticated ,deleteStaffcurr);
 
 router.post("/school/search", isAuthenticated ,SerchSchool);
 
+router.post("/school/imagesData/:id",isAuthenticated,setImagesData)
+router.post("/school/excleData/:id",isAuthenticated,setExcleData)
+
+
 router.post("/student/change-status/readyto/:id", isAuthenticated ,updateStudentStatusToPrint);
 
 router.post("/student/change-status/pending/:id", isAuthenticated ,updateStudentStatusToPending);
@@ -145,6 +151,8 @@ router.post("/student/images/:id", isAuthenticated ,StaffAvatarsDownload);
 router.post("/staff/images/:id", isAuthenticated ,StaffNewAvatarsDownload);
 
 router.get("/search/student/:id", isAuthenticated ,SerchStudent);
+
+
 
 
 

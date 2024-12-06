@@ -35,6 +35,8 @@ const allowedOrigins = [
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization", "Content-Disposition"],
+  exposedHeaders: ["Content-Disposition"], // Include this
   optionsSuccessStatus: 200,// Address potential preflight request issues
 }));
 

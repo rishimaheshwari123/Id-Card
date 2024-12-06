@@ -14,6 +14,7 @@ const { setSchoolLimit,
      allSchoolsadmin,
      setExcelData,
      FindUser,
+     setImagesData,
      updateUserLimit} = require("../controllers/adminController");
 
 const { isAdmin } = require("../middlewares/adminAuth");
@@ -48,6 +49,7 @@ router.get("/set/student/exceldata",isAuthenticated,isAdmin,setSchoolLimit);
 
 // set user exportExcel
 router.post("/set/user/exceldata/:id",isAuthenticated,isAdmin,setExcelData);
+router.post("/set/user/imagesData/:id",isAuthenticated,isAdmin,setImagesData);
 
 // set school exportExcel
 router.get("/set/school/exceldata",isAuthenticated,isAdmin,setSchoolLimit);

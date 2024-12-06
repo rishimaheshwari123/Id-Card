@@ -122,6 +122,21 @@ exports.setExcelData = catchAsyncErron(async (req, res, next) => {
    })
 });
 
+exports.setImagesData = catchAsyncErron(async (req, res, next) => {
+   const id = req.params.id;
+   const user = await User.findById(id);
+   user.exportImage = !user.exportImage;
+   await user.save();
+   res.status(201).json({
+    succcess: true,
+    message: "successfully change export data",
+    user
+   })
+});
+
+
+
+
 exports.setExcelData = catchAsyncErron(async (req, res, next) => {
   const id = req.params.id;
   const user = await User.findById(id);

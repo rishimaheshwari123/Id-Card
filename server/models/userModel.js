@@ -70,7 +70,7 @@ const userModel = mongoose.Schema(
 		},
 		studentLimit:{
 			type:Number,
-			default: 2500,
+			default: 500,
 		},
 		staffLimit:{
 			type:Number,

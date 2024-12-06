@@ -151,6 +151,11 @@ const ChageExcelfile = async (id) =>{
   );
   searchUsers();
 }
+const ChageImages = async (id) =>{
+  const response = await axios.post(`/admin/set/user/imagesData/${id}`, null, config()
+  );
+  searchUsers();
+}
   return (
     <Layout>
       <>
@@ -179,6 +184,7 @@ const ChageExcelfile = async (id) =>{
                     <th className="py-2 px-4 font-semibold">studentLimit</th>
                     <th className="py-2 px-4 font-semibold">staffLimit</th>
                     <th className="py-2 px-4 font-semibold">exportExcel</th>
+                    <th className="py-2 px-4 font-semibold">exportImage</th>
                   </tr>
                 </thead>
                 <tbody className="bg-orange-100">
@@ -210,6 +216,9 @@ const ChageExcelfile = async (id) =>{
                         </td>
                         <td className="py-2 px-4 text-center">
                           {e?.exportExcel ?( <button className=" bg-indigo-600 px-2 py-1 text-white rounded-md" onClick={() => ChageExcelfile(e._id)}>ON</button> ):(<button className=" bg-indigo-600 px-2 py-1 text-white rounded-md" onClick={() => ChageExcelfile(e._id)}  >OFF</button>)}
+                        </td>
+                        <td className="py-2 px-4 text-center">
+                          {e?.exportImage ?( <button className=" bg-indigo-600 px-2 py-1 text-white rounded-md" onClick={() => ChageImages(e._id)}>ON</button> ):(<button className=" bg-indigo-600 px-2 py-1 text-white rounded-md" onClick={() => ChageImages(e._id)}  >OFF</button>)}
                         </td>
                         {/* <td className="py-2 px-4 text-center">
                     {e?.studentId?.resumePdf?.fileId ? (

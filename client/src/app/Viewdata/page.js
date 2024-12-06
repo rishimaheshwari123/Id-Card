@@ -8,6 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { redirect, useRouter } from "next/navigation";
 import Image from "next/image";
+import Swal from "sweetalert2"
 
 const Viewdata = () => {
   const { user, schools, error } = useSelector((state) => state.user);
@@ -51,6 +52,7 @@ const Viewdata = () => {
       setStudentIds(studentIds.filter((id) => id !== studentId));
     } else {
       // If not, add it to the array
+      console.log(studentIds)
       setStudentIds([...studentIds, studentId]);
     }
   };
@@ -359,26 +361,59 @@ const Viewdata = () => {
 
   const downloadImages = async () => {
     try {
-      console.log("call");
+      // Show SweetAlert2 loading popup
+      const swalInstance = Swal.fire({
+        title: "Downloading...",
+        text: "Please wait while the avatars are being downloaded.",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading(); // Show loading spinner
+        },
+      });
+  
       const response = await axios.post(
         `/user/student/images/${currSchool}`,
         { status },
-        config()
+        {
+          ...config(),
+          responseType: "blob", // Ensure response is a blob
+        }
       );
-
-      const responseData = response?.data;
-      const studentImages = responseData?.studentImages;
-      console.log(studentImages);
-
-      studentImages.forEach(async (imageUrl) => {
-        const folderName = "Pending Student Images";
-        await downloadImage(imageUrl, folderName);
+  
+      // Extract filename from response headers
+      const contentDisposition = response.headers["content-disposition"];
+      const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+      const filename = filenameMatch ? filenameMatch[1] : "avatars.zip";
+  
+      // Create and trigger download of the ZIP file
+      const blob = new Blob([response.data], { type: "application/zip" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+  
+      // Close the SweetAlert2 loading popup after successful download
+      Swal.fire({
+        icon: "success",
+        title: "Download Complete",
+        text: `The avatars have been successfully downloaded as ${filename}`,
       });
     } catch (error) {
-      console.error(error);
-      // Handle error
+      // Handle error and show SweetAlert2 error popup
+      console.error("Error downloading avatars:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Download Failed",
+        text: "An error occurred while downloading the avatars.",
+      });
     }
   };
+  
+  
+  
+  
 
   const downloadImage = async (imageUrl) => {
     try {
@@ -791,50 +826,103 @@ const Viewdata = () => {
         )}
 
         {/* List of Buttons in Chat Box */}
-        {showChatBox && (
-          <div className="fixed bottom-16 left-4 flex flex-col gap-2">
-            {status != "Printed" && (
-              <button
-                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
-                onClick={modeToPrinted}
-              >
-                Move to Printed
-              </button>
-            )}
-            {status != "Ready to print" && (
-              <button
-                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
-                onClick={modeToReadytoprint}
-              >
-                Move to Ready to Print
-              </button>
-            )}
-            {status != "Panding" && (
-              <button
-                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
-                onClick={modeToPending}
-              >
-                Move to Pending
-              </button>
-            )}
-            {user?.exportExcel && (
-              <button
-                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
-                onClick={downloadExcel}
-              >
-                Export Excel
-              </button>
-            )}
-            {user?.exportImage && (
-              <button
-                className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
-                onClick={downloadImages}
-              >
-                Export Images
-              </button>
-            )}
-          </div>
+{showChatBox && (
+  <div className="fixed bottom-16 left-4 flex flex-col gap-2">
+    {/* Pending status */}
+    {status === "Panding" && (
+      <>
+        {(user?.exportExcel || user?.school?.exportExcel) && (
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+            onClick={downloadExcel}
+          >
+            Export Excel
+          </button>
         )}
+        {(user?.exportImage || user?.school?.exportImages) && (
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+            onClick={downloadImages}
+          >
+            Export Images
+          </button>
+        )}
+        {user?.school && (
+          <>
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+              onClick={modeToReadytoprint}
+            >
+              Move to Ready to Print
+            </button>
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+              onClick={modeToPrinted}
+            >
+              Move to Printed
+            </button>
+          </>
+        )}
+      </>
+    )}
+
+    {/* Ready to Print status */}
+    {status === "Ready to print" && (
+      <>
+        {/* {user?.school && ( */}
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+            onClick={modeToPrinted}
+          >
+            Move to Printed
+          </button>
+        {/* )} */}
+
+        {(user?.exportExcel || user?.school?.exportExcel) && (
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+            onClick={downloadExcel}
+          >
+            Export Excel
+          </button>
+        )}
+        {(user?.exportImage || user?.school?.exportImages) && (
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+            onClick={downloadImages}
+          >
+            Export Images
+          </button>
+        )}
+      </>
+    )}
+
+    {/* Printed status */}
+    {status === "Printed" && (
+      <>
+        {(user?.exportExcel || user?.school?.exportExcel) && (
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+            onClick={downloadExcel}
+          >
+            Export Excel
+          </button>
+        )}
+        {(user?.exportImage || user?.school?.exportImages) && (
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+            onClick={downloadImages}
+          >
+            Export Images
+          </button>
+        )}
+      </>
+    )}
+  </div>
+)}
+
+
+        
         {submitted && currRole == "student" &&
           <button
             className="px-5 py-2 bg-gray-500 text-white rounded-full fixed right-20 bottom-5  "

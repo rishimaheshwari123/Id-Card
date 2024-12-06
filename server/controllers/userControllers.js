@@ -19,6 +19,8 @@ const ExcelJS = require("exceljs");
 const request = require("request");
 const yazl = require("yazl");
 const bcrypt = require("bcrypt");
+const archiver = require("archiver");
+const axios = require("axios");
 
 // var nodeExcel = require('excel-export');
 // const generateTokens = require("../utils/generateTokens");
@@ -38,6 +40,7 @@ const xlsx = require("xlsx");
 const fs = require("fs");
 const getDataUri = require("../middlewares/daraUri");
 const {log} = require("console");
+
 
 exports.currUser = catchAsyncErron(async (req, res, next) => {
   const id = req.id;
@@ -1296,6 +1299,8 @@ exports.allSchool = catchAsyncErron(async (req, res, next) => {
     // Find the count of students belonging to the current school.
     const studentCount = await Student.countDocuments({school: school._id});
 
+
+    
     // Create a modified school object with the student count.
     const modifiedSchool = {
       _id: school._id,
@@ -1590,7 +1595,7 @@ exports.updateStudentStatusToPrinted = catchAsyncErron(
   async (req, res, next) => {
     const schoolID = req.params.id;
     let {studentIds} = req.body; // Assuming both are passed in the request body
-
+console.log(studentIds)
     if (typeof studentIds === "string") {
       try {
         studentIds = JSON.parse(`[${studentIds}]`);
@@ -2038,6 +2043,67 @@ exports.SerchSchool = catchAsyncErron(async (req, res, next) => {
     };
 
     return School.find(queryObj);
+  }
+});
+
+
+exports.setImagesData = catchAsyncErron(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+
+    // Find the school by ID
+    const school = await School.findById(id);
+    if (!school) {
+      return res.status(404).json({
+        success: false,
+        message: "School not found",
+      });
+    }
+
+    // Toggle the exportImages flag
+    school.exportImages = !school.exportImages;
+
+    // Save the updated school document
+    await school.save();
+
+    // Send the response back with updated school
+    res.status(201).json({
+      success: true,
+      message: "Successfully changed export data",
+      school,
+    });
+  } catch (error) {
+    next(error);  // Pass error to the global error handler
+  }
+});
+
+exports.setExcleData = catchAsyncErron(async (req, res, next) => {
+  try {
+    const id = req.params.id;
+
+    // Find the school by ID
+    const school = await School.findById(id);
+    if (!school) {
+      return res.status(404).json({
+        success: false,
+        message: "School not found",
+      });
+    }
+
+   
+    school.exportExcel = !school.exportExcel;
+
+   
+    await school.save();
+
+    // Send the response back with updated school
+    res.status(201).json({
+      success: true,
+      message: "Successfully changed export data",
+      school,
+    });
+  } catch (error) {
+    next(error);  // Pass error to the global error handler
   }
 });
 
@@ -2527,27 +2593,99 @@ exports.StaffAvatars = catchAsyncErron(async (req, res, next) => {
 //   }
 // });
 
+
+
 exports.StaffAvatarsDownload = catchAsyncErron(async (req, res, next) => {
-  const schoolId = req.params.id;
-  let {status} = req.body;
+  const schoolId = req.params.id; // School ID from URL parameter
+  const { status } = req.body; // Status from request body
 
   try {
-    // Fetch students' avatars from the database based on school id and status
-    const students = await Student.find({school: schoolId, status: status});
-    console.log(students);
-    const studentAvatars = students.map((student) => student.avatar.url);
-    console.log(studentAvatars);
+    // Fetch school details and student data
+    const school = await School.findById(schoolId); // Assuming you have a School model
+    if (!school) {
+      return res.status(404).json({ success: false, message: "School not found" });
+    }
 
-    res.status(200).json({
-      success: true,
-      role: "Student",
-      studentImages: studentAvatars,
+    const students = await Student.find({ school: schoolId, status });
+    if (!students.length) {
+      return res.status(404).json({ success: false, message: "No students found" });
+    }
+
+    const studentAvatars = students.map((student) => ({
+      url: student.avatar.url,
+      name: student.name || `Student_${student._id}`,
+    }));
+
+    // Create a temporary directory to store the avatars
+    const tempDir = path.join(__dirname, "temp");
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir);
+    }
+
+    // Download the images and save them locally with student names
+    for (let { url, name } of studentAvatars) {
+      try {
+        const response = await axios({
+          url,
+          method: "GET",
+          responseType: "stream",
+        });
+
+        const filePath = path.join(tempDir, `${name.replace(/ /g, "_")}.jpg`);
+        const writer = fs.createWriteStream(filePath);
+        response.data.pipe(writer);
+
+        // Wait until the image is fully downloaded
+        await new Promise((resolve, reject) => {
+          writer.on("finish", resolve);
+          writer.on("error", reject);
+        });
+      } catch (error) {
+        console.error(`Failed to download avatar from ${url}:`, error.message);
+      }
+    }
+
+    // Create a ZIP file named after the school
+    const zipFileName = `${school.name.replace(/ /g, "_")}_avatars.zip`;
+    console.log(zipFileName)
+    const zipFilePath = path.join(__dirname, zipFileName);
+    const output = fs.createWriteStream(zipFilePath);
+    const archive = archiver("zip", { zlib: { level: 9 } });
+
+    archive.pipe(output);
+
+    // Add all the downloaded files to the ZIP archive
+    const files = fs.readdirSync(tempDir);
+    files.forEach((file) => {
+      const filePath = path.join(tempDir, file);
+      archive.file(filePath, { name: file });
+    });
+
+    await archive.finalize();
+
+    // Cleanup the temporary directory after creating the ZIP file
+    fs.rmSync(tempDir, { recursive: true, force: true });
+
+    // Send the ZIP file to the client
+    res.setHeader("Content-Disposition", `attachment; filename="${zipFileName}"`);
+    res.setHeader("Content-Type", "application/zip");
+    const readStream = fs.createReadStream(zipFilePath);
+    readStream.pipe(res);
+
+    // Once the ZIP is sent, delete it from the server
+    readStream.on("close", () => {
+      fs.unlinkSync(zipFilePath); // Clean up the ZIP file
     });
   } catch (error) {
-    console.error("Error downloading student avatars:", error);
-    res.status(500).send("Error downloading student avatars");
+    console.error("Error while creating or downloading ZIP file:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
+
+
+
+
+
 
 exports.StaffNewAvatarsDownload = catchAsyncErron(async (req, res, next) => {
   const schoolId = req.params.id;
