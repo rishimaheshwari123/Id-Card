@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 
 import { FaRegUser } from "react-icons/fa";
@@ -19,6 +19,7 @@ import {
 } from "recharts";
 import Layout from "@/app/components/Admin/Layout";
 import Image from "next/image";
+import axios from "axios";
 
 const data = [
   { date: "Day 1", users: 10, productsSold: 5 },
@@ -30,6 +31,53 @@ const data = [
 ];
 
 function Dashboard() {
+  const [dashboardData, setDashboardData] = useState({
+    totalSchools: 0,
+    totalStudents: 0,
+    totalDistributors: 0,
+  });
+  const config = () => {
+    return {
+      headers: {
+        authorization: localStorage.getItem("token") || "", // Ensure token is always a string
+      },
+      withCredentials: true,
+    };
+  };
+ useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await axios.get("https://testid.mahitechnocrafts.in/admin/get/dashboard",config());
+        if (response.data.success) {
+          setDashboardData(response.data.data);
+        }
+        console.log(response.data.data)
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+
+  const [chartData, setChartData] = useState([]);
+
+  useEffect(() => {
+    const fetchChartData = async () => {
+      try {
+        const response = await axios.get("https://testid.mahitechnocrafts.in/admin/get/chart-data",config());
+        if (response.data.success) {
+          setChartData(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching chart data:", error);
+      }
+    };
+
+    fetchChartData();
+  }, []);
+
   return (
     <Layout>
       <>
@@ -51,45 +99,41 @@ function Dashboard() {
                 <div className="admin-content p-6 flex flex-col sm:flex-row gap-6">
                   <div className="cart h-[150px] w-[250px] md:w-[280px] flex items-center justify-center flex-col sm:w-[300px] bg-[#fff] border-l-2 border-sky-500 rounded-lg text-center hover:text-[#fff]">
                     <FaSchool className="mx-auto h-[40px] w-[40px] " />
-                    <h2>Total Schools : 28</h2>
+                    <h2>Total Schools : {dashboardData.totalSchools}</h2>
                   </div>
                   <div className="cart h-[150px] w-[250px] md:w-[280px] flex items-center justify-center flex-col bg-[#fff] border-l-2 border-sky-500 rounded-lg text-center hover:text-[#fff]">
                     <FaRegUser className="mx-auto h-[40px] w-[40px] " />
-                    <h2>Total Distributors : 15</h2>
+                    <h2>Total Distributors : {dashboardData.totalDistributors}</h2>
                   </div>
                   <div className="cart h-[150px] w-[250px] md:w-[280px] flex items-center justify-center flex-col bg-[#fff] border-l-2 border-sky-500 rounded-lg text-center hover:text-[#fff]">
                     <IoIosSchool className="mx-auto h-[40px] w-[40px] " />
-                    <h2>All Students : 1500</h2>
+                    <h2>All Students : {dashboardData.totalStudents}</h2>
                   </div>
                 </div>
               </div>
               <ResponsiveContainer
-                className="mt-16 mx-auto  lg:w-[80%] w-full"
-                width="100%"
-                height={300}
-              >
-                <BarChart
-                  data={data}
-                  margin={{
-                    top: 5,
-                    right: 30,
-                    left: 20,
-                    bottom: 5,
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="users" fill="#4080ED" name="Distributors" />
-                  <Bar
-                    dataKey="productsSold"
-                    fill="#82ca9d"
-                    name="Students"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+      className="mt-16 mx-auto lg:w-[80%] w-full"
+      width="100%"
+      height={300}
+    >
+      <BarChart
+        data={chartData}
+        margin={{
+          top: 5,
+          right: 30,
+          left: 20,
+          bottom: 5,
+        }}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="date" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="distributors" fill="#4080ED" name="Distributors" />
+        <Bar dataKey="students" fill="#82ca9d" name="Students" />
+      </BarChart>
+    </ResponsiveContainer>
             </div>
           </div>
         </div>

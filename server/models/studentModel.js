@@ -64,8 +64,8 @@ const studentModel = mongoose.Schema(
     user: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
     status: {
       type: String,
-      enum: ["Pending", "Ready to print", "Printed"],
-      default: "Pending",
+      enum: ["Panding", "Ready to print", "Printed"],
+      default: "Panding",
     },
   },
   { timestamps: true }

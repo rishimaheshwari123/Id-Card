@@ -2803,7 +2803,7 @@ exports.ExcelData = catchAsyncErron(async (req, res, next) => {
     // Add data rows with sequential PhotoName
     users.forEach((user, index) => {
       worksheet.addRow({
-        photoName: `Photo_${index + 1}`, // Sequential PhotoName field
+        photoName: user.photoNameUnuiq ? user.photoNameUnuiq: `Photo_${index + 1}`, // Sequential PhotoName field
         name: user.name,
         fatherName: user.fatherName,
         motherName: user.motherName,
