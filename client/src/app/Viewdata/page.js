@@ -599,12 +599,12 @@ const Viewdata = () => {
                   </h2>
                   {student?.fatherName && (
                     <h6 className="text-gray-700">
-                      Father's Name: {student?.fatherName}
+                      Fathers Name: {student?.fatherName}
                     </h6>
                   )}
                   {student?.motherName && (
                     <p className="text-gray-700">
-                      Mother's Name: {student?.motherName}
+                      Mothers Name: {student?.motherName}
                     </p>
                   )}
                   {student?.dob && (
