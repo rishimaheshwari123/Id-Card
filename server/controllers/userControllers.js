@@ -2771,24 +2771,33 @@ exports.ExcelData = catchAsyncErron(async (req, res, next) => {
 
     // Define columns including PhotoName
     worksheet.columns = [
-      { header: "PhotoName", key: "photoName", width: 15 },
-      { header: "Name", key: "name", width: 20 },
-      { header: "Father Name", key: "fatherName", width: 20 },
-      { header: "Mother Name", key: "motherName", width: 20 },
-      { header: "Date of Birth", key: "dob", width: 15 },
-      { header: "Contact", key: "contact", width: 15 },
+      { header: "PHOTO NO.", key: "photoName", width: 15 },
+      { header: "STUDENT NAME", key: "name", width: 20 },
+      { header: "FATHER'S NAME", key: "fatherName", width: 20 },
+      { header: "MOTHER'S NAME", key: "motherName", width: 20 },
+      { header: "DATE OF BIRTH", key: "dob", width: 15 },
+      { header: "CONTACT NO.", key: "contact", width: 15 },
       { header: "Email", key: "email", width: 20 },
-      { header: "Address", key: "address", width: 30 },
-      { header: "Roll No", key: "rollNo", width: 30 },
-      { header: "Class", key: "class", width: 30 },
+      { header: "ADDRESS", key: "address", width: 30 },
+      { header: "ROLL NO.", key: "rollNo", width: 30 },
+      { header: "CLASS", key: "class", width: 30 },
       { header: "Session", key: "session", width: 30 },
-      { header: "AdmissionNo", key: "admissionNo", width: 30 },
+      { header: "ADMISSION NO.", key: "admissionNo", width: 30 },
       { header: "Bus No", key: "busNo", width: 30 },
       { header: "BloodGroup", key: "bloodGroup", width: 30 },
-      { header: "Student ID", key: "studentID", width: 30 },
-      { header: "Aadhar No", key: "aadharNo", width: 30 },
-      { header: "Ribbion Colour", key: "ribbionColour", width: 30 },
-      { header: "Route No", key: "routeNo", width: 30 },
+      { header: "STUDENT ID", key: "studentID", width: 30 },
+      { header: "ADHAR NO.", key: "aadharNo", width: 30 },
+      { header: "RIBBION COLOUR", key: "ribbionColour", width: 30 },
+      { header: "ROUTE NO./TRANSPORT", key: "routeNo", width: 30 },
+
+      { header: "HOUSE NAME", key: "houseName", width: 30 }, // New column
+      { header: "VALID UP TO", key: "validUpTo", width: 30 }, // New column
+      { header: "COURSE", key: "course", width: 30 },         // New column
+      { header: "BATCH", key: "batch", width: 30 },           // New column
+      { header: "ID NO.", key: "idNo", width: 30 },            // New column
+      { header: "REG. NO.", key: "regNo", width: 30 },        // New column
+      { header: "EXTRA FIELD-1", key: "extraField1", width: 30 }, // New column
+      { header: "EXTRA FIELD-2", key: "extraField2", width: 30 }, // New column
     ];
 
     // Add data rows with sequential PhotoName
@@ -2812,6 +2821,15 @@ exports.ExcelData = catchAsyncErron(async (req, res, next) => {
         aadharNo: user.aadharNo,
         ribbionColour: user.ribbionColour,
         routeNo: user.routeNo,
+
+        houseName: user.houseName,         // New field
+        validUpTo: user.validUpTo,         // New field
+        course: user.course,               // New field
+        batch: user.batch,                 // New field
+        idNo: user.idNo,                   // New field
+        regNo: user.regNo,                 // New field
+        extraField1: user.extraField1,     // New field
+        extraField2: user.extraField2,     // New field
       });
     });
 
@@ -2868,7 +2886,14 @@ exports.ExcelDataStaff = catchAsyncErron(async (req, res, next) => {
       {header: "Date of Issue", key: "dateOfIssue", width: 15},
       {header: "IHRMS No", key: "ihrmsNo", width: 15},
       {header: "Belt No", key: "beltNo", width: 15},
-      {header: "Photo Name", key: "photoName", width: 20},
+      {header: "PHOTO NO.", key: "photoName", width: 20},
+
+      {header: "Licence No", key: "licenceNo", width: 20}, // Added
+      {header: "ID No", key: "idNo", width: 20}, // Added
+      {header: "Job Status", key: "jobStatus", width: 20}, // Added
+      {header: "PAN Card No", key: "panCardNo", width: 20}, // Added
+      {header: "Extra Field 1", key: "extraField1", width: 20}, // Added
+      {header: "Extra Field 2", key: "extraField2", width: 20}, // Added
     ];
 
     // Populate worksheet with staff data
@@ -2895,6 +2920,12 @@ exports.ExcelDataStaff = catchAsyncErron(async (req, res, next) => {
         ihrmsNo: staff.ihrmsNo,
         beltNo: staff.beltNo,
         photoName: staff.photoName,
+        licenceNo: staff.licenceNo, // Added
+        idNo: staff.idNo, // Added
+        jobStatus: staff.jobStatus, // Added
+        panCardNo: staff.panCardNo, // Added
+        extraField1: staff.extraField1, // Added
+        extraField2: staff.extraField2, // Added
       });
     });
 

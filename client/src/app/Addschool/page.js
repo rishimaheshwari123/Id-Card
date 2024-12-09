@@ -428,6 +428,86 @@ const AddSchool = () => {
                 <span className="text-gray-600">Mode of Transport</span>
               </label>
               {/* Add more checkboxes for additional fields here */}
+              <label htmlFor="houseName" className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      id="houseName"
+      name="House Name"
+      checked={requiredFields.includes("House Name")}
+      onChange={handleChange}
+    />
+    <span className="text-gray-600">House Name</span>
+  </label>
+  <label htmlFor="validUpTo" className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      id="validUpTo"
+      name="Valid Up To"
+      checked={requiredFields.includes("Valid Up To")}
+      onChange={handleChange}
+    />
+    <span className="text-gray-600">Valid Up To</span>
+  </label>
+  <label htmlFor="course" className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      id="course"
+      name="Course"
+      checked={requiredFields.includes("Course")}
+      onChange={handleChange}
+    />
+    <span className="text-gray-600">Course</span>
+  </label>
+  <label htmlFor="batch" className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      id="batch"
+      name="Batch"
+      checked={requiredFields.includes("Batch")}
+      onChange={handleChange}
+    />
+    <span className="text-gray-600">Batch</span>
+  </label>
+  <label htmlFor="idNo" className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      id="idNo"
+      name="ID No."
+      checked={requiredFields.includes("ID No.")}
+      onChange={handleChange}
+    />
+    <span className="text-gray-600">ID No.</span>
+  </label>
+  <label htmlFor="regNo" className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      id="regNo"
+      name="Reg. No."
+      checked={requiredFields.includes("Reg. No.")}
+      onChange={handleChange}
+    />
+    <span className="text-gray-600">Reg. No.</span>
+  </label>
+  <label htmlFor="extraField1" className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      id="extraField1"
+      name="Extra Field-1"
+      checked={requiredFields.includes("Extra Field-1")}
+      onChange={handleChange}
+    />
+    <span className="text-gray-600">Extra Field-1</span>
+  </label>
+  <label htmlFor="extraField2" className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      id="extraField2"
+      name="Extra Field-2"
+      checked={requiredFields.includes("Extra Field-2")}
+      onChange={handleChange}
+    />
+    <span className="text-gray-600">Extra Field-2</span>
+  </label>
             </div>
 
             <h2 className="mt-5 font-semibold text-xl">
@@ -662,6 +742,68 @@ const AddSchool = () => {
               </label>
 
               {/* Add more checkboxes for additional fields here */}
+              <label htmlFor="licenceNo" className="flex items-center space-x-2">
+  <input
+    type="checkbox"
+    id="licenceNo"
+    name="Licence No."
+    checked={requiredFieldsStaff.includes("Licence No.")}
+    onChange={handleStaffChange}
+  />
+  <span className="text-gray-600">Licence No.</span>
+</label>
+<label htmlFor="idNo" className="flex items-center space-x-2">
+  <input
+    type="checkbox"
+    id="idNo"
+    name="ID No."
+    checked={requiredFieldsStaff.includes("ID No.")}
+    onChange={handleStaffChange}
+  />
+  <span className="text-gray-600">ID No.</span>
+</label>
+<label htmlFor="jobStatus" className="flex items-center space-x-2">
+  <input
+    type="checkbox"
+    id="jobStatus"
+    name="Job Status"
+    checked={requiredFieldsStaff.includes("Job Status")}
+    onChange={handleStaffChange}
+  />
+  <span className="text-gray-600">Job Status</span>
+</label>
+<label htmlFor="panCardNo" className="flex items-center space-x-2">
+  <input
+    type="checkbox"
+    id="panCardNo"
+    name="PAN Card No."
+    checked={requiredFieldsStaff.includes("PAN Card No.")}
+    onChange={handleStaffChange}
+  />
+  <span className="text-gray-600">PAN Card No.</span>
+</label>
+<label htmlFor="extraField1" className="flex items-center space-x-2">
+  <input
+    type="checkbox"
+    id="extraField1"
+    name="Extra Field 1"
+    checked={requiredFieldsStaff.includes("Extra Field 1")}
+    onChange={handleStaffChange}
+  />
+  <span className="text-gray-600">Extra Field 1</span>
+</label>
+<label htmlFor="extraField2" className="flex items-center space-x-2">
+  <input
+    type="checkbox"
+    id="extraField2"
+    name="Extra Field 2"
+    checked={requiredFieldsStaff.includes("Extra Field 2")}
+    onChange={handleStaffChange}
+  />
+  <span className="text-gray-600">Extra Field 2</span>
+</label>
+
+           
             </div>
 
             <button className="w-full px-6 py-3 mt-6 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50">

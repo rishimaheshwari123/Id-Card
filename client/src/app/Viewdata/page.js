@@ -8,7 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { redirect, useRouter } from "next/navigation";
 import Image from "next/image";
-import Swal from "sweetalert2"
+import Swal from "sweetalert2";
 
 const Viewdata = () => {
   const { user, schools, error } = useSelector((state) => state.user);
@@ -27,14 +27,11 @@ const Viewdata = () => {
   const [sectionValue, setSectionValue] = useState("");
   const router = useRouter();
 
-
-
-
-  const [studentData, setStudentData] = useState([])
-  const [staffData, setStaffData] = useState([])
+  const [studentData, setStudentData] = useState([]);
+  const [staffData, setStaffData] = useState([]);
 
   useEffect(() => {
-    console.log(user)
+    console.log(user);
     if (!user) {
       redirect("/");
     }
@@ -53,7 +50,7 @@ const Viewdata = () => {
       setStudentIds(studentIds.filter((id) => id !== studentId));
     } else {
       // If not, add it to the array
-      console.log(studentIds)
+      console.log(studentIds);
       setStudentIds([...studentIds, studentId]);
     }
   };
@@ -169,8 +166,8 @@ const Viewdata = () => {
       config()
     );
     setstudents(response?.data?.students);
-    console.log(response?.data?.students)
-    setStudentData(response?.data?.students)
+    console.log(response?.data?.students);
+    setStudentData(response?.data?.students);
     if (response?.data?.students?.length < 0) {
       toast.error("No Students Added", {
         position: "top-right",
@@ -221,7 +218,7 @@ const Viewdata = () => {
       }
 
       setstudents(response?.data?.students);
-      setStudentData(response?.data?.students)
+      setStudentData(response?.data?.students);
 
       console.log(response?.data?.students);
       setsubmited(true);
@@ -371,7 +368,7 @@ const Viewdata = () => {
           Swal.showLoading(); // Show loading spinner
         },
       });
-  
+
       const response = await axios.post(
         `/user/student/images/${currSchool}`,
         { status },
@@ -380,12 +377,12 @@ const Viewdata = () => {
           responseType: "blob", // Ensure response is a blob
         }
       );
-  
+
       // Extract filename from response headers
       const contentDisposition = response.headers["content-disposition"];
       const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
       const filename = filenameMatch ? filenameMatch[1] : "avatars.zip";
-  
+
       // Create and trigger download of the ZIP file
       const blob = new Blob([response.data], { type: "application/zip" });
       const link = document.createElement("a");
@@ -394,7 +391,7 @@ const Viewdata = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
-  
+
       // Close the SweetAlert2 loading popup after successful download
       Swal.fire({
         icon: "success",
@@ -411,10 +408,6 @@ const Viewdata = () => {
       });
     }
   };
-  
-  
-  
-  
 
   const downloadImage = async (imageUrl) => {
     try {
@@ -445,23 +438,25 @@ const Viewdata = () => {
     router.push(`/Viewdata/staffedit/${id}`);
   };
 
-  const [filterActive, setFilterActive] = useState(false)
+  const [filterActive, setFilterActive] = useState(false);
   const filterStudent = (e) => {
     e.preventDefault();
 
     if (filterActive) {
-      setstudents(studentData)
-      setFilterActive(false)
-      return
+      setstudents(studentData);
+      setFilterActive(false);
+      return;
     }
-    const filtered = studentData.filter(student =>
-      student?.class.replace(/\./g, '').toLowerCase() === classValue.toLowerCase() &&
-      student?.section.replace(/\./g, '').toLowerCase() === sectionValue.toLowerCase()
+    const filtered = studentData.filter(
+      (student) =>
+        student?.class.replace(/\./g, "").toLowerCase() ===
+          classValue.toLowerCase() &&
+        student?.section.replace(/\./g, "").toLowerCase() ===
+          sectionValue.toLowerCase()
     );
-    setFilterActive(true)
+    setFilterActive(true);
     setstudents(filtered);
-  }
-
+  };
 
   return (
     <div>
@@ -571,10 +566,11 @@ const Viewdata = () => {
               {students?.map((student) => (
                 <div
                   key={student?._id}
-                  className={`shadow-md p-4 rounded-md border w-full bg-indigo-50 ${studentIds.includes(student._id)
-                    ? "border-blue-500"
-                    : "border-indigo-50"
-                    }`}
+                  className={`shadow-md p-4 rounded-md border w-full bg-indigo-50 ${
+                    studentIds.includes(student._id)
+                      ? "border-blue-500"
+                      : "border-indigo-50"
+                  }`}
                   onClick={() => handleStudentSelect(student._id)}
                 >
                   <div className="flex justify-center mb-2">
@@ -603,12 +599,12 @@ const Viewdata = () => {
                   </h2>
                   {student?.fatherName && (
                     <h6 className="text-gray-700">
-                      Father&apos;s Name: {student?.fatherName}
+                      Father's Name: {student?.fatherName}
                     </h6>
                   )}
                   {student?.motherName && (
                     <p className="text-gray-700">
-                      Mother&apos;s Name: {student?.motherName}
+                      Mother's Name: {student?.motherName}
                     </p>
                   )}
                   {student?.dob && (
@@ -670,6 +666,40 @@ const Viewdata = () => {
                       Route No.: {student?.routeNo}
                     </p>
                   )}
+
+                  {student?.houseName && (
+                    <p className="text-gray-700">
+                      House Name: {student?.houseName}
+                    </p>
+                  )}
+                  {student?.validUpTo && (
+                    <p className="text-gray-700">
+                      Valid Up To: {student?.validUpTo}
+                    </p>
+                  )}
+                  {student?.course && (
+                    <p className="text-gray-700">Course: {student?.course}</p>
+                  )}
+                  {student?.batch && (
+                    <p className="text-gray-700">Batch: {student?.batch}</p>
+                  )}
+                  {student?.idNo && (
+                    <p className="text-gray-700">ID No.: {student?.idNo}</p>
+                  )}
+                  {student?.regNo && (
+                    <p className="text-gray-700">Reg. No.: {student?.regNo}</p>
+                  )}
+                  {student?.extraField1 && (
+                    <p className="text-gray-700">
+                      Extra Field-1: {student?.extraField1}
+                    </p>
+                  )}
+                  {student?.extraField2 && (
+                    <p className="text-gray-700">
+                      Extra Field-2: {student?.extraField2}
+                    </p>
+                  )}
+
                   <div className="w-full flex justify-center items-center mt-2">
                     {status == "Panding" && (
                       <button
@@ -694,12 +724,13 @@ const Viewdata = () => {
               {staffs?.map((staff) => (
                 <div
                   key={staff?._id}
-                  className={`shadow-md p-4 rounded-md border w-full bg-indigo-50 ${staffIds.includes(staff._id)
-                    ? "border-blue-500"
-                    : "border-indigo-50"
-                    }`}
+                  className={`shadow-md p-4 rounded-md border w-full bg-indigo-50 ${
+                    staffIds.includes(staff._id)
+                      ? "border-blue-500"
+                      : "border-indigo-50"
+                  }`}
                   onClick={() => handleStaffSelect(staff._id)}
-                // onClick={() => console.log("hello")}
+                  // onClick={() => console.log("hello")}
                 >
                   <div className="flex justify-center mb-2">
                     <Image
@@ -797,7 +828,36 @@ const Viewdata = () => {
                       Photo Name: {staff?.photoName}
                     </p>
                   )}
-
+                  {staff?.licenceNo && (
+  <p className="text-gray-700">
+    Licence No.: {staff?.licenceNo}
+  </p>
+)}
+{staff?.idNo && (
+  <p className="text-gray-700">
+    ID No.: {staff?.idNo}
+  </p>
+)}
+{staff?.jobStatus && (
+  <p className="text-gray-700">
+    Job Status: {staff?.jobStatus}
+  </p>
+)}
+{staff?.panCardNo && (
+  <p className="text-gray-700">
+    PAN Card No.: {staff?.panCardNo}
+  </p>
+)}
+{staff?.extraField1 && (
+  <p className="text-gray-700">
+    Extra Field 1: {staff?.extraField1}
+  </p>
+)}
+{staff?.extraField2 && (
+  <p className="text-gray-700">
+    Extra Field 2: {staff?.extraField2}
+  </p>
+)}
                   {/* Add more staff details as required */}
                   <div className="w-full flex justify-center items-center mt-2">
                     {status == "Panding" && (
@@ -827,110 +887,109 @@ const Viewdata = () => {
         )}
 
         {/* List of Buttons in Chat Box */}
-{showChatBox && (
-  <div className="fixed bottom-16 left-4 flex flex-col gap-2">
-    {/* Pending status */}
-    {status === "Panding" && (
-      <>
-        {(user?.exportExcel || user?.school?.exportExcel) && (
-          <button
-            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
-            onClick={downloadExcel}
-          >
-            Export Excel
-          </button>
-        )}
-        {(user?.exportImage || user?.school?.exportImages) && (
-          <button
-            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
-            onClick={downloadImages}
-          >
-            Export Images
-          </button>
-        )}
-        {user?.school && (
-          <>
-            <button
-              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
-              onClick={modeToReadytoprint}
-            >
-              Move to Ready to Print
-            </button>
-            <button
-              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
-              onClick={modeToPrinted}
-            >
-              Move to Printed
-            </button>
-          </>
-        )}
-      </>
-    )}
+        {showChatBox && (
+          <div className="fixed bottom-16 left-4 flex flex-col gap-2">
+            {/* Pending status */}
+            {status === "Panding" && (
+              <>
+                {(user?.exportExcel || user?.school?.exportExcel) && (
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                    onClick={downloadExcel}
+                  >
+                    Export Excel
+                  </button>
+                )}
+                {(user?.exportImage || user?.school?.exportImages) && (
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                    onClick={downloadImages}
+                  >
+                    Export Images
+                  </button>
+                )}
+                {user?.school && (
+                  <>
+                    <button
+                      className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                      onClick={modeToReadytoprint}
+                    >
+                      Move to Ready to Print
+                    </button>
+                    <button
+                      className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                      onClick={modeToPrinted}
+                    >
+                      Move to Printed
+                    </button>
+                  </>
+                )}
+              </>
+            )}
 
-    {/* Ready to Print status */}
-    {status === "Ready to print" && (
-      <>
-        {/* {user?.school && ( */}
-          <button
-            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
-            onClick={modeToPrinted}
-          >
-            Move to Printed
-          </button>
-        {/* )} */}
+            {/* Ready to Print status */}
+            {status === "Ready to print" && (
+              <>
+                {/* {user?.school && ( */}
+                <button
+                  className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                  onClick={modeToPrinted}
+                >
+                  Move to Printed
+                </button>
+                {/* )} */}
 
-        {(user?.exportExcel || user?.school?.exportExcel) && (
-          <button
-            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
-            onClick={downloadExcel}
-          >
-            Export Excel
-          </button>
-        )}
-        {(user?.exportImage || user?.school?.exportImages) && (
-          <button
-            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
-            onClick={downloadImages}
-          >
-            Export Images
-          </button>
-        )}
-      </>
-    )}
+                {(user?.exportExcel || user?.school?.exportExcel) && (
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                    onClick={downloadExcel}
+                  >
+                    Export Excel
+                  </button>
+                )}
+                {(user?.exportImage || user?.school?.exportImages) && (
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                    onClick={downloadImages}
+                  >
+                    Export Images
+                  </button>
+                )}
+              </>
+            )}
 
-    {/* Printed status */}
-    {status === "Printed" && (
-      <>
-        {(user?.exportExcel || user?.school?.exportExcel) && (
-          <button
-            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
-            onClick={downloadExcel}
-          >
-            Export Excel
-          </button>
+            {/* Printed status */}
+            {status === "Printed" && (
+              <>
+                {(user?.exportExcel || user?.school?.exportExcel) && (
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                    onClick={downloadExcel}
+                  >
+                    Export Excel
+                  </button>
+                )}
+                {(user?.exportImage || user?.school?.exportImages) && (
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                    onClick={downloadImages}
+                  >
+                    Export Images
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         )}
-        {(user?.exportImage || user?.school?.exportImages) && (
-          <button
-            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
-            onClick={downloadImages}
-          >
-            Export Images
-          </button>
-        )}
-      </>
-    )}
-  </div>
-)}
 
-
-        
-        {submitted && currRole == "student" &&
+        {submitted && currRole == "student" && (
           <button
             className="px-5 py-2 bg-gray-500 text-white rounded-full fixed right-20 bottom-5  "
             onClick={() => setShowFilterBox(!showFilterBox)}
           >
             Filter
-          </button>}
+          </button>
+        )}
         {/* <button
           className="bg-green-500 text-white py-2 px-4 rounded-full shadow-lg"
           onClick={() => setShowFilterBox(!showFilterBox)}
