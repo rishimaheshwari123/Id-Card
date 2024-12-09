@@ -50,6 +50,7 @@ const studentModel = mongoose.Schema(
     ribbionColour: String,
     routeNo: String,
     photoName: String,
+    photoNameUnuiq:String,
     // Added fields
     houseName: String,
     validUpTo: Date, // Directly defining the type

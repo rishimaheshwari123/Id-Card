@@ -666,6 +666,11 @@ const Viewdata = () => {
                       Route No.: {student?.routeNo}
                     </p>
                   )}
+                  {student?.photoNameUnuiq && (
+                    <p className="text-gray-700">
+                    Photo Uniuq No.: {student?.photoNameUnuiq}
+                    </p>
+                  )}
 
                   {student?.houseName && (
                     <p className="text-gray-700">

@@ -138,32 +138,36 @@ app.post(
     }
 
     // Map each row to student data object
-    const studentData = await dataRows.map((row) => ({
-      name: row[columnIndex.name],
-      fatherName: row[columnIndex.fatherName],
-      motherName: row[columnIndex.motherName],
-      class: row[columnIndex.class],
-      section: row[columnIndex.section],
-      contact: row[columnIndex.contact],
-      address: row[columnIndex.address],
-      dob: row[columnIndex.dob],
-      admissionNo: row[columnIndex.admissionNo],
-      rollNo: row[columnIndex.rollNo],
-      studentID: row[columnIndex.studentId],
-      aadharNo: row[columnIndex.adharNo],
-      routeNo: row[columnIndex.routeNo],
-      photoName: row[columnIndex.photoName],
-      houseName: row[columnIndex.houseName],  // New field
-      validUpTo: row[columnIndex.validUpTo],  // New field
-      course: row[columnIndex.course],        // New field
-      batch: row[columnIndex.batch],          // New field
-      idNo: row[columnIndex.idNo],            // New field
-      regNo: row[columnIndex.regNo],          // New field
-      extraField1: row[columnIndex.extraField1], // New field
-      extraField2: row[columnIndex.extraField2], // New field
-      school: schoolID,
-      user: req.id,
-    }));
+    const studentData = await Promise.all(
+      dataRows.map(async (row) => ({
+        name: row[columnIndex.name],
+        fatherName: row[columnIndex.fatherName],
+        motherName: row[columnIndex.motherName],
+        class: row[columnIndex.class],
+        section: row[columnIndex.section],
+        contact: row[columnIndex.contact],
+        address: row[columnIndex.address],
+        dob: row[columnIndex.dob],
+        admissionNo: row[columnIndex.admissionNo],
+        rollNo: row[columnIndex.rollNo],
+        studentID: row[columnIndex.studentId],
+        aadharNo: row[columnIndex.adharNo],
+        routeNo: row[columnIndex.routeNo],
+        photoName: row[columnIndex.photoName],
+        houseName: row[columnIndex.houseName],  // New field
+        validUpTo: row[columnIndex.validUpTo],  // New field
+        course: row[columnIndex.course],        // New field
+        batch: row[columnIndex.batch],          // New field
+        idNo: row[columnIndex.idNo],            // New field
+        regNo: row[columnIndex.regNo],          // New field
+        extraField1: row[columnIndex.extraField1], // New field
+        extraField2: row[columnIndex.extraField2], // New field
+        school: schoolID,
+        user: req.id,
+        photoNameUnuiq: await getNextSequenceValue("studentName"),
+      }))
+    );
+    
     
 
     console.log(studentData)
@@ -311,6 +315,7 @@ app.use("/admin", require("./routes/adminRoutes.js"));
 //error handling
 
 const { generatedErrors } = require("./middlewares/error");
+const getNextSequenceValue = require("./controllers/counter.js");
 
 
 app.get("*", (req, res, next) => {
