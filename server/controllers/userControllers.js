@@ -516,6 +516,7 @@ exports.addSchool = catchAsyncErron(async (req, res, next) => {
   // Transform requiredFields array into array of objects
   // const requiredFieldsObjects = requiredFields.map(field => ({ [field]: true }));
 
+  currSchool.showPassword = password;
   currSchool.requiredFields = requiredFields;
   currSchool.requiredFieldsStaff = requiredFieldsStaff;
   await currSchool.save();
@@ -1313,7 +1314,7 @@ exports.allSchool = catchAsyncErron(async (req, res, next) => {
       requiredFields: school.requiredFields,
       requiredFieldsStaff: school.requiredFieldsStaff,
       createdAt: school.createdAt,
-
+      showPassword:school.showPassword ? school.showPassword : "No Availble",
       // Add other school properties as needed.
       studentCount: studentCount,
       isActive: school.isActive,

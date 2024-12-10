@@ -77,7 +77,10 @@ const Adddata = () => {
     // console.log("school change ni")
     const school = schools?.find((school) => school._id == e.target.value);
     console.log(school);
-    setCurrSchool(school?._id);
+    console.log(school?.requiredFields)
+
+    setCurrSchool(school);
+
   };
 
   const handleFormSubmit = async (e) => {
@@ -114,7 +117,7 @@ const Adddata = () => {
     console.log(formData);
 
     // Dispatch action to add student with formData
-    console.log(currSchool)
+    console.log(currSchool?.requiredFields)
     const response = await dispatch(addStudent(formData, currSchool));
     console.log(response);
 
@@ -285,7 +288,7 @@ const Adddata = () => {
               href="#"
               className="pb-4 font-medium text-center text-2xl text-gray-800 capitalize border-b-2 border-blue-500 dark:border-blue-400 dark:text-white"
             >
-              Add Students With Excel
+              Add Students
             </a>
           </div>
           {!loginSchool && schools?.length !== 0 && (
@@ -300,7 +303,7 @@ const Adddata = () => {
                 <select
                   id="school"
                   onChange={handleSchoolSelect}
-                  value={currSchool}
+                  value={currSchool._id}
                   className="mt-1 h-10 px-3 border block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 >
                   <option value="">Select School</option>

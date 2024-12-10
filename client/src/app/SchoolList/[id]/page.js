@@ -37,7 +37,7 @@ const EditSchool = ({ params }) => {
         setEmail(school?.email);
         setContact(school?.contact);
         setAddress(school?.address);
-        setCode(school?.code);
+        setCode(school?.showPassword);
         setRequiredFields(school?.requiredFields);
         setrequiredFieldsStaff(school?.requiredFieldsStaff);
       }
@@ -62,7 +62,7 @@ const EditSchool = ({ params }) => {
       email,
       contact,
       address,
-      code,
+  
       requiredFields,
       requiredFieldsStaff,
     };

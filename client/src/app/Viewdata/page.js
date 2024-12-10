@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { redirect, useRouter } from "next/navigation";
 import Image from "next/image";
 import Swal from "sweetalert2";
+import { FaEdit, FaTrashAlt } from "react-icons/fa";
 
 const Viewdata = () => {
   const { user, schools, error } = useSelector((state) => state.user);
@@ -159,6 +160,7 @@ const Viewdata = () => {
   };
 
   const fatchStudent = async (e) => {
+    
     e.preventDefault();
     const response = await axios.post(
       `/user/students/${currSchool}?status=${status}`,
@@ -204,7 +206,8 @@ const Viewdata = () => {
       if (
         response?.data?.message ==
         "No students found for the provided school ID"
-      ) {
+      )
+       {
         toast.error("No Students Added In This School", {
           position: "top-right",
           autoClose: 5000,
@@ -430,8 +433,56 @@ const Viewdata = () => {
     }
   };
 
+
   const redirectToStudentEdit = (id) => {
     router.push(`/Viewdata/edit/${id}`);
+  };
+  const deleteStudent = async (id) => {
+    // Show loading Swal
+    Swal.fire({
+      title: "Deleting...",
+      text: "Please wait while the student is being deleted.",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+  
+    try {
+      // Perform the delete request
+      const response = await axios.post(
+        `/user/delete/student/${id}?`,
+        {},
+        config()
+      );
+  
+      // Handle success
+      if (response.status === 200) {
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: "The student was successfully deleted.",
+          confirmButtonText: "OK",
+        });
+      }
+
+      const response2 = await axios.post(
+        `/user/students/${currSchool}?status=${status}`,
+        null,
+        config()
+      );
+      setstudents(response2?.data?.students);
+      console.log(response2?.data?.students);
+      setStudentData(response2?.data?.students);
+    } catch (error) {
+      // Handle error
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Failed to delete the student. Please try again later.",
+        confirmButtonText: "OK",
+      });
+    }
   };
 
   const redirectToStaffEdit = (id) => {
@@ -706,15 +757,28 @@ const Viewdata = () => {
                   )}
 
                   <div className="w-full flex justify-center items-center mt-2">
-                    {status == "Panding" && (
-                      <button
-                        onClick={() => redirectToStudentEdit(student._id)}
-                        className="px-5 py-1 bg-indigo-600 text-white m-auto rounded-md"
-                      >
-                        edit
-                      </button>
-                    )}
-                  </div>
+      {status === "Panding" && (
+        <>
+          {/* Edit Button */}
+          <button
+            onClick={() => redirectToStudentEdit(student._id)}
+            className="flex items-center px-5 py-1 bg-indigo-600 text-white m-2 rounded-md hover:bg-indigo-700"
+          >
+            <FaEdit className="mr-2" />
+            Edit
+          </button>
+
+          {/* Delete Button */}
+          <button
+            onClick={() => deleteStudent(student._id)}
+            className="flex items-center px-5 py-1 bg-red-600 text-white m-2 rounded-md hover:bg-red-700"
+          >
+            <FaTrashAlt className="mr-2" />
+            Delete
+          </button>
+        </>
+      )}
+    </div>
                 </div>
               ))}
             </div>
@@ -995,20 +1059,7 @@ const Viewdata = () => {
             Filter
           </button>
         )}
-        {/* <button
-          className="bg-green-500 text-white py-2 px-4 rounded-full shadow-lg"
-          onClick={() => setShowFilterBox(!showFilterBox)}
-        >
-          Filter
-        </button> */}
-        {/* { submitted &&  (
-          <button
-          className="bg-green-500 text-white py-2 px-4 rounded-full shadow-lg"
-          onClick={() => setShowFilterBox(!showFilterBox)}
-        >
-          Filter
-        </button>
-        )} */}
+    
         {showFilterBox && (
           <div className="flex flex-col fixed right-[55px] bottom-20 z-10 px-5 py-5 rounded-md ">
             <form onSubmit={filterStudent}>

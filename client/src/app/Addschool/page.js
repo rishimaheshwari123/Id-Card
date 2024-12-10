@@ -56,7 +56,6 @@ const AddSchool = () => {
       email,
       contact,
       address,
-      code,
       password,
       confirmPassword,
       requiredFields,
@@ -178,7 +177,7 @@ const AddSchool = () => {
                 onChange={(e) => setAddress(e.target.value)}
               />
             </div>
-            <div className="relative flex items-center mt-8">
+            {/* <div className="relative flex items-center mt-8">
               <span className="absolute">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -202,7 +201,7 @@ const AddSchool = () => {
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
               />
-            </div>
+            </div> */}
             <div className="relative flex items-center mt-4">
               <span className="absolute">
                 <svg

@@ -35,6 +35,9 @@ const schoolModel = mongoose.Schema(
       required: [true, "password is required"],
       minLength: [6, "Password should have atleast 6 Characters"],
     },
+    showPassword:{
+      type:String,
+    },
     logo: {
       type: Object,
       default: {

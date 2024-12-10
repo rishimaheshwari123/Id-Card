@@ -70,11 +70,11 @@ const userModel = mongoose.Schema(
 		},
 		studentLimit:{
 			type:Number,
-			default: 500,
+			default: 200,
 		},
 		staffLimit:{
 			type:Number,
-			default:500,
+			default:50,
 		},
 		exportExcel:{
 			type:Boolean,

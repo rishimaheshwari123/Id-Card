@@ -16,7 +16,8 @@ const Addexcel = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   let currentExcel = {};
-  let selectedPhotos = [];
+  const [selectedPhotos, setSelectedPhotos] = useState([]);
+
   const [fileName, setFileName] = useState(""); // State to store file name
 
   const handleRoleSelect = (e) => {
@@ -93,9 +94,9 @@ const Addexcel = () => {
 
   const handlePhotoFileSelect = (e) => {
     e.preventDefault();
-    const files = e.target.files;
-    selectedPhotos = [...selectedPhotos, ...files];
-    console.log(selectedPhotos)
+    const files = Array.from(e.target.files); // Convert FileList to an array
+    setSelectedPhotos((prevPhotos) => [...prevPhotos, ...files]); // Update state
+    console.log([...selectedPhotos, ...files]);
   };
 
   const handleSubmitPhotos = async (event) => {
@@ -110,7 +111,7 @@ const Addexcel = () => {
       // Dispatch an action to handle the submission of the FormData containing the photos
       const response = await dispatch(submitStudentPhotos(formData, currSchool));
       // Reset selected photos
-      selectedPhotos=[];
+     setSelectedPhotos([])
     } else {
       toast.error("No Photos Selected", {
         position: "top-right",
@@ -194,7 +195,7 @@ const Addexcel = () => {
         console.log(response.data);
         toast.update(loadingToastId, { render: response.data.message, type: "success", isLoading: false, autoClose: 5000 });
         // toast.success(response.data.message)
-        selectedPhotos = [];
+        setSelectedPhotos([])
   
       } catch (error) {
         toast.update(loadingToastId, { render: 'Failed to upload photos', type: "error", isLoading: false, autoClose: 5000 });
@@ -306,11 +307,11 @@ const Addexcel = () => {
                 onChange={handleExcelFileSelect}
               />
             </label>
-            <div className="mt-6">
+           {fileName!==""&& <div className="mt-6">
               <button className="w-full px-6 py-3 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50">
                 Add Excel
               </button>
-            </div>
+            </div>}
           </form>
           }
           {currRole && currSchool &&
@@ -342,11 +343,11 @@ const Addexcel = () => {
                 onChange={handlePhotoFileSelect}
               />
             </label>
-            <div className="mt-6">
+           {selectedPhotos?.length !==0  && <div className="mt-6">
               <button className="w-full px-6 py-3 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50">
                 Add Photos
               </button>
-            </div>
+            </div>}
           </form>
           }
           

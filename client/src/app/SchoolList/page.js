@@ -41,9 +41,9 @@ const SchoolList = () => {
                   Contact: {school.contact}
                 </p>
               )}
-              {school?.code && (
+              {school?.showPassword && (
                 <p className="text-sm text-gray-600 mb-2">
-                  Code: {school.code}
+                  Password: {school.showPassword}
                 </p>
               )}
               {school?.address && (
