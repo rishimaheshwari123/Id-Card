@@ -2614,7 +2614,7 @@ exports.StaffAvatarsDownload = catchAsyncErron(async (req, res, next) => {
 
     const studentAvatars = students.map((student,index) => ({
       url: student.avatar.url,
-      name: `Photo_${index + 1}` ,
+      name: student.photoNameUnuiq ,
     }));
 
     // Create a temporary directory to store the avatars
@@ -2804,7 +2804,7 @@ exports.ExcelData = catchAsyncErron(async (req, res, next) => {
     // Add data rows with sequential PhotoName
     users.forEach((user, index) => {
       worksheet.addRow({
-        photoName: user.photoNameUnuiq ? user.photoNameUnuiq: `Photo_${index + 1}`, // Sequential PhotoName field
+        photoName: user.photoNameUnuiq , // Sequential PhotoName field
         name: user.name,
         fatherName: user.fatherName,
         motherName: user.motherName,
