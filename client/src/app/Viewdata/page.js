@@ -10,6 +10,7 @@ import { redirect, useRouter } from "next/navigation";
 import Image from "next/image";
 import Swal from "sweetalert2";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 
 const Viewdata = () => {
   const { user, schools, error } = useSelector((state) => state.user);
@@ -160,7 +161,6 @@ const Viewdata = () => {
   };
 
   const fatchStudent = async (e) => {
-    
     e.preventDefault();
     const response = await axios.post(
       `/user/students/${currSchool}?status=${status}`,
@@ -206,8 +206,7 @@ const Viewdata = () => {
       if (
         response?.data?.message ==
         "No students found for the provided school ID"
-      )
-       {
+      ) {
         toast.error("No Students Added In This School", {
           position: "top-right",
           autoClose: 5000,
@@ -433,7 +432,6 @@ const Viewdata = () => {
     }
   };
 
-
   const redirectToStudentEdit = (id) => {
     router.push(`/Viewdata/edit/${id}`);
   };
@@ -447,7 +445,7 @@ const Viewdata = () => {
         Swal.showLoading();
       },
     });
-  
+
     try {
       // Perform the delete request
       const response = await axios.post(
@@ -455,7 +453,7 @@ const Viewdata = () => {
         {},
         config()
       );
-  
+
       // Handle success
       if (response.status === 200) {
         Swal.fire({
@@ -509,6 +507,36 @@ const Viewdata = () => {
     setstudents(filtered);
   };
 
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+
+    const filtered = studentData.filter((student) => {
+      return (
+        student.name.toLowerCase().includes(query.toLowerCase()) ||
+        (student.fatherName &&
+          student.fatherName.toLowerCase().includes(query.toLowerCase())) ||
+        (student.email &&
+          student.email.toLowerCase().includes(query.toLowerCase())) ||
+        (student.rollNo &&
+          student.rollNo.toLowerCase().includes(query.toLowerCase())) ||
+        (student.class &&
+          student.class.toLowerCase().includes(query.toLowerCase())) ||
+        (student.admissionNo &&
+          student.admissionNo.toLowerCase().includes(query.toLowerCase())) ||
+        (student.contact &&
+          student.contact.toLowerCase().includes(query.toLowerCase())) ||
+        (student.section &&
+          student.section.toLowerCase().includes(query.toLowerCase())) ||
+        (student.session &&
+          student.session.toLowerCase().includes(query.toLowerCase()))
+      );
+    });
+
+    setstudents(filtered);
+  };
+
   return (
     <div>
       <Nav />
@@ -523,6 +551,7 @@ const Viewdata = () => {
                 View Data
               </a>
             </div>
+
             {user && (
               <form
                 className="mt-6 w-full max-w-md"
@@ -608,11 +637,29 @@ const Viewdata = () => {
             <form className="mt-3 w-full max-w-md"></form>
           </div>
         )}
-        {submitted && students?.length > 0 && (
+
+        {submitted && currRole == "student" && (
           <div className="container mx-auto px-16 ">
             <h1 className="text-center text-2xl py-10 font-semibold text-gray-800">
               Students
             </h1>
+            <div className="flex items-center max-w-md mx-auto bg-gray-100 rounded-lg shadow-md overflow-hidden">
+              <span className="flex items-center justify-center px-4 text-gray-500">
+                <FaSearch />
+              </span>
+              <input
+                type="text"
+                placeholder="Search students..."
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+        )}
+
+        {submitted && students?.length > 0 && (
+          <div className="container mx-auto px-16 ">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {students?.map((student) => (
                 <div
@@ -719,7 +766,7 @@ const Viewdata = () => {
                   )}
                   {student?.photoNameUnuiq && (
                     <p className="text-gray-700">
-                    Photo Uniuq No.: {student?.photoNameUnuiq}
+                      Photo Uniuq No.: {student?.photoNameUnuiq}
                     </p>
                   )}
 
@@ -757,28 +804,28 @@ const Viewdata = () => {
                   )}
 
                   <div className="w-full flex justify-center items-center mt-2">
-      {status === "Panding" && (
-        <>
-          {/* Edit Button */}
-          <button
-            onClick={() => redirectToStudentEdit(student._id)}
-            className="flex items-center px-5 py-1 bg-indigo-600 text-white m-2 rounded-md hover:bg-indigo-700"
-          >
-            <FaEdit className="mr-2" />
-            Edit
-          </button>
+                    {status === "Panding" && (
+                      <>
+                        {/* Edit Button */}
+                        <button
+                          onClick={() => redirectToStudentEdit(student._id)}
+                          className="flex items-center px-5 py-1 bg-indigo-600 text-white m-2 rounded-md hover:bg-indigo-700"
+                        >
+                          <FaEdit className="mr-2" />
+                          Edit
+                        </button>
 
-          {/* Delete Button */}
-          <button
-            onClick={() => deleteStudent(student._id)}
-            className="flex items-center px-5 py-1 bg-red-600 text-white m-2 rounded-md hover:bg-red-700"
-          >
-            <FaTrashAlt className="mr-2" />
-            Delete
-          </button>
-        </>
-      )}
-    </div>
+                        {/* Delete Button */}
+                        <button
+                          onClick={() => deleteStudent(student._id)}
+                          className="flex items-center px-5 py-1 bg-red-600 text-white m-2 rounded-md hover:bg-red-700"
+                        >
+                          <FaTrashAlt className="mr-2" />
+                          Delete
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -898,35 +945,33 @@ const Viewdata = () => {
                     </p>
                   )}
                   {staff?.licenceNo && (
-  <p className="text-gray-700">
-    Licence No.: {staff?.licenceNo}
-  </p>
-)}
-{staff?.idNo && (
-  <p className="text-gray-700">
-    ID No.: {staff?.idNo}
-  </p>
-)}
-{staff?.jobStatus && (
-  <p className="text-gray-700">
-    Job Status: {staff?.jobStatus}
-  </p>
-)}
-{staff?.panCardNo && (
-  <p className="text-gray-700">
-    PAN Card No.: {staff?.panCardNo}
-  </p>
-)}
-{staff?.extraField1 && (
-  <p className="text-gray-700">
-    Extra Field 1: {staff?.extraField1}
-  </p>
-)}
-{staff?.extraField2 && (
-  <p className="text-gray-700">
-    Extra Field 2: {staff?.extraField2}
-  </p>
-)}
+                    <p className="text-gray-700">
+                      Licence No.: {staff?.licenceNo}
+                    </p>
+                  )}
+                  {staff?.idNo && (
+                    <p className="text-gray-700">ID No.: {staff?.idNo}</p>
+                  )}
+                  {staff?.jobStatus && (
+                    <p className="text-gray-700">
+                      Job Status: {staff?.jobStatus}
+                    </p>
+                  )}
+                  {staff?.panCardNo && (
+                    <p className="text-gray-700">
+                      PAN Card No.: {staff?.panCardNo}
+                    </p>
+                  )}
+                  {staff?.extraField1 && (
+                    <p className="text-gray-700">
+                      Extra Field 1: {staff?.extraField1}
+                    </p>
+                  )}
+                  {staff?.extraField2 && (
+                    <p className="text-gray-700">
+                      Extra Field 2: {staff?.extraField2}
+                    </p>
+                  )}
                   {/* Add more staff details as required */}
                   <div className="w-full flex justify-center items-center mt-2">
                     {status == "Panding" && (
@@ -983,14 +1028,14 @@ const Viewdata = () => {
                       className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
                       onClick={modeToReadytoprint}
                     >
-                      Move to Ready to Print
+                      Move to Ready
                     </button>
-                    <button
+                    {/* <button
                       className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
                       onClick={modeToPrinted}
                     >
                       Move to Printed
-                    </button>
+                    </button> */}
                   </>
                 )}
               </>
@@ -1007,7 +1052,14 @@ const Viewdata = () => {
                   Move to Printed
                 </button>
                 {/* )} */}
-
+                {user.school && (
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                    onClick={modeToPending}
+                  >
+                    Move Back to Pending
+                  </button>
+                )}
                 {(user?.exportExcel || user?.school?.exportExcel) && (
                   <button
                     className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
@@ -1051,7 +1103,7 @@ const Viewdata = () => {
           </div>
         )}
 
-        {submitted && currRole == "student" && (
+        {submitted && currRole == "DUMMYYAHA(student)THA" && (
           <button
             className="px-5 py-2 bg-gray-500 text-white rounded-full fixed right-20 bottom-5  "
             onClick={() => setShowFilterBox(!showFilterBox)}
@@ -1059,7 +1111,7 @@ const Viewdata = () => {
             Filter
           </button>
         )}
-    
+
         {showFilterBox && (
           <div className="flex flex-col fixed right-[55px] bottom-20 z-10 px-5 py-5 rounded-md ">
             <form onSubmit={filterStudent}>
