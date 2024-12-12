@@ -34,6 +34,14 @@ const EditStudent = ({ params }) => {
   const [routeNo, setRouteNo] = useState("");
   const [modeOfTransport, setmodeOfTransport] = useState("");
   const [ID, setID] = useState("");
+  const [houseName, setHouseName] = useState("");
+  const [validUpTo, setValidUpTo] = useState("");
+  const [course, setCourse] = useState("");
+  const [batch, setBatch] = useState("");
+  const [idNo, setIdNo] = useState("");
+  const [regNo, setRegNo] = useState("");
+  const [extraField1, setExtraField1] = useState("");
+  const [extraField2, setExtraField2] = useState("");
 
   
 
@@ -79,6 +87,25 @@ const EditStudent = ({ params }) => {
           setAadharNo(temuser?.aadharNo);
           setRibbionColour(temuser?.ribbionColour);
           setRouteNo(temuser?.routeNo);
+          setHouseName(temuser?.houseName);
+if (temuser?.validUpTo) {
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+  setValidUpTo(formatDate(temuser.validUpTo)); // Format and set the date
+} else {
+  setValidUpTo('');
+}
+setCourse(temuser?.course);
+setBatch(temuser?.batch);
+setIdNo(temuser?.idNo);
+setRegNo(temuser?.regNo);
+setExtraField1(temuser?.extraField1);
+setExtraField2(temuser?.extraField2);
       }
       if(user?.role == "school"){
         setcurrschool(user?.school);
@@ -103,7 +130,13 @@ const EditStudent = ({ params }) => {
   //   setRequiredFields(currSchool.requiredFields);
   //   setrequiredFieldsStaff(currSchool.requiredFieldsStaff);
   // }
-
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     console.log("sumit")
@@ -112,7 +145,7 @@ const EditStudent = ({ params }) => {
     const formData = {
       name,
     };
-
+    const formattedDate = formatDate(validUpTo);
     // Add values to formData only if they are not empty
     if (fatherName) formData.fatherName = fatherName;
     if (motherName) formData.motherName = motherName;
@@ -132,6 +165,14 @@ const EditStudent = ({ params }) => {
     if (ribbionColour) formData.ribbionColour = ribbionColour;
     if (routeNo) formData.routeNo = routeNo;
     // Add other student schema fields here
+    if (houseName) formData.houseName = houseName;
+if (validUpTo) formData.validUpTo = formattedDate;
+if (course) formData.course = course;
+if (batch) formData.batch = batch;
+if (idNo) formData.idNo = idNo;
+if (regNo) formData.regNo = regNo;
+if (extraField1) formData.extraField1 = extraField1;
+if (extraField2) formData.extraField2 = extraField2;
 
     // Log formData
     console.log(formData);
@@ -428,7 +469,7 @@ const EditStudent = ({ params }) => {
                     />
                   </div>
                 )}
-                {currSchool?.requiredFields?.includes("Mode of Transport") && (
+                {/* {currSchool?.requiredFields?.includes("Mode of Transport") && (
                   <div className="mb-4">
                     <input
                       type="text"
@@ -439,11 +480,112 @@ const EditStudent = ({ params }) => {
                       className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     />
                   </div>
-                )}
+                )} */}
 
                 {/* Repeat above pattern for other fields */}
                 {/* Add input fields for other student schema fields */}
                 {/* Add a submit button */}
+
+
+                {currSchool?.requiredFields?.includes("House Name") && (
+  <div className="mb-4">
+    <input
+      type="text"
+      id="houseName"
+      value={houseName}
+      placeholder="House Name"
+      onChange={(e) => setHouseName(e.target.value)}
+      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+  </div>
+)}
+{currSchool?.requiredFields?.includes("Valid Up To") && (
+  <div className="mb-4">
+    <input
+      type="text"
+      id="validUpTo"
+      value={validUpTo}
+      placeholder="DD/MM/YYYY"
+      onChange={(e) => setValidUpTo(e.target.value)}
+      onFocus={(e) => (e.target.type = "date")}
+      onBlur={(e) => (e.target.type = "text")}
+      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+  </div>
+)}
+{currSchool?.requiredFields?.includes("Course") && (
+  <div className="mb-4">
+    <input
+      type="text"
+      id="course"
+      value={course}
+      placeholder="Course"
+      onChange={(e) => setCourse(e.target.value)}
+      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+  </div>
+)}
+{currSchool?.requiredFields?.includes("Batch") && (
+  <div className="mb-4">
+    <input
+      type="text"
+      id="batch"
+      value={batch}
+      placeholder="Batch"
+      onChange={(e) => setBatch(e.target.value)}
+      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+  </div>
+)}
+{currSchool?.requiredFields?.includes("ID NO.") && (
+  <div className="mb-4">
+    <input
+      type="text"
+      id="idNo"
+      value={idNo}
+      placeholder="ID No."
+      onChange={(e) => setIdNo(e.target.value)}
+      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+  </div>
+)}
+{currSchool?.requiredFields?.includes("REG. NO.") && (
+  <div className="mb-4">
+    <input
+      type="text"
+      id="regNo"
+      value={regNo}
+      placeholder="Reg No."
+      onChange={(e) => setRegNo(e.target.value)}
+      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+  </div>
+)}
+{currSchool?.requiredFields?.includes("EXTRA FIELD-1") && (
+  <div className="mb-4">
+    <input
+      type="text"
+      id="extraField1"
+      value={extraField1}
+      placeholder="Extra Field 1"
+      onChange={(e) => setExtraField1(e.target.value)}
+      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+  </div>
+)}
+{currSchool?.requiredFields?.includes("EXTRA FIELD-2") && (
+  <div className="mb-4">
+    <input
+      type="text"
+      id="extraField2"
+      value={extraField2}
+      placeholder="Extra Field 2"
+      onChange={(e) => setExtraField2(e.target.value)}
+      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+  </div>
+)}
+
                 <div className='w-full flex justify-center items-center'>
 
 

@@ -413,7 +413,7 @@ const AddSchool = () => {
                 />
                 <span className="text-gray-600">Route No.</span>
               </label>
-              <label
+              {/* <label
                 htmlFor="modeOfTransport"
                 className="flex items-center space-x-2"
               >
@@ -425,7 +425,7 @@ const AddSchool = () => {
                   onChange={handleChange}
                 />
                 <span className="text-gray-600">Mode of Transport</span>
-              </label>
+              </label> */}
               {/* Add more checkboxes for additional fields here */}
               <label htmlFor="houseName" className="flex items-center space-x-2">
     <input

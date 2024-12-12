@@ -766,7 +766,7 @@ const Viewdata = () => {
                   )}
                   {student?.photoNameUnuiq && (
                     <p className="text-gray-700">
-                      Photo Uniuq No.: {student?.photoNameUnuiq}
+                      Photo Unique No.: {student?.photoNameUnuiq}
                     </p>
                   )}
 
