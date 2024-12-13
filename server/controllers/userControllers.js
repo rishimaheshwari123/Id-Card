@@ -944,6 +944,8 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
   const id = req.id;
   let file = null;
 
+  console.log(req.file)
+  console.log(req.files)
   if (req.files && req.files[0]) {
     file = req.files[0];
   }
