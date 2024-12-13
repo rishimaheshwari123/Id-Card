@@ -26,6 +26,7 @@ const isAuthenticated = catchAsyncErron(async(req,res,next) =>{
         req.id = await decoded._id;
         next();
     } catch (error) {
+        console.log(error)
         next(new errorHandler(error.message || "Invalid Access Token"));
     }
 })

@@ -1045,12 +1045,14 @@ const Viewdata = () => {
             {status === "Ready to print" && (
               <>
                 {/* {user?.school && ( */}
-                <button
+
+                {!user.school && (  <button
                   className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
                   onClick={modeToPrinted}
                 >
                   Move to Printed
-                </button>
+                </button>)}
+              
                 {/* )} */}
                 {user.school && (
                   <button

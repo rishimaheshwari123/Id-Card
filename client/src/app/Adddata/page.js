@@ -48,12 +48,13 @@ const Adddata = () => {
   const dispatch = useDispatch();
   const [loginSchool, setloginSchool] = useState(false);
 
-  let selectedPhotos = []
+  const [selectedPhotos, setSelectedPhotos] = useState([]);
+
   const handlePhotoFileSelect = (e) => {
     e.preventDefault();
-    const files = e.target.files;
-    selectedPhotos = [...selectedPhotos, ...files];
-    console.log(selectedPhotos)
+    const files = Array.from(e.target.files); // Convert FileList to an array
+    setSelectedPhotos((prevPhotos) => [...prevPhotos, ...files]);
+    console.log("Selected Photos:", selectedPhotos); // Updated state may not reflect immediately
   };
 
   useEffect(() => {
@@ -111,14 +112,16 @@ const Adddata = () => {
     if (ribbionColour) formData.ribbionColour = ribbionColour;
     if (routeNo) formData.routeNo = routeNo;
     if (photoName) formData.photoName = photoName;
+  
+    if (selectedPhotos.length >0 ) formData.file = selectedPhotos;
     // Add other student schema fields here
 
     // Log formData
     console.log(formData);
 
     // Dispatch action to add student with formData
-    console.log(currSchool?.requiredFields)
-    const response = await dispatch(addStudent(formData, currSchool));
+    console.log(currSchool?._id)
+    const response = await dispatch(addStudent(formData, currSchool._id));
     console.log(response);
 
     if (response == "successfully Register") {
@@ -550,7 +553,7 @@ const Adddata = () => {
                   <input
                     id="dropzone-file"
                     type="file"
-                    className="hidden"
+                    className=""
                     multiple
                     onChange={handlePhotoFileSelect}
                   />

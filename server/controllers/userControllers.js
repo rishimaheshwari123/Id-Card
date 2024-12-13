@@ -40,6 +40,7 @@ const xlsx = require("xlsx");
 const fs = require("fs");
 const getDataUri = require("../middlewares/daraUri");
 const {log} = require("console");
+const getNextSequenceValue = require("./counter");
 
 
 exports.currUser = catchAsyncErron(async (req, res, next) => {
@@ -658,7 +659,8 @@ exports.ChangeActive = catchAsyncErron(async (req, res, next) => {
 exports.addStudent = catchAsyncErron(async (req, res, next) => {
   const id = req.id;
   let file = null;
-
+console.log(req.body)
+console.log(req.file)
   if (req.files && req.files[0]) {
     file = req.files[0];
   }
@@ -747,6 +749,7 @@ exports.addStudent = catchAsyncErron(async (req, res, next) => {
 
     student.school = currSchool._id;
     student.user = id;
+    student.photoNameUnuiq = await getNextSequenceValue("studentName")
 
     if (file) {
       const fileUri = getDataUri(file);
@@ -2778,13 +2781,13 @@ exports.ExcelData = catchAsyncErron(async (req, res, next) => {
       { header: "MOTHER'S NAME", key: "motherName", width: 20 },
       { header: "DATE OF BIRTH", key: "dob", width: 15 },
       { header: "CONTACT NO.", key: "contact", width: 15 },
-      { header: "Email", key: "email", width: 20 },
+      // { header: "Email", key: "email", width: 20 },
       { header: "ADDRESS", key: "address", width: 30 },
       { header: "ROLL NO.", key: "rollNo", width: 30 },
       { header: "CLASS", key: "class", width: 30 },
       { header: "Session", key: "session", width: 30 },
       { header: "ADMISSION NO.", key: "admissionNo", width: 30 },
-      { header: "Bus No", key: "busNo", width: 30 },
+      // { header: "Bus No", key: "busNo", width: 30 },
       { header: "BloodGroup", key: "bloodGroup", width: 30 },
       { header: "STUDENT ID", key: "studentID", width: 30 },
       { header: "ADHAR NO.", key: "aadharNo", width: 30 },
@@ -2810,13 +2813,13 @@ exports.ExcelData = catchAsyncErron(async (req, res, next) => {
         motherName: user.motherName,
         dob: user.dob,
         contact: user.contact,
-        email: user.email,
+        // email: user.email,
         address: user.address,
         rollNo: user.rollNo,
         class: user.class,
         session: user.session,
         admissionNo: user.admissionNo,
-        busNo: user.busNo,
+        // busNo: user.busNo,
         bloodGroup: user.bloodGroup,
         studentID: user.studentID,
         aadharNo: user.aadharNo,
