@@ -354,6 +354,16 @@ const AddSchool = () => {
                 />
                 <span className="text-gray-600">Roll No.</span>
               </label>
+              <label htmlFor="rollNo" className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="section"
+                  name="Section."
+                  checked={requiredFields.includes("Section")}
+                  onChange={handleChange}
+                />
+                <span className="text-gray-600">Roll No.</span>
+              </label>
               <label
                 htmlFor="admissionNo"
                 className="flex items-center space-x-2"

@@ -880,64 +880,73 @@ console.log(req.file)
 });
 
 exports.editStudent = catchAsyncErron(async (req, res, next) => {
-  const studentId = req.params.id;
-  console.log(studentId);
-  const updates = req.body; // The updates from the request body.
-  console.log(updates);
+  try {
+    const studentId = req.params.id;
+    console.log(studentId);
+    const updates = req.body; // The updates from the request body.
+    console.log(updates);
 
-  const updatedStudent = await Student.findByIdAndUpdate(studentId, updates, {
-    new: true,
-  });
+    const updatedStudent = await Student.findByIdAndUpdate(studentId, updates, {
+      new: true,
+    });
 
-  if (req.body.name) {
-    let nameStudent = await Student.findById(req.id);
-    updatedStudent.name = req.body.name;
-    await updatedStudent.save();
-  }
-
-  let file = null;
-
-  if (req.files && req.files[0]) {
-    file = req.files[0];
-  }
-
-  if (file) {
-    const currStudent = await Student.findById(studentId);
-    if (currStudent.avatar.publicId !== "") {
-      await cloudinary.v2.uploader.destroy(
-        currStudent.avatar.publicId,
-        (error, result) => {
-          if (error) {
-            console.error("Error deleting file from Cloudinary:", error);
-          } else {
-            console.log("File deleted successfully:", result);
-          }
-        }
-      );
+    if (req.body.name) {
+      let nameStudent = await Student.findById(req.id);
+      updatedStudent.name = req.body.name;
+      await updatedStudent.save();
     }
 
-    const fileUri = getDataUri(file);
-    const myavatar = await cloudinary.v2.uploader.upload(fileUri.content);
+    let file = null;
 
-    currStudent.avatar = {
-      publicId: myavatar.public_id,
-      url: myavatar.secure_url,
-    };
-    currStudent.save();
+    if (req.files && req.files[0]) {
+      file = req.files[0];
+    }
 
+    if (file) {
+      const currStudent = await Student.findById(studentId);
+      if (currStudent.avatar.publicId !== "") {
+        await cloudinary.v2.uploader.destroy(
+          currStudent.avatar.publicId,
+          (error, result) => {
+            if (error) {
+              console.error("Error deleting file from Cloudinary:", error);
+            } else {
+              console.log("File deleted successfully:", result);
+            }
+          }
+        );
+      }
+
+      const fileUri = getDataUri(file);
+      const myavatar = await cloudinary.v2.uploader.upload(fileUri.content);
+
+      currStudent.avatar = {
+        publicId: myavatar.public_id,
+        url: myavatar.secure_url,
+      };
+      await currStudent.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Student updated successfully",
+        student: currStudent,
+      });
+    }
+
+    // Respond with the updated student information.
     res.status(200).json({
       success: true,
       message: "Student updated successfully",
-      student: currStudent,
+      student: updatedStudent,
+    });
+  } catch (error) {
+    console.error("Error updating student:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while updating the student",
+      error: error.message,
     });
   }
-
-  // Respond with the updated student information.
-  res.status(200).json({
-    success: true,
-    message: "Student updated successfully",
-    student: updatedStudent,
-  });
 });
 
 exports.addStaff = catchAsyncErron(async (req, res, next) => {

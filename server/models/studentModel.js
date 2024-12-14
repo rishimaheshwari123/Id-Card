@@ -53,7 +53,7 @@ const studentModel = mongoose.Schema(
     photoNameUnuiq:String,
     // Added fields
     houseName: String,
-    validUpTo: Date, // Directly defining the type
+    validUpTo: String, // Directly defining the type
     course: String, // Simply passing the type directly
     batch: String,
     idNo: String,
