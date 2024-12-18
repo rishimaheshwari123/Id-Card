@@ -2881,27 +2881,29 @@ exports.ExcelDataStaff = catchAsyncErron(async (req, res, next) => {
     const worksheet = workbook.addWorksheet("Staff");
 
     worksheet.columns = [
+      {header: "PHOTO NO.", key: "photoNameUnuiq", width: 20},
       {header: "Name", key: "name", width: 20},
       {header: "Father Name", key: "fatherName", width: 20},
       {header: "Husband Name", key: "husbandName", width: 20},
       {header: "Date of Birth", key: "dob", width: 15},
       {header: "Contact", key: "contact", width: 15},
+      {header: "ADHAR NO.", key: "adharNo", width: 15},
       {header: "Email", key: "email", width: 20},
       {header: "Address", key: "address", width: 30},
       {header: "Qualification", key: "qualification", width: 20},
       {header: "Designation", key: "designation", width: 20},
       {header: "Staff Type", key: "staffType", width: 15},
       {header: "Date of Joining", key: "doj", width: 15},
-      {header: "UID", key: "uid", width: 20},
+      // {header: "UID", key: "uid", width: 20},
       {header: "Staff ID", key: "staffID", width: 15},
       {header: "UDISE Code", key: "udiseCode", width: 20},
-      {header: "School Name", key: "schoolName", width: 30},
+      {header: "SCHOOL/INSTITUTE/OFFICE NAME", key: "schoolName", width: 30},
       {header: "Blood Group", key: "bloodGroup", width: 15},
-      {header: "Dispatch No", key: "dispatchNo", width: 15},
-      {header: "Date of Issue", key: "dateOfIssue", width: 15},
+      {header: "DISPATCH NO.", key: "dispatchNo", width: 15},
+      {header: "DATE OF ISSUE", key: "dateOfIssue", width: 15},
       {header: "IHRMS No", key: "ihrmsNo", width: 15},
       {header: "Belt No", key: "beltNo", width: 15},
-      {header: "PHOTO NO.", key: "photoName", width: 20},
+      // {header: "PHOTO NO.", key: "photoName", width: 20},
 
       {header: "Licence No", key: "licenceNo", width: 20}, // Added
       {header: "ID No", key: "idNo", width: 20}, // Added
@@ -2914,27 +2916,30 @@ exports.ExcelDataStaff = catchAsyncErron(async (req, res, next) => {
     // Populate worksheet with staff data
     staffMembers.forEach((staff) => {
       worksheet.addRow({
+
+        photoNameUnuiq: staff.photoNameUnuiq,
         name: staff.name,
         fatherName: staff.fatherName,
         husbandName: staff.husbandName,
         dob: staff.dob,
         contact: staff.contact,
+        adharNo: staff.adharNo,
         email: staff.email,
         address: staff.address,
         qualification: staff.qualification,
         designation: staff.designation,
         staffType: staff.staffType,
         doj: staff.doj,
-        uid: staff.uid,
+        // uid: staff.uid,
         staffID: staff.staffID,
         udiseCode: staff.udiseCode,
         schoolName: staff.schoolName,
         bloodGroup: staff.bloodGroup,
         dispatchNo: staff.dispatchNo,
-        dateOfIssue: staff.dateOfIssue,
+        dateOfIssue: staff.dateOfissue,
         ihrmsNo: staff.ihrmsNo,
         beltNo: staff.beltNo,
-        photoName: staff.photoName,
+        // photoName: staff.photoName,
         licenceNo: staff.licenceNo, // Added
         idNo: staff.idNo, // Added
         jobStatus: staff.jobStatus, // Added

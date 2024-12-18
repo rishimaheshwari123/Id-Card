@@ -789,6 +789,16 @@ const AddSchool = () => {
     checked={requiredFieldsStaff.includes("PAN Card No.")}
     onChange={handleStaffChange}
   />
+  <span className="text-gray-600">Aadhar Card No.</span>
+</label>
+<label htmlFor="adharNo" className="flex items-center space-x-2">
+  <input
+    type="checkbox"
+    id="adharNo"
+    name="Aadhar Card No."
+    checked={requiredFieldsStaff.includes("Aadhar Card No.")}
+    onChange={handleStaffChange}
+  />
   <span className="text-gray-600">PAN Card No.</span>
 </label>
 <label htmlFor="extraField1" className="flex items-center space-x-2">

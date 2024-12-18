@@ -962,6 +962,11 @@ const Viewdata = () => {
                       PAN Card No.: {staff?.panCardNo}
                     </p>
                   )}
+                  {staff?.adharNo && (
+                    <p className="text-gray-700">
+                      Addhar Card No.: {staff?.adharNo}
+                    </p>
+                  )}
                   {staff?.extraField1 && (
                     <p className="text-gray-700">
                       Extra Field 1: {staff?.extraField1}

@@ -218,7 +218,7 @@ app.post(
       address: newheader.indexOf("ADDRESS"),
       dob: newheader.indexOf("DATE OF BIRTH"),
       staffID: newheader.indexOf("STAFF ID"),
-      schoolName: newheader.indexOf("SCHOOL/OFFICE NAME"),
+      schoolName: newheader.indexOf("SCHOOL/INSTITUTE/OFFICE NAME"),
       dispatchNo: newheader.indexOf("DISPATCH NO."),
       ihrmsNo: newheader.indexOf("IHRMS NO."),
       designation: newheader.indexOf("DESIGNATION"),
@@ -229,9 +229,11 @@ app.post(
       beltNo: newheader.indexOf("BELT NO."),
       dateOfissue: newheader.indexOf("DATE OF ISSUE"),
       photoName: newheader.indexOf("PHOTO NO."),
+      adharNo: newheader.indexOf("ADHAR NO."),        // Adhar Number
 
       licenceNo: newheader.indexOf("LICENCE NO."),
       idNo: newheader.indexOf("ID NO."),
+      staffType: newheader.indexOf("STAFF TYPE"),
       jobStatus: newheader.indexOf("JOB STATUS"),
       panCardNo: newheader.indexOf("PAN CARD NO."),
       extraField1: newheader.indexOf("EXTRA FIELD-1"),
@@ -253,13 +255,16 @@ app.post(
     }
 
     // Map each row to student data object
-    const staffData = await dataRows.map((row) => ({
+
+   const staffData = await Promise.all(
+  dataRows.map(async (row) => ({
       name: row[columnIndex.name],
       fatherName: row[columnIndex.fatherName],
       husbandName: row[columnIndex.husbandName],
       qualification: row[columnIndex.qualification],
       doj: row[columnIndex.doj],
       contact: row[columnIndex.contact],
+      email: row[columnIndex.email],
       address: row[columnIndex.address],
       dob: row[columnIndex.dob],
       staffID: row[columnIndex.staffID],
@@ -275,13 +280,18 @@ app.post(
       school: schoolID,
       user: req.id,
 
+      staffType: row[columnIndex.staffType],
+      adharNo: row[columnIndex.adharNo],
+      beltNo: row[columnIndex.beltNo],
       licenceNo: row[columnIndex.licenceNo],
       idNo: row[columnIndex.idNo],
       jobStatus: row[columnIndex.jobStatus],
       panCardNo: row[columnIndex.panCardNo],
       extraField1: row[columnIndex.extraField1],
       extraField2: row[columnIndex.extraField2],
-    }));
+      photoNameUnuiq:  await getNextSequenceValue("staffName"),
+    }))
+  );
 
     console.log(staffData);
 
