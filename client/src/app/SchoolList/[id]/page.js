@@ -244,7 +244,7 @@ const EditSchool = ({ params }) => {
                 />
                 <span className="text-gray-600">Student Name</span>
               </label>
-              <label htmlFor="email" className="flex items-center space-x-2">
+              {/* <label htmlFor="email" className="flex items-center space-x-2">
                 <input
                   type="checkbox"
                   id="email"
@@ -253,7 +253,7 @@ const EditSchool = ({ params }) => {
                   onChange={handleChange}
                 />
                 <span className="text-gray-600">Email</span>
-              </label>
+              </label> */}
               <label htmlFor="contact" className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -271,7 +271,7 @@ const EditSchool = ({ params }) => {
                 <input
                   type="checkbox"
                   id="fatherName"
-                  name="Father's Name"
+                  name="Father&apos;s Name"
                   checked={requiredFields.includes("Father's Name")}
                   onChange={handleChange}
                 />
@@ -284,7 +284,7 @@ const EditSchool = ({ params }) => {
                 <input
                   type="checkbox"
                   id="motherName"
-                  name="Mother's Name"
+                  name="Mother&apos;s Name"
                   checked={requiredFields.includes("Mother's Name")}
                   onChange={handleChange}
                 />
@@ -328,7 +328,27 @@ const EditSchool = ({ params }) => {
                   checked={requiredFields.includes("Roll No.")}
                   onChange={handleChange}
                 />
+                <span className="text-gray-600">Section</span>
+              </label>
+              <label htmlFor="section" className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="section"
+                  name="Section"
+                  checked={requiredFields.includes("Section")}
+                  onChange={handleChange}
+                />
                 <span className="text-gray-600">Roll No.</span>
+              </label>
+              <label htmlFor="session" className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="session"
+                  name="Session"
+                  checked={requiredFields.includes("Session")}
+                  onChange={handleChange}
+                />
+                <span className="text-gray-600">Session</span>
               </label>
               <label
                 htmlFor="admissionNo"
@@ -389,7 +409,7 @@ const EditSchool = ({ params }) => {
                 />
                 <span className="text-gray-600">Route No.</span>
               </label>
-              <label
+              {/* <label
                 htmlFor="modeOfTransport"
                 className="flex items-center space-x-2"
               >
@@ -401,100 +421,88 @@ const EditSchool = ({ params }) => {
                   onChange={handleChange}
                 />
                 <span className="text-gray-600">Mode of Transport</span>
-              </label>
-
-              <label
-                htmlFor="houseName"
-                className="flex items-center space-x-2"
-              >
-                <input
-                  type="checkbox"
-                  id="houseName"
-                  name="House Name"
-                  checked={requiredFields.includes("House Name")}
-                  onChange={handleChange}
-                />
-                <span className="text-gray-600">House Name</span>
-              </label>
-              <label
-                htmlFor="validUpTo"
-                className="flex items-center space-x-2"
-              >
-                <input
-                  type="checkbox"
-                  id="validUpTo"
-                  name="Valid Up To"
-                  checked={requiredFields.includes("Valid Up To")}
-                  onChange={handleChange}
-                />
-                <span className="text-gray-600">Valid Up To</span>
-              </label>
-              <label htmlFor="course" className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="course"
-                  name="Course"
-                  checked={requiredFields.includes("Course")}
-                  onChange={handleChange}
-                />
-                <span className="text-gray-600">Course</span>
-              </label>
-              <label htmlFor="batch" className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="batch"
-                  name="Batch"
-                  checked={requiredFields.includes("Batch")}
-                  onChange={handleChange}
-                />
-                <span className="text-gray-600">Batch</span>
-              </label>
-              <label htmlFor="idNo" className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="idNo"
-                  name="ID No."
-                  checked={requiredFields.includes("ID No.")}
-                  onChange={handleChange}
-                />
-                <span className="text-gray-600">ID No.</span>
-              </label>
-              <label htmlFor="regNo" className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="regNo"
-                  name="Reg. No."
-                  checked={requiredFields.includes("Reg. No.")}
-                  onChange={handleChange}
-                />
-                <span className="text-gray-600">Reg. No.</span>
-              </label>
-              <label
-                htmlFor="extraField1"
-                className="flex items-center space-x-2"
-              >
-                <input
-                  type="checkbox"
-                  id="extraField1"
-                  name="Extra Field-1"
-                  checked={requiredFields.includes("Extra Field-1")}
-                  onChange={handleChange}
-                />
-                <span className="text-gray-600">Extra Field-1</span>
-              </label>
-              <label
-                htmlFor="extraField2"
-                className="flex items-center space-x-2"
-              >
-                <input
-                  type="checkbox"
-                  id="extraField2"
-                  name="Extra Field-2"
-                  checked={requiredFields.includes("Extra Field-2")}
-                  onChange={handleChange}
-                />
-                <span className="text-gray-600">Extra Field-2</span>
-              </label>
+              </label> */}
+              {/* Add more checkboxes for additional fields here */}
+              <label htmlFor="houseName" className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      id="houseName"
+      name="House Name"
+      checked={requiredFields.includes("House Name")}
+      onChange={handleChange}
+    />
+    <span className="text-gray-600">House Name</span>
+  </label>
+  <label htmlFor="validUpTo" className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      id="validUpTo"
+      name="Valid Up To"
+      checked={requiredFields.includes("Valid Up To")}
+      onChange={handleChange}
+    />
+    <span className="text-gray-600">Valid Up To</span>
+  </label>
+  <label htmlFor="course" className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      id="course"
+      name="Course"
+      checked={requiredFields.includes("Course")}
+      onChange={handleChange}
+    />
+    <span className="text-gray-600">Course</span>
+  </label>
+  <label htmlFor="batch" className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      id="batch"
+      name="Batch"
+      checked={requiredFields.includes("Batch")}
+      onChange={handleChange}
+    />
+    <span className="text-gray-600">Batch</span>
+  </label>
+  <label htmlFor="idNo" className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      id="idNo"
+      name="ID No."
+      checked={requiredFields.includes("ID No.")}
+      onChange={handleChange}
+    />
+    <span className="text-gray-600">ID No.</span>
+  </label>
+  <label htmlFor="regNo" className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      id="regNo"
+      name="Reg. No."
+      checked={requiredFields.includes("Reg. No.")}
+      onChange={handleChange}
+    />
+    <span className="text-gray-600">Reg. No.</span>
+  </label>
+  <label htmlFor="extraField1" className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      id="extraField1"
+      name="Extra Field-1"
+      checked={requiredFields.includes("Extra Field-1")}
+      onChange={handleChange}
+    />
+    <span className="text-gray-600">Extra Field-1</span>
+  </label>
+  <label htmlFor="extraField2" className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      id="extraField2"
+      name="Extra Field-2"
+      checked={requiredFields.includes("Extra Field-2")}
+      onChange={handleChange}
+    />
+    <span className="text-gray-600">Extra Field-2</span>
+  </label>
             </div>
 
             <h2 className="mt-5 font-semibold text-xl">

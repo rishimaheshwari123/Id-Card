@@ -14,6 +14,8 @@ import { FaRegAddressCard } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "../../../../../axiosconfig";
+import Swal from "sweetalert2";
+import Image from "next/image";
 
 const Editsatff = ({ params }) => {
   const [currSchool, setcurrschool] = useState();
@@ -47,6 +49,7 @@ const Editsatff = ({ params }) => {
   const [extraField1, setExtraField1] = useState("");
   const [extraField2, setExtraField2] = useState("");
   const [id, setID] = useState();
+  const [imageData, setImageData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -91,7 +94,10 @@ const Editsatff = ({ params }) => {
         setBeltNo(staffData?.beltNo);
         setPhotoName(staffData?.photoName);
         setID(staffData?._id);
-
+        setImageData({
+          publicId: staffData?.avatar?.publicId,
+          url: staffData?.avatar?.url,
+        });
         setLicenceNo(staffData?.licenceNo); // New field
         setIdNo(staffData?.idNo); // New field
         setJobStatus(staffData?.jobStatus); // New field
@@ -119,6 +125,8 @@ const Editsatff = ({ params }) => {
       const formData = {};
 
       // Add non-empty fields to formData
+    formData.avatar = imageData;
+
       if (name) formData.name = name.trim();
       if (fatherName) formData.fatherName = fatherName.trim();
       if (husbandName) formData.husbandName = husbandName.trim();
@@ -187,6 +195,74 @@ const Editsatff = ({ params }) => {
     }
   };
 
+
+
+  const handlePhotoFileSelect = async (event) => {
+    event.preventDefault();
+  
+    const file = event.target.files[0];
+    console.log(file);
+  
+    if (!file) {
+      alert("Please select an image first!");
+      return;
+    }
+  
+    // Show SweetAlert2 loading indicator
+    const loadingAlert = Swal.fire({
+      title: 'Uploading...',
+      text: 'Please wait while your image is being uploaded.',
+      didOpen: () => {
+        Swal.showLoading(); // Show the loading spinner
+      },
+      allowOutsideClick: false, // Prevent closing the popup outside
+      willClose: () => {
+        Swal.hideLoading(); // Hide loading when alert closes
+      }
+    });
+  
+    const formData = new FormData();
+    formData.append("file", file);
+  
+    try {
+      const response = await axios.post(
+        "https://testid.mahitechnocrafts.in/image/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+  
+      console.log(response?.data?.thumbnailImage);
+  
+      if (response.data.success) {
+        const { public_id, url } = response.data.thumbnailImage; // Assuming the response contains these fields
+        setImageData({ publicId: public_id, url: url });
+  
+        // Close the loading alert and show success message
+        loadingAlert.close();
+        Swal.fire({
+          title: 'Success!',
+          text: 'Image uploaded successfully!',
+          icon: 'success',
+          confirmButtonText: 'OK',
+        });
+      }
+    } catch (error) {
+      console.error(error);
+  
+      // Close the loading alert and show error message
+      loadingAlert.close();
+      Swal.fire({
+        title: 'Error!',
+        text: 'Something went wrong, please try again.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+    }
+  };
   return (
     <>
       <Nav />
@@ -197,6 +273,42 @@ const Editsatff = ({ params }) => {
               Edit Staff
             </h3>
             <div className="mb-4">
+              <div className="w-full flex justify-center items-center flex-col">
+                          <Image
+                            src={imageData.url}
+                            className="w-[100px]"
+                            height={550}
+                            width={550}
+                            alt="logo"
+                          />
+                            <label
+                              htmlFor="dropzone-file"
+                              className="flex items-center px-3 py-3 mx-auto mt-6 text-center border-2 border-dashed rounded-lg cursor-pointer"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="w-6 h-6 text-gray-300"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                                />
+                              </svg>
+                              <h2 className="mx-3 text-gray-400">Update Student Profile Photos</h2>
+                              <input
+                                id="dropzone-file"
+                                type="file"
+                                className=""
+                                multiple
+                                onChange={handlePhotoFileSelect}
+                              />
+                            </label>
+                        </div>
               <label
                 htmlFor="name"
                 className="block text-sm font-medium text-gray-700"
