@@ -12,9 +12,9 @@ const AboutUs = () => {
             <h1 className="text-3xl font-bold">About Us</h1>
           </div>
           <div className="p-8">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800">"Card Pro"</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-gray-800">Card Pro</h2>
             <p className="text-gray-600 leading-relaxed mb-6">
-              “Card Pro” is a digital Data Application by “Eagle Art.” We are leading business professionals in creating different types of Identity Cards. Pursuing impeccable levels of integrity and the highest standards have always been our main focus. We have successfully provided and maintained our highest level of quality service and cost-effectiveness to our customers.
+              Card Pro is a digital Data Application by Eagle Art. We are leading business professionals in creating different types of Identity Cards. Pursuing impeccable levels of integrity and the highest standards have always been our main focus. We have successfully provided and maintained our highest level of quality service and cost-effectiveness to our customers.
             </p>
             <div className="mt-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-2">Contact Details</h3>
