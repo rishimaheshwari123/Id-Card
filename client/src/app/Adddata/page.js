@@ -50,10 +50,18 @@ const Adddata = () => {
   const [adharNo, setAdharNo] = useState("");
   const [licenceNo, setLicenceNo] = useState("");
   const [idNo, setIdNo] = useState("");
+  const [house, setHouse] = useState("");
+  const [batch, setBatch] = useState("");
   const [panCardNo, setPanCardNo] = useState("");
   const [extraField1, setExtraField1] = useState("");
   const [extraField2, setExtraField2] = useState("");
   const [imageData, setImageData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
+
+
+  const [validUpTo, setValidUpTo] = useState("");
+  const [course, setCourse] = useState("");
+  
+  const [regNo, setRegNo] = useState("");
 
   const handlePhotoFileSelect = async (event) => {
     event.preventDefault();
@@ -148,6 +156,17 @@ const Adddata = () => {
     if (routeNo) formData.routeNo = routeNo;
     if (photoName) formData.photoName = photoName;
 
+
+    // Add missing fields
+  if (house) formData.houseName = house;
+  if (validUpTo) formData.validUpTo = validUpTo;
+  if (course) formData.course = course;
+  if (batch) formData.batch = batch;
+  if (idNo) formData.idNo = idNo;
+  if (regNo) formData.regNo = regNo;
+  if (extraField1) formData.extraField1 = extraField1;
+  if (extraField2) formData.extraField2 = extraField2;
+
     if (imageData.publicId) formData.publicId = imageData.publicId;
     if (imageData.url) formData.url = imageData.url;
     // Add other student schema fields here
@@ -171,25 +190,25 @@ const Adddata = () => {
         progress: undefined,
       });
       // Clear all form values after dispatching the form
-      setName("");
-      setFatherName("");
-      setMotherName("");
-      setDob("");
-      setContact("");
-      setEmail("");
-      setAddress("");
-      setRollNo("");
-      setStudentClass("");
-      setSection("");
-      setSession("");
-      setAdmissionNo("");
-      setBusNo("");
-      setBloodGroup("");
-      setStudentID("");
-      setAadharNo("");
-      setRibbionColour("");
-      setRouteNo("");
-      setPhotoName("");
+      // setName("");
+      // setFatherName("");
+      // setMotherName("");
+      // setDob("");
+      // setContact("");
+      // setEmail("");
+      // setAddress("");
+      // setRollNo("");
+      // setStudentClass("");
+      // setSection("");
+      // setSession("");
+      // setAdmissionNo("");
+      // setBusNo("");
+      // setBloodGroup("");
+      // setStudentID("");
+      // setAadharNo("");
+      // setRibbionColour("");
+      // setRouteNo("");
+      // setPhotoName("");
     } else {
       toast.error(response, {
         position: "top-right",
@@ -281,40 +300,7 @@ const Adddata = () => {
     // Clear all form values after dispatching the form
   };
 
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-
-  //   // Add logic to submit the form data
-  //   console.log('Form submitted:', {
-  //     name,
-  //     fatherName,
-  //     husbandName,
-  //     dob,
-  //     contact,
-  //     email,
-  //     address,
-  //     qualification,
-  //     designation,
-  //     staffType,
-  //     doj,
-  //     uid,
-  //   });
-
-  //   // Clear all input fields by resetting state variables
-  //   setName('');
-  //   setFatherName('');
-  //   setHusbandName('');
-  //   setDob('');
-  //   setContact('');
-  //   setEmail('');
-  //   setAddress('');
-  //   setQualification('');
-  //   setDesignation('');
-  //   setStaffType('');
-  //   setDoj('');
-  //   setUid('');
-  // };
-
+ 
   return (
     <>
       <Nav />
@@ -423,7 +409,7 @@ const Adddata = () => {
                 {currSchool?.requiredFields?.includes("Date of Birth") && (
                   <div className="mb-4">
                     <input
-                      type="date"
+                      type="text"
                       id="dob"
                       value={dob}
                       placeholder="Date of Birth"
@@ -480,6 +466,30 @@ const Adddata = () => {
                     />
                   </div>
                 )}
+                {currSchool?.requiredFields?.includes("Session") && (
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      id="session"
+                      value={session}
+                      placeholder="Session"
+                      onChange={(e) => setSession(e.target.value)}
+                      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                )}
+                {currSchool?.requiredFields?.includes("Student ID") && (
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      id="session"
+                      value={studentID}
+                      placeholder="Student ID"
+                      onChange={(e) => setStudentID(e.target.value)}
+                      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                )}
                 {currSchool?.requiredFields?.includes("Roll No.") && (
                   <div className="mb-4">
                     <input
@@ -497,9 +507,9 @@ const Adddata = () => {
                     <input
                       type="text"
                       id="admissionNo"
-                      value={address}
+                      value={admissionNo}
                       placeholder="Admission No."
-                      onChange={(e) => setAddress(e.target.value)}
+                      onChange={(e) => setAdmissionNo(e.target.value)}
                       className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     />
                   </div>
@@ -541,6 +551,18 @@ const Adddata = () => {
                     />
                   </div>
                 )}
+                {currSchool?.requiredFields?.includes("House Name") && (
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      id="houseName"
+                      value={house}
+                      placeholder="House Name"
+                      onChange={(e) => setHouse(e.target.value)}
+                      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                )}
                 {currSchool?.requiredFields?.includes("Route No.") && (
                   <div className="mb-4">
                     <input
@@ -553,6 +575,96 @@ const Adddata = () => {
                     />
                   </div>
                 )}
+                {currSchool?.requiredFields?.includes("Valid Up To") && (
+  <div className="mb-4">
+    <input
+      type="text"
+      id="validUpTo"
+      value={validUpTo}
+      placeholder="Valid Up To"
+      onChange={(e) => setValidUpTo(e.target.value)}
+      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+  </div>
+)}
+
+{currSchool?.requiredFields?.includes("Course") && (
+  <div className="mb-4">
+    <input
+      type="text"
+      id="course"
+      value={course}
+      placeholder="Course"
+      onChange={(e) => setCourse(e.target.value)}
+      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+  </div>
+)}
+{currSchool?.requiredFields?.includes("Batch") && (
+  <div className="mb-4">
+    <input
+      type="text"
+      id="Batch"
+      value={batch}
+      placeholder="Course"
+      onChange={(e) => setBatch(e.target.value)}
+      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+  </div>
+)}
+
+{currSchool?.requiredFields?.includes("ID No.") && (
+  <div className="mb-4">
+    <input
+      type="text"
+      id="idNo"
+      value={idNo}
+      placeholder="ID No."
+      onChange={(e) => setIdNo(e.target.value)}
+      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+  </div>
+)}
+
+{currSchool?.requiredFields?.includes("Reg. No.") && (
+  <div className="mb-4">
+    <input
+      type="text"
+      id="regNo"
+      value={regNo}
+      placeholder="Reg. No."
+      onChange={(e) => setRegNo(e.target.value)}
+      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+  </div>
+)}
+
+{currSchool?.requiredFields?.includes("Extra Field-1") && (
+  <div className="mb-4">
+    <input
+      type="text"
+      id="extraField1"
+      value={extraField1}
+      placeholder="Extra Field-1"
+      onChange={(e) => setExtraField1(e.target.value)}
+      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+  </div>
+)}
+
+{currSchool?.requiredFields?.includes("Extra Field-2") && (
+  <div className="mb-4">
+    <input
+      type="text"
+      id="extraField2"
+      value={extraField2}
+      placeholder="Extra Field-2"
+      onChange={(e) => setExtraField2(e.target.value)}
+      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+    />
+  </div>
+)}
+
                 {/* {currSchool?.requiredFields?.includes("Mode of Transport") && (
                   <div className="mb-4">
                     <input

@@ -303,7 +303,7 @@ export default function Home() {
 
                     <li className=" border-b border-white py-5 border-t text-xl">
                       <Link
-                        href={"/"}
+                        href={"/About"}
                         className="font-semibold  hover:text-white rounded-lg py-1.5 px-3 cursor-pointer"
                       >
                         About Us
@@ -311,7 +311,7 @@ export default function Home() {
                     </li>
                     <li className=" border-b border-white py-5 border-t text-xl">
                       <Link
-                        href={"/"}
+                        href={"/About"}
                         className="font-semibold  hover:text-white rounded-lg py-1.5 px-3 cursor-pointer"
                       >
                         Contact Us

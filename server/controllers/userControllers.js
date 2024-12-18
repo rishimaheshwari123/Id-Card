@@ -738,6 +738,32 @@ console.log(req.body)
       currStudent.aadharNo = req.body.aadharNo;
     }
 
+    // Additional fields
+if (req.body.houseName) {
+  currStudent.houseName = req.body.houseName;
+}
+if (req.body.validUpTo) {
+  currStudent.validUpTo = req.body.validUpTo; // Ensure date format validation if needed
+}
+if (req.body.course) {
+  currStudent.course = req.body.course;
+}
+if (req.body.batch) {
+  currStudent.batch = req.body.batch;
+}
+if (req.body.idNo) {
+  currStudent.idNo = req.body.idNo;
+}
+if (req.body.regNo) {
+  currStudent.regNo = req.body.regNo;
+}
+if (req.body.extraField1) {
+  currStudent.extraField1 = req.body.extraField1;
+}
+if (req.body.extraField2) {
+  currStudent.extraField2 = req.body.extraField2;
+}
+
     const student = await Student.create(currStudent);
     // if(req.body.avatar){
 
