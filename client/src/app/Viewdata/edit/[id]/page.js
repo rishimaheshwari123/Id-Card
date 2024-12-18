@@ -245,7 +245,7 @@ if (extraField2) formData.extraField2 = extraField2;
       type="text"
       id="motherName"
       value={motherName}
-      placeholder="Mother's Name"
+      placeholder="Mothers Name"
       onChange={(e) => setMotherName(e.target.value)}
       className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
     />
