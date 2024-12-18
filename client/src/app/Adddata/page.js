@@ -7,7 +7,7 @@ import { addStaff, addStudent } from "@/redux/actions/userAction";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { redirect, useRouter } from "next/navigation";
-
+import axios from "axios";
 const Adddata = () => {
   const { user, schools, error } = useSelector((state) => state.user);
   const [currSchool, setCurrSchool] = useState("");
@@ -53,15 +53,44 @@ const Adddata = () => {
   const [panCardNo, setPanCardNo] = useState("");
   const [extraField1, setExtraField1] = useState("");
   const [extraField2, setExtraField2] = useState("");
+  const [imageData, setImageData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
 
+  const handlePhotoFileSelect = async (event) => {
+    event.preventDefault();
+    // const files = Array.from(e.target.files); // Convert FileList to an array
+    // setSelectedPhotos((prevPhotos) => [...prevPhotos, ...files]);
+    // console.log("Selected Photos:", selectedPhotos); // Updated state may not reflect immediately
 
-  const [selectedPhotos, setSelectedPhotos] = useState([]);
+    const file = event.target.files[0];
+    console.log(file);
+    if (!file) {
+      alert("Please select an image first!");
+      return;
+    }
 
-  const handlePhotoFileSelect = (e) => {
-    e.preventDefault();
-    const files = Array.from(e.target.files); // Convert FileList to an array
-    setSelectedPhotos((prevPhotos) => [...prevPhotos, ...files]);
-    console.log("Selected Photos:", selectedPhotos); // Updated state may not reflect immediately
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:4010/image/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log(response?.data?.thumbnailImage);
+      if (response.data.success) {
+        const { public_id, url } = response.data.thumbnailImage; // Assuming the response contains these fields
+        setImageData({ publicId: public_id, url: url });
+
+        alert("Image uploaded successfully!");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {
@@ -76,25 +105,24 @@ const Adddata = () => {
   }, [user]);
 
   const handleRoleSelect = (e) => {
-    e.preventDefault()
+    e.preventDefault();
     setCurrRole(e.target.value);
-    console.log(e.target.value)
+    console.log(e.target.value);
   };
 
   const handleSchoolSelect = (e) => {
     // console.log("school change ni")
     const school = schools?.find((school) => school._id == e.target.value);
     console.log(school);
-    console.log(school?.requiredFields)
+    console.log(school?.requiredFields);
 
     setCurrSchool(school);
-
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("enter")
+    console.log("enter");
     // Create an empty object to store form data
     const formData = {
       name,
@@ -119,15 +147,16 @@ const Adddata = () => {
     if (ribbionColour) formData.ribbionColour = ribbionColour;
     if (routeNo) formData.routeNo = routeNo;
     if (photoName) formData.photoName = photoName;
-  
-    if (selectedPhotos.length >0 ) formData.file = selectedPhotos;
+
+    if (imageData.publicId) formData.publicId = imageData.publicId;
+    if (imageData.url) formData.url = imageData.url;
     // Add other student schema fields here
 
     // Log formData
     console.log(formData);
 
     // Dispatch action to add student with formData
-    console.log(currSchool?._id)
+    console.log(currSchool?._id);
     const response = await dispatch(addStudent(formData, currSchool._id));
     console.log(response);
 
@@ -174,8 +203,6 @@ const Adddata = () => {
     }
   };
 
-
-
   const handleStaffFormSubmit = async (e) => {
     e.preventDefault();
 
@@ -203,7 +230,8 @@ const Adddata = () => {
     if (beltNo) formData.beltNo = beltNo;
     if (schoolName) formData.schoolName = schoolName;
     // Add other staff fields here
-
+    if (imageData.publicId) formData.publicId = imageData.publicId;
+    if (imageData.url) formData.url = imageData.url;
     // Log formData
     console.log(formData);
 
@@ -287,7 +315,6 @@ const Adddata = () => {
   //   setUid('');
   // };
 
-
   return (
     <>
       <Nav />
@@ -318,7 +345,7 @@ const Adddata = () => {
                 >
                   <option value="">Select School</option>
                   {schools?.map((school) => (
-                    <option key={school?._id} value={school?._id} >
+                    <option key={school?._id} value={school?._id}>
                       {school.name}
                     </option>
                   ))}
@@ -526,7 +553,7 @@ const Adddata = () => {
                     />
                   </div>
                 )}
-                {currSchool?.requiredFields?.includes("Mode of Transport") && (
+                {/* {currSchool?.requiredFields?.includes("Mode of Transport") && (
                   <div className="mb-4">
                     <input
                       type="text"
@@ -537,7 +564,7 @@ const Adddata = () => {
                       className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     />
                   </div>
-                )}
+                )} */}
                 <label
                   htmlFor="dropzone-file"
                   className="flex items-center px-3 py-3 mx-auto mt-6 text-center border-2 border-dashed rounded-lg cursor-pointer"
@@ -692,7 +719,7 @@ const Adddata = () => {
                   />
                 </div>
               )}
-         
+
               {currSchool?.requiredFieldsStaff?.includes("Date of Joining") && (
                 <div className="mb-4">
                   <input
@@ -828,90 +855,118 @@ const Adddata = () => {
                   />
                 </div>
               )}
-{currSchool?.requiredFieldsStaff?.includes("Adhar No.") && (
-        <div className="mb-4">
-          <input
-            type="text"
-            id="adharNo"
-            value={adharNo}
-            placeholder="Adhar No."
-            onChange={(e) => setAdharNo(e.target.value)}
-            className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          />
-        </div>
-      )}
+              {currSchool?.requiredFieldsStaff?.includes("Adhar No.") && (
+                <div className="mb-4">
+                  <input
+                    type="text"
+                    id="adharNo"
+                    value={adharNo}
+                    placeholder="Adhar No."
+                    onChange={(e) => setAdharNo(e.target.value)}
+                    className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+              )}
 
-      {/* Licence No */}
-      {currSchool?.requiredFieldsStaff?.includes("Licence No.") && (
-        <div className="mb-4">
-          <input
-            type="text"
-            id="licenceNo"
-            value={licenceNo}
-            placeholder="Licence No."
-            onChange={(e) => setLicenceNo(e.target.value)}
-            className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          />
-        </div>
-      )}
+              {/* Licence No */}
+              {currSchool?.requiredFieldsStaff?.includes("Licence No.") && (
+                <div className="mb-4">
+                  <input
+                    type="text"
+                    id="licenceNo"
+                    value={licenceNo}
+                    placeholder="Licence No."
+                    onChange={(e) => setLicenceNo(e.target.value)}
+                    className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+              )}
 
-      {/* ID No */}
-      {currSchool?.requiredFieldsStaff?.includes("ID No.") && (
-        <div className="mb-4">
-          <input
-            type="text"
-            id="idNo"
-            value={idNo}
-            placeholder="ID No."
-            onChange={(e) => setIdNo(e.target.value)}
-            className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          />
-        </div>
-      )}
+              {/* ID No */}
+              {currSchool?.requiredFieldsStaff?.includes("ID No.") && (
+                <div className="mb-4">
+                  <input
+                    type="text"
+                    id="idNo"
+                    value={idNo}
+                    placeholder="ID No."
+                    onChange={(e) => setIdNo(e.target.value)}
+                    className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+              )}
 
-      {/* PAN Card No */}
-      {currSchool?.requiredFieldsStaff?.includes("PAN Card No.") && (
-        <div className="mb-4">
-          <input
-            type="text"
-            id="panCardNo"
-            value={panCardNo}
-            placeholder="PAN Card No."
-            onChange={(e) => setPanCardNo(e.target.value)}
-            className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          />
-        </div>
-      )}
+              {/* PAN Card No */}
+              {currSchool?.requiredFieldsStaff?.includes("PAN Card No.") && (
+                <div className="mb-4">
+                  <input
+                    type="text"
+                    id="panCardNo"
+                    value={panCardNo}
+                    placeholder="PAN Card No."
+                    onChange={(e) => setPanCardNo(e.target.value)}
+                    className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+              )}
 
-      {/* Extra Field 1 */}
-      {currSchool?.requiredFieldsStaff?.includes("Extra Field 1") && (
-        <div className="mb-4">
-          <input
-            type="text"
-            id="extraField1"
-            value={extraField1}
-            placeholder="Extra Field 1"
-            onChange={(e) => setExtraField1(e.target.value)}
-            className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          />
-        </div>
-      )}
+              {/* Extra Field 1 */}
+              {currSchool?.requiredFieldsStaff?.includes("Extra Field 1") && (
+                <div className="mb-4">
+                  <input
+                    type="text"
+                    id="extraField1"
+                    value={extraField1}
+                    placeholder="Extra Field 1"
+                    onChange={(e) => setExtraField1(e.target.value)}
+                    className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+              )}
 
-      {/* Extra Field 2 */}
-      {currSchool?.requiredFieldsStaff?.includes("Extra Field 2") && (
-        <div className="mb-4">
-          <input
-            type="text"
-            id="extraField2"
-            value={extraField2}
-            placeholder="Extra Field 2"
-            onChange={(e) => setExtraField2(e.target.value)}
-            className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          />
-        </div>
-      )}
+              {/* Extra Field 2 */}
+              {currSchool?.requiredFieldsStaff?.includes("Extra Field 2") && (
+                <div className="mb-4">
+                  <input
+                    type="text"
+                    id="extraField2"
+                    value={extraField2}
+                    placeholder="Extra Field 2"
+                    onChange={(e) => setExtraField2(e.target.value)}
+                    className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+              )}
               {/* Repeat above pattern for other fields */}
               {/* Add a submit button */}
+
+              <label
+                  htmlFor="dropzone-file"
+                  className="flex items-center px-3 py-3 mx-auto mt-6 text-center border-2 border-dashed rounded-lg cursor-pointer"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-6 h-6 text-gray-300"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                    />
+                  </svg>
+                  <h2 className="mx-3 text-gray-400">Satff Profile Photos</h2>
+                  <input
+                    id="dropzone-file"
+                    type="file"
+                    className=""
+                    multiple
+                    onChange={handlePhotoFileSelect}
+                  />
+                </label>
               <button
                 type="submit"
                 className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"

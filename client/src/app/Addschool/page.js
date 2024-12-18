@@ -268,7 +268,7 @@ const AddSchool = () => {
                 />
                 <span className="text-gray-600">Student Name</span>
               </label>
-              <label htmlFor="email" className="flex items-center space-x-2">
+              {/* <label htmlFor="email" className="flex items-center space-x-2">
                 <input
                   type="checkbox"
                   id="email"
@@ -277,7 +277,7 @@ const AddSchool = () => {
                   onChange={handleChange}
                 />
                 <span className="text-gray-600">Email</span>
-              </label>
+              </label> */}
               <label htmlFor="contact" className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -352,17 +352,27 @@ const AddSchool = () => {
                   checked={requiredFields.includes("Roll No.")}
                   onChange={handleChange}
                 />
-                <span className="text-gray-600">Roll No.</span>
+                <span className="text-gray-600">Section</span>
               </label>
-              <label htmlFor="rollNo" className="flex items-center space-x-2">
+              <label htmlFor="section" className="flex items-center space-x-2">
                 <input
                   type="checkbox"
                   id="section"
-                  name="Section."
+                  name="Section"
                   checked={requiredFields.includes("Section")}
                   onChange={handleChange}
                 />
                 <span className="text-gray-600">Roll No.</span>
+              </label>
+              <label htmlFor="session" className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="session"
+                  name="Session"
+                  checked={requiredFields.includes("Session")}
+                  onChange={handleChange}
+                />
+                <span className="text-gray-600">Session</span>
               </label>
               <label
                 htmlFor="admissionNo"

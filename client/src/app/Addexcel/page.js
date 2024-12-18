@@ -125,50 +125,6 @@ const Addexcel = () => {
     }
   };
 
-  // const handleSubmitnowfuntiion = async (event) => {
-  //   event.preventDefault();
-
-  //   const formData = new FormData();
-  //   selectedPhotos.forEach((file) => {
-  //     formData.append('file', file);
-  //   });
-  //   console.log(formData)
-
-  //   try {
-  //     // setLoading(true);
-  //     // setError(null);
-  //     const response = await axios.post(`/user/student/avatars/${currSchool}`, formData, {
-  //       withCredentials: true,
-  //       headers: {
-  //         "Content-Type": "multipart/form-data",
-  //         authorization: `${localStorage.getItem("token")}`,
-  //       },
-  //     });
-  //     console.log(response.data);
-  //     // Handle success response
-  //   } catch (error) {
-  //     console.error('Error uploading photos:', error);
-  //   }
-  // };
-
-  // const handleSubmitnowfuntiion = async (event) => {
-  //   event.preventDefault();
-  
-  //   const formData = new FormData();
-  //   console.log("Selected photos:", selectedPhotos); // Log selectedPhotos array
-  //   selectedPhotos.forEach((file, index) => {
-  //     // Append each file with a unique key based on its index
-  //     formData.append(`file${index}`, file);
-  //   });
-  //   console.log("FormData:", formData); // Log FormData object after appending files
-  
-  //   try {
-  //     // Your axios post request code...
-  //   } catch (error) {
-  //     console.error('Error uploading photos:', error);
-  //   }
-  // };
-
   const handleSubmitnowfuntiion = async (event) => {
     event.preventDefault();
     const loadingToastId = toast.loading('Uploading photos...');

@@ -660,10 +660,6 @@ exports.addStudent = catchAsyncErron(async (req, res, next) => {
   const id = req.id;
   let file = null;
 console.log(req.body)
-console.log(req.file)
-  if (req.files && req.files[0]) {
-    file = req.files[0];
-  }
 
   const user = await User.findById(id);
   if (user) {
@@ -750,19 +746,13 @@ console.log(req.file)
     student.school = currSchool._id;
     student.user = id;
     student.photoNameUnuiq = await getNextSequenceValue("studentName")
-
-    if (file) {
-      const fileUri = getDataUri(file);
-
-      const myavatar = await cloudinary.v2.uploader.upload(fileUri.content);
-
-      console.log(myavatar);
+    const {publicId,url} = req.body;
 
       student.avatar = {
-        publicId: myavatar.public_id,
-        url: myavatar.secure_url,
+        publicId: publicId,
+        url: url,
       };
-    }
+  
     student.save();
 
     res.status(200).json({
@@ -953,11 +943,7 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
   const id = req.id;
   let file = null;
 
-  console.log(req.file)
-  console.log(req.files)
-  if (req.files && req.files[0]) {
-    file = req.files[0];
-  }
+  console.log(req.body)
 
   const user = await User.findById(id);
 
@@ -1043,18 +1029,15 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
     staff.school = currSchool._id;
     staff.user = id;
 
-    if (file) {
-      const fileUri = getDataUri(file);
+    const {publicId,url} = req.body;
 
-      const myavatar = await cloudinary.v2.uploader.upload(fileUri.content);
-
-      console.log(myavatar);
+    
 
       staff.avatar = {
-        publicId: myavatar.public_id,
-        url: myavatar.secure_url,
+        publicId: publicId,
+        url: url,
       };
-    }
+  
     staff.save();
 
     res.status(200).json({

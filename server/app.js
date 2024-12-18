@@ -4,6 +4,7 @@ const express = require("express");
 const connectDb = require("./models/database");
 const app = express();
 const cors = require("cors");
+const fileUpload = require("express-fileupload");
 
 // DataBase Conection
 // require("./models/database.js").connectDatabase();
@@ -16,6 +17,13 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true }));
 const cookieParser = require("cookie-parser");
 
+
+// app.use(
+// 	fileUpload({
+// 		useTempFiles: true,
+// 		tempFileDir: "/tmp/",
+// 	})
+// );
 //loger
 const logger = require("morgan");
 app.use(logger("dev"));
@@ -42,7 +50,7 @@ app.use(
   })
 );
 
-const multer = require("multer");
+
 
 const readXlsxFile = require("read-excel-file/node");
 const Student = require("./models/studentModel.js");
@@ -60,7 +68,7 @@ const errorHandler = require("./utils/errorHandler");
 
 app.post("/upload-excel/:id", upload, isAuthenticated, async (req, res) => {
   const file = req.files[0];
-
+console.log(req.files)
   if (!file) {
     return res.status(400).send("No file uploaded.");
   }
@@ -311,6 +319,7 @@ app.use("/user", require("./routes/userRoutes.js"));
 
 // Admin Routes
 app.use("/admin", require("./routes/adminRoutes.js"));
+app.use("/image", require("./routes/imageRoute.js"));
 
 //error handling
 

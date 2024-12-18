@@ -238,7 +238,7 @@ if (extraField2) formData.extraField2 = extraField2;
     />
   </div>
 )}
-{currSchool?.requiredFields?.includes("Mothers Name") && (
+{currSchool?.requiredFields?.includes("Mother's Name") && (
   <div className="mb-4">
     <label htmlFor="motherName" className="block text-sm font-medium text-gray-700">Mother's Name</label>
     <input
