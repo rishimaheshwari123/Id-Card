@@ -500,6 +500,43 @@ const EditStudent = ({ params }) => {
                 />
               </div>
             )}
+
+            {currSchool?.requiredFields?.includes("Session") && (
+                  <div className="mb-4">
+                  <label
+                  htmlFor="admissionNo"
+                  className="block text-sm font-medium text-gray-700"
+                >
+            Session
+                </label>
+                    <input
+                      type="text"
+                      id="session"
+                      value={session}
+                      placeholder="Session"
+                      onChange={(e) => setSession(e.target.value)}
+                      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                )}
+                {currSchool?.requiredFields?.includes("Student ID") && (
+                  <div className="mb-4">
+                  <label
+                  htmlFor="admissionNo"
+                  className="block text-sm font-medium text-gray-700"
+                >
+        Student ID
+                </label>
+                    <input
+                      type="text"
+                      id="session"
+                      value={studentID}
+                      placeholder="Student ID"
+                      onChange={(e) => setStudentID(e.target.value)}
+                      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                )}
             {currSchool?.requiredFields?.includes("Aadhar No.") && (
               <div className="mb-4">
                 <label

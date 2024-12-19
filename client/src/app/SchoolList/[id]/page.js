@@ -453,6 +453,19 @@ const EditSchool = ({ params }) => {
     />
     <span className="text-gray-600">Course</span>
   </label>
+  <label
+                htmlFor="bloodGroup"
+                className="flex items-center space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  id="bloodGroup"
+                  name="Blood Group"
+                  checked={requiredFields.includes("Blood Group")}
+                  onChange={handleChange}
+                />
+                <span className="text-gray-600">Blood Group</span>
+              </label>
   <label htmlFor="batch" className="flex items-center space-x-2">
     <input
       type="checkbox"

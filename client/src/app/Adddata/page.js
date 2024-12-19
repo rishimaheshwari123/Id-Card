@@ -576,6 +576,7 @@ const Adddata = () => {
                     />
                   </div>
                 )}
+                
                 {currSchool?.requiredFields?.includes("Aadhar No.") && (
                   <div className="mb-4">
                     <input
