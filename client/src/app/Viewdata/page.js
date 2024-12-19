@@ -482,6 +482,52 @@ const Viewdata = () => {
       });
     }
   };
+  const deleteStaff = async (id) => {
+    // Show loading Swal
+    Swal.fire({
+      title: "Deleting...",
+      text: "Please wait while the student is being deleted.",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    try {
+      // Perform the delete request
+      const response = await axios.post(
+        `/user/delete/staff/${id}?`,
+        {},
+        config()
+      );
+
+      // Handle success
+      if (response.status === 200) {
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: "The Staff was successfully deleted.",
+          confirmButtonText: "OK",
+        });
+      }
+
+      const response2 = await axios.post(
+        `/user/staffs/${currSchool}?status=${status}`,
+        null,
+        config()
+      );
+      setstaffs(response2?.data?.staff);
+      setStaffData(response2?.data?.staff);
+    } catch (error) {
+      // Handle error
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Failed to delete the student. Please try again later.",
+        confirmButtonText: "OK",
+      });
+    }
+  };
 
   const redirectToStaffEdit = (id) => {
     router.push(`/Viewdata/staffedit/${id}`);
@@ -979,13 +1025,26 @@ const Viewdata = () => {
                   )}
                   {/* Add more staff details as required */}
                   <div className="w-full flex justify-center items-center mt-2">
-                    {status == "Panding" && (
-                      <button
-                        onClick={() => redirectToStaffEdit(staff._id)}
-                        className="px-5 py-1 bg-indigo-600 text-white m-auto rounded-md"
-                      >
-                        edit
-                      </button>
+                    {status === "Panding" && (
+                      <>
+                        {/* Edit Button */}
+                        <button
+                          onClick={() => redirectToStaffEdit(staff._id)}
+                          className="flex items-center px-5 py-1 bg-indigo-600 text-white m-2 rounded-md hover:bg-indigo-700"
+                        >
+                          <FaEdit className="mr-2" />
+                          Edit
+                        </button>
+
+                        {/* Delete Button */}
+                        <button
+                          onClick={() => deleteStaff(staff._id)}
+                          className="flex items-center px-5 py-1 bg-red-600 text-white m-2 rounded-md hover:bg-red-700"
+                        >
+                          <FaTrashAlt className="mr-2" />
+                          Delete
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>

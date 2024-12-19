@@ -966,217 +966,258 @@ exports.editStudent = catchAsyncErron(async (req, res, next) => {
 });
 
 exports.addStaff = catchAsyncErron(async (req, res, next) => {
-  const id = req.id;
-  let file = null;
-
-  console.log(req.body)
-
-  const user = await User.findById(id);
-
-  if (user) {
-    const schoolID = req.params.id;
-    const currSchool = await School.findById(schoolID);
-
-    if (!currSchool) return next(new errorHandler("invalidate School ID"));
-
-    const {name, fatherName} = req.body;
+  try {
+    const id = req.id;
+    let file = null;
 
     console.log(req.body);
-    if (!name) return next(new errorHandler("name is Required"));
 
-    let currStaff = {
-      name,
-    };
+    const user = await User.findById(id);
 
-    if (req.body.fatherName) {
-      currStaff.fatherName = req.body.fatherName;
-    }
+    if (user) {
+      const schoolID = req.params.id;
+      const currSchool = await School.findById(schoolID);
 
-    if (req.body.husbandName) {
-      currStaff.husbandName = req.body.husbandName;
-    }
-    if (req.body.dob) {
-      currStaff.dob = req.body.dob;
-    }
-    if (req.body.contact) {
-      currStaff.contact = req.body.contact;
-    }
-    if (req.body.email) {
-      currStaff.email = req.body.email;
-    }
-    if (req.body.address) {
-      currStaff.address = req.body.address;
-    }
-    if (req.body.qualification) {
-      currStaff.qualification = req.body.qualification;
-    }
-    if (req.body.designation) {
-      currStaff.designation = req.body.designation;
-    }
-    if (req.body.staffType) {
-      currStaff.staffType = req.body.staffType;
-    }
-    if (req.body.doj) {
-      currStaff.doj = req.body.doj;
-    }
-    if (req.body.uid) {
-      currStaff.uid = req.body.uid;
-    }
-    if (req.body.staffID) {
-      currStaff.staffID = req.body.staffID;
-    }
-    if (req.body.udiseCode) {
-      currStaff.udiseCode = req.body.udiseCode;
-    }
-    if (req.body.schoolName) {
-      currStaff.schoolName = req.body.schoolName;
-    }
-    if (req.body.bloodGroup) {
-      currStaff.bloodGroup = req.body.bloodGroup;
-    }
-    if (req.body.dispatchNo) {
-      currStaff.dispatchNo = req.body.dispatchNo;
-    }
-    if (req.body.dateOfissue) {
-      currStaff.dateOfissue = req.body.dateOfissue;
-    }
-    if (req.body.ihrmsNo) {
-      currStaff.ihrmsNo = req.body.ihrmsNo;
-    }
-    if (req.body.beltNo) {
-      currStaff.beltNo = req.body.beltNo;
-    }
+      if (!currSchool) return next(new errorHandler("Invalid School ID"));
 
-    const staff = await Staff.create(currStaff);
-    // if(req.body.avatar){
+      const { name, fatherName } = req.body;
 
-    // }
+      console.log(req.body);
+      if (!name) return next(new errorHandler("Name is Required"));
 
-    staff.school = currSchool._id;
-    staff.user = id;
+      let currStaff = { name };
 
-    const {publicId,url} = req.body;
+      if (req.body.fatherName) {
+        currStaff.fatherName = req.body.fatherName;
+      }
 
-    
+      if (req.body.husbandName) {
+        currStaff.husbandName = req.body.husbandName;
+      }
+      if (req.body.dob) {
+        currStaff.dob = req.body.dob;
+      }
+      if (req.body.contact) {
+        currStaff.contact = req.body.contact;
+      }
+      if (req.body.email) {
+        currStaff.email = req.body.email;
+      }
+      if (req.body.address) {
+        currStaff.address = req.body.address;
+      }
+      if (req.body.qualification) {
+        currStaff.qualification = req.body.qualification;
+      }
+      if (req.body.designation) {
+        currStaff.designation = req.body.designation;
+      }
+      if (req.body.staffType) {
+        currStaff.staffType = req.body.staffType;
+      }
+      if (req.body.doj) {
+        currStaff.doj = req.body.doj;
+      }
+      if (req.body.uid) {
+        currStaff.uid = req.body.uid;
+      }
+      if (req.body.staffID) {
+        currStaff.staffID = req.body.staffID;
+      }
+      if (req.body.udiseCode) {
+        currStaff.udiseCode = req.body.udiseCode;
+      }
+      if (req.body.schoolName) {
+        currStaff.schoolName = req.body.schoolName;
+      }
+      if (req.body.bloodGroup) {
+        currStaff.bloodGroup = req.body.bloodGroup;
+      }
+      if (req.body.dispatchNo) {
+        currStaff.dispatchNo = req.body.dispatchNo;
+      }
+      if (req.body.dateOfissue) {
+        currStaff.dateOfissue = req.body.dateOfissue;
+      }
+      if (req.body.ihrmsNo) {
+        currStaff.ihrmsNo = req.body.ihrmsNo;
+      }
+      if (req.body.beltNo) {
+        currStaff.beltNo = req.body.beltNo;
+      }
+
+      if (req.body.jobStatus) {
+        currStaff.jobStatus = req.body.jobStatus;
+      }
+      if (req.body.licenceNo) {
+        currStaff.licenceNo = req.body.licenceNo;
+      }
+      if (req.body.panCardNo) {
+        currStaff.panCardNo = req.body.panCardNo;
+      }
+      if (req.body.adharNo) {
+        currStaff.adharNo = req.body.adharNo;
+      }
+      if (req.body.idNo) {
+        currStaff.idNo = req.body.idNo;
+      }
+      // Extra fields
+      if (req.body.extraField1) {
+        currStaff.extraField1 = req.body.extraField1;
+      }
+      if (req.body.extraField2) {
+        currStaff.extraField2 = req.body.extraField2;
+      }
+
+      const staff = await Staff.create(currStaff);
+
+      staff.school = currSchool._id;
+      staff.user = id;
+
+      const { publicId, url } = req.body;
 
       staff.avatar = {
         publicId: publicId,
         url: url,
       };
-  
-    staff.save();
 
-    res.status(200).json({
-      succcess: true,
-      message: "successfully Register",
-      user: user,
-      staff: staff,
-    });
-  }
-  const school = await School.findById(id);
-  if (school) {
-    const schoolID = req.params.id;
-    const currSchool = await School.findById(schoolID);
+      await staff.save();
 
-    if (!currSchool) return next(new errorHandler("invalidate School ID"));
-
-    const {name, fatherName} = req.body;
-
-    console.log(req.body);
-    if (!name) return next(new errorHandler("name is Required"));
-
-    let currStaff = {
-      name,
-    };
-
-    if (req.body.fatherName) {
-      currStaff.fatherName = req.body.fatherName;
+      res.status(200).json({
+        success: true,
+        message: "Successfully Registered",
+        user: user,
+        staff: staff,
+      });
     }
 
-    if (req.body.husbandName) {
-      currStaff.husbandName = req.body.husbandName;
-    }
-    if (req.body.dob) {
-      currStaff.dob = req.body.dob;
-    }
-    if (req.body.contact) {
-      currStaff.contact = req.body.contact;
-    }
-    if (req.body.email) {
-      currStaff.email = req.body.email;
-    }
-    if (req.body.address) {
-      currStaff.address = req.body.address;
-    }
-    if (req.body.qualification) {
-      currStaff.qualification = req.body.qualification;
-    }
-    if (req.body.designation) {
-      currStaff.designation = req.body.designation;
-    }
-    if (req.body.staffType) {
-      currStaff.staffType = req.body.staffType;
-    }
-    if (req.body.doj) {
-      currStaff.doj = req.body.doj;
-    }
-    if (req.body.uid) {
-      currStaff.uid = req.body.uid;
-    }
-    if (req.body.staffID) {
-      currStaff.staffID = req.body.staffID;
-    }
-    if (req.body.udiseCode) {
-      currStaff.udiseCode = req.body.udiseCode;
-    }
-    if (req.body.schoolName) {
-      currStaff.schoolName = req.body.schoolName;
-    }
-    if (req.body.bloodGroup) {
-      currStaff.bloodGroup = req.body.bloodGroup;
-    }
-    if (req.body.dispatchNo) {
-      currStaff.dispatchNo = req.body.dispatchNo;
-    }
-    if (req.body.dateOfissue) {
-      currStaff.dateOfissue = req.body.dateOfissue;
-    }
-    if (req.body.ihrmsNo) {
-      currStaff.ihrmsNo = req.body.ihrmsNo;
-    }
-    if (req.body.beltNo) {
-      currStaff.beltNo = req.body.beltNo;
-    }
+    const school = await School.findById(id);
+    if (school) {
+      const schoolID = req.params.id;
+      const currSchool = await School.findById(schoolID);
 
-    const staff = await Staff.create(currStaff);
-    // if(req.body.avatar){
+      if (!currSchool) return next(new errorHandler("Invalid School ID"));
 
-    // }
+      const { name, fatherName } = req.body;
 
-    staff.school = currSchool._id;
-    staff.user = school.user;
+      console.log(req.body);
+      if (!name) return next(new errorHandler("Name is Required"));
 
-    if (file) {
-      const fileUri = getDataUri(file);
+      let currStaff = { name };
 
-      const myavatar = await cloudinary.v2.uploader.upload(fileUri.content);
+      if (req.body.fatherName) {
+        currStaff.fatherName = req.body.fatherName;
+      }
 
-      console.log(myavatar);
+      if (req.body.husbandName) {
+        currStaff.husbandName = req.body.husbandName;
+      }
+      if (req.body.dob) {
+        currStaff.dob = req.body.dob;
+      }
+      if (req.body.contact) {
+        currStaff.contact = req.body.contact;
+      }
+      if (req.body.email) {
+        currStaff.email = req.body.email;
+      }
+      if (req.body.address) {
+        currStaff.address = req.body.address;
+      }
+      if (req.body.qualification) {
+        currStaff.qualification = req.body.qualification;
+      }
+      if (req.body.designation) {
+        currStaff.designation = req.body.designation;
+      }
+      if (req.body.staffType) {
+        currStaff.staffType = req.body.staffType;
+      }
+      if (req.body.doj) {
+        currStaff.doj = req.body.doj;
+      }
+      if (req.body.uid) {
+        currStaff.uid = req.body.uid;
+      }
+      if (req.body.staffID) {
+        currStaff.staffID = req.body.staffID;
+      }
+      if (req.body.udiseCode) {
+        currStaff.udiseCode = req.body.udiseCode;
+      }
+      if (req.body.schoolName) {
+        currStaff.schoolName = req.body.schoolName;
+      }
+      if (req.body.bloodGroup) {
+        currStaff.bloodGroup = req.body.bloodGroup;
+      }
+      if (req.body.dispatchNo) {
+        currStaff.dispatchNo = req.body.dispatchNo;
+      }
+      if (req.body.dateOfissue) {
+        currStaff.dateOfissue = req.body.dateOfissue;
+      }
+      if (req.body.ihrmsNo) {
+        currStaff.ihrmsNo = req.body.ihrmsNo;
+      }
+      if (req.body.beltNo) {
+        currStaff.beltNo = req.body.beltNo;
+      }
+      if (req.body.jobStatus) {
+        currStaff.jobStatus = req.body.jobStatus;
+      }
+      if (req.body.licenceNo) {
+        currStaff.licenceNo = req.body.licenceNo;
+      }
+      if (req.body.panCardNo) {
+        currStaff.panCardNo = req.body.panCardNo;
+      }
+      if (req.body.adharNo) {
+        currStaff.adharNo = req.body.adharNo;
+      }
+      if (req.body.idNo) {
+        currStaff.idNo = req.body.idNo;
+      }
+      // Extra fields
+      if (req.body.extraField1) {
+        currStaff.extraField1 = req.body.extraField1;
+      }
+      if (req.body.extraField2) {
+        currStaff.extraField2 = req.body.extraField2;
+      }
+
+      const staff = await Staff.create(currStaff);
+
+      staff.school = currSchool._id;
+      staff.user = school.user;
+
+      const { publicId, url } = req.body;
 
       staff.avatar = {
-        publicId: myavatar.public_id,
-        url: myavatar.secure_url,
+        publicId: publicId,
+        url: url,
       };
-    }
-    staff.save();
 
-    res.status(200).json({
-      succcess: true,
-      message: "successfully Register",
-      staff: staff,
-    });
+      await staff.save();
+
+      res.status(200).json({
+        success: true,
+        message: "Successfully Registered",
+        staff: staff,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    next(new errorHandler("Something went wrong, please try again later"));
   }
 });
+
+
+
+
+
+
+
 
 exports.editStaff = catchAsyncErron(async (req, res, next) => {
   const staffId = req.params.id;

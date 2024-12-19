@@ -53,14 +53,14 @@ const Adddata = () => {
   const [house, setHouse] = useState("");
   const [batch, setBatch] = useState("");
   const [panCardNo, setPanCardNo] = useState("");
+  const [jobStatus, setJobStatus] = useState("");
   const [extraField1, setExtraField1] = useState("");
   const [extraField2, setExtraField2] = useState("");
   const [imageData, setImageData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
 
-
   const [validUpTo, setValidUpTo] = useState("");
   const [course, setCourse] = useState("");
-  
+
   const [regNo, setRegNo] = useState("");
 
   const handlePhotoFileSelect = async (event) => {
@@ -156,16 +156,15 @@ const Adddata = () => {
     if (routeNo) formData.routeNo = routeNo;
     if (photoName) formData.photoName = photoName;
 
-
     // Add missing fields
-  if (house) formData.houseName = house;
-  if (validUpTo) formData.validUpTo = validUpTo;
-  if (course) formData.course = course;
-  if (batch) formData.batch = batch;
-  if (idNo) formData.idNo = idNo;
-  if (regNo) formData.regNo = regNo;
-  if (extraField1) formData.extraField1 = extraField1;
-  if (extraField2) formData.extraField2 = extraField2;
+    if (house) formData.houseName = house;
+    if (validUpTo) formData.validUpTo = validUpTo;
+    if (course) formData.course = course;
+    if (batch) formData.batch = batch;
+    if (idNo) formData.idNo = idNo;
+    if (regNo) formData.regNo = regNo;
+    if (extraField1) formData.extraField1 = extraField1;
+    if (extraField2) formData.extraField2 = extraField2;
 
     if (imageData.publicId) formData.publicId = imageData.publicId;
     if (imageData.url) formData.url = imageData.url;
@@ -190,25 +189,53 @@ const Adddata = () => {
         progress: undefined,
       });
       // Clear all form values after dispatching the form
-      // setName("");
-      // setFatherName("");
-      // setMotherName("");
-      // setDob("");
-      // setContact("");
-      // setEmail("");
-      // setAddress("");
-      // setRollNo("");
-      // setStudentClass("");
-      // setSection("");
-      // setSession("");
-      // setAdmissionNo("");
-      // setBusNo("");
-      // setBloodGroup("");
-      // setStudentID("");
-      // setAadharNo("");
-      // setRibbionColour("");
-      // setRouteNo("");
-      // setPhotoName("");
+      setHusbandName("");
+      setName("");
+      setFatherName("");
+      setMotherName("");
+      setDob("");
+      setContact("");
+      setEmail("");
+      setAddress("");
+      setRollNo("");
+      setStudentClass("");
+      setSection("");
+      setSession("");
+      setAdmissionNo("");
+      setBusNo("");
+      setBloodGroup("");
+      setStudentID("");
+      setAadharNo("");
+      setRibbionColour("");
+      setRouteNo("");
+      setPhotoName("");
+      setmodeOfTransport("");
+      setQualification("");
+      setDesignation("");
+      setStaffType("");
+      setDoj("");
+      setudiseCode("");
+      setschoolName("");
+      setdispatchNo("");
+      setdateOfissue("");
+      setihrmsNo("");
+      setUid("");
+      setbeltNo("");
+      setstaffID("");
+      setloginSchool(false);  // For boolean values
+      setLicenceNo("");
+      setIdNo("");
+      setHouse("");
+      setBatch("");
+      setPanCardNo("");
+      setJobStatus("");
+      setExtraField1("");
+      setExtraField2("");
+      setImageData({ publicId: "", url: "" }); // Resetting the image data to an empty state
+      setValidUpTo("");
+      setCourse("");
+      setRegNo("");
+      
     } else {
       toast.error(response, {
         position: "top-right",
@@ -240,7 +267,7 @@ const Adddata = () => {
     if (designation) formData.designation = designation;
     if (staffType) formData.staffType = staffType;
     if (doj) formData.doj = doj;
-    if (uid) formData.uid = uid;
+    if (uid) formData.udiseCode = uid;
     if (staffID) formData.staffID = staffID;
     if (bloodGroup) formData.bloodGroup = bloodGroup;
     if (dispatchNo) formData.dispatchNo = dispatchNo;
@@ -248,6 +275,14 @@ const Adddata = () => {
     if (ihrmsNo) formData.ihrmsNo = ihrmsNo;
     if (beltNo) formData.beltNo = beltNo;
     if (schoolName) formData.schoolName = schoolName;
+    
+    if (jobStatus) formData.jobStatus = jobStatus;
+    if (licenceNo) formData.licenceNo = licenceNo;
+    if (panCardNo) formData.panCardNo = panCardNo;
+    if (adharNo) formData.adharNo = adharNo;
+    if (idNo) formData.idNo = idNo;
+    if (extraField1) formData.extraField1 = extraField1;
+    if (extraField2) formData.extraField2 = extraField2;
     // Add other staff fields here
     if (imageData.publicId) formData.publicId = imageData.publicId;
     if (imageData.url) formData.url = imageData.url;
@@ -266,25 +301,53 @@ const Adddata = () => {
         draggable: true,
         progress: undefined,
       });
+      setHusbandName("");
       setName("");
       setFatherName("");
-      setHusbandName("");
+      setMotherName("");
       setDob("");
       setContact("");
       setEmail("");
       setAddress("");
+      setRollNo("");
+      setStudentClass("");
+      setSection("");
+      setSession("");
+      setAdmissionNo("");
+      setBusNo("");
+      setBloodGroup("");
+      setStudentID("");
+      setAadharNo("");
+      setRibbionColour("");
+      setRouteNo("");
+      setPhotoName("");
+      setmodeOfTransport("");
       setQualification("");
       setDesignation("");
       setStaffType("");
       setDoj("");
-      setUid("");
-      setstaffID("");
-      setBloodGroup("");
+      setudiseCode("");
+      setschoolName("");
       setdispatchNo("");
       setdateOfissue("");
       setihrmsNo("");
+      setUid("");
       setbeltNo("");
-      setschoolName("");
+      setstaffID("");
+      setloginSchool(false);  // For boolean values
+      setLicenceNo("");
+      setIdNo("");
+      setHouse("");
+      setBatch("");
+      setPanCardNo("");
+      setJobStatus("");
+      setExtraField1("");
+      setExtraField2("");
+      setImageData({ publicId: "", url: "" }); // Resetting the image data to an empty state
+      setValidUpTo("");
+      setCourse("");
+      setRegNo("");
+      
     } else {
       toast.error(response, {
         position: "top-right",
@@ -300,7 +363,6 @@ const Adddata = () => {
     // Clear all form values after dispatching the form
   };
 
- 
   return (
     <>
       <Nav />
@@ -576,94 +638,94 @@ const Adddata = () => {
                   </div>
                 )}
                 {currSchool?.requiredFields?.includes("Valid Up To") && (
-  <div className="mb-4">
-    <input
-      type="text"
-      id="validUpTo"
-      value={validUpTo}
-      placeholder="Valid Up To"
-      onChange={(e) => setValidUpTo(e.target.value)}
-      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-    />
-  </div>
-)}
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      id="validUpTo"
+                      value={validUpTo}
+                      placeholder="Valid Up To"
+                      onChange={(e) => setValidUpTo(e.target.value)}
+                      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                )}
 
-{currSchool?.requiredFields?.includes("Course") && (
-  <div className="mb-4">
-    <input
-      type="text"
-      id="course"
-      value={course}
-      placeholder="Course"
-      onChange={(e) => setCourse(e.target.value)}
-      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-    />
-  </div>
-)}
-{currSchool?.requiredFields?.includes("Batch") && (
-  <div className="mb-4">
-    <input
-      type="text"
-      id="Batch"
-      value={batch}
-      placeholder="Course"
-      onChange={(e) => setBatch(e.target.value)}
-      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-    />
-  </div>
-)}
+                {currSchool?.requiredFields?.includes("Course") && (
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      id="course"
+                      value={course}
+                      placeholder="Course"
+                      onChange={(e) => setCourse(e.target.value)}
+                      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                )}
+                {currSchool?.requiredFields?.includes("Batch") && (
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      id="Batch"
+                      value={batch}
+                      placeholder="Batch"
+                      onChange={(e) => setBatch(e.target.value)}
+                      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                )}
 
-{currSchool?.requiredFields?.includes("ID No.") && (
-  <div className="mb-4">
-    <input
-      type="text"
-      id="idNo"
-      value={idNo}
-      placeholder="ID No."
-      onChange={(e) => setIdNo(e.target.value)}
-      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-    />
-  </div>
-)}
+                {currSchool?.requiredFields?.includes("ID No.") && (
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      id="idNo"
+                      value={idNo}
+                      placeholder="ID No."
+                      onChange={(e) => setIdNo(e.target.value)}
+                      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                )}
 
-{currSchool?.requiredFields?.includes("Reg. No.") && (
-  <div className="mb-4">
-    <input
-      type="text"
-      id="regNo"
-      value={regNo}
-      placeholder="Reg. No."
-      onChange={(e) => setRegNo(e.target.value)}
-      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-    />
-  </div>
-)}
+                {currSchool?.requiredFields?.includes("Reg. No.") && (
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      id="regNo"
+                      value={regNo}
+                      placeholder="Reg. No."
+                      onChange={(e) => setRegNo(e.target.value)}
+                      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                )}
 
-{currSchool?.requiredFields?.includes("Extra Field-1") && (
-  <div className="mb-4">
-    <input
-      type="text"
-      id="extraField1"
-      value={extraField1}
-      placeholder="Extra Field-1"
-      onChange={(e) => setExtraField1(e.target.value)}
-      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-    />
-  </div>
-)}
+                {currSchool?.requiredFields?.includes("Extra Field-1") && (
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      id="extraField1"
+                      value={extraField1}
+                      placeholder="Extra Field-1"
+                      onChange={(e) => setExtraField1(e.target.value)}
+                      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                )}
 
-{currSchool?.requiredFields?.includes("Extra Field-2") && (
-  <div className="mb-4">
-    <input
-      type="text"
-      id="extraField2"
-      value={extraField2}
-      placeholder="Extra Field-2"
-      onChange={(e) => setExtraField2(e.target.value)}
-      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-    />
-  </div>
-)}
+                {currSchool?.requiredFields?.includes("Extra Field-2") && (
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      id="extraField2"
+                      value={extraField2}
+                      placeholder="Extra Field-2"
+                      onChange={(e) => setExtraField2(e.target.value)}
+                      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                )}
 
                 {/* {currSchool?.requiredFields?.includes("Mode of Transport") && (
                   <div className="mb-4">
@@ -889,8 +951,20 @@ const Adddata = () => {
                     type="text"
                     id="uid"
                     value={uid}
-                    placeholder="UID (UDISE Code)"
+                    placeholder="UDISE Code"
                     onChange={(e) => setUid(e.target.value)}
+                    className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+              )}
+              {currSchool?.requiredFieldsStaff?.includes("Job Status") && (
+                <div className="mb-4">
+                  <input
+                    type="text"
+                    id="uid"
+                    value={jobStatus}
+                    placeholder="Job Status"
+                    onChange={(e) => setJobStatus(e.target.value)}
                     className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
@@ -967,7 +1041,7 @@ const Adddata = () => {
                   />
                 </div>
               )}
-              {currSchool?.requiredFieldsStaff?.includes("Adhar No.") && (
+              {currSchool?.requiredFieldsStaff?.includes("Aadhar Card No.") && (
                 <div className="mb-4">
                   <input
                     type="text"
@@ -1053,32 +1127,32 @@ const Adddata = () => {
               {/* Add a submit button */}
 
               <label
-                  htmlFor="dropzone-file"
-                  className="flex items-center px-3 py-3 mx-auto mt-6 text-center border-2 border-dashed rounded-lg cursor-pointer"
+                htmlFor="dropzone-file"
+                className="flex items-center px-3 py-3 mx-auto mt-6 text-center border-2 border-dashed rounded-lg cursor-pointer"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-6 h-6 text-gray-300"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-6 h-6 text-gray-300"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                    />
-                  </svg>
-                  <h2 className="mx-3 text-gray-400">Satff Profile Photos</h2>
-                  <input
-                    id="dropzone-file"
-                    type="file"
-                    className=""
-                    multiple
-                    onChange={handlePhotoFileSelect}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                   />
-                </label>
+                </svg>
+                <h2 className="mx-3 text-gray-400">Satff Profile Photos</h2>
+                <input
+                  id="dropzone-file"
+                  type="file"
+                  className=""
+                  multiple
+                  onChange={handlePhotoFileSelect}
+                />
+              </label>
               <button
                 type="submit"
                 className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
