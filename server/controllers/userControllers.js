@@ -1073,6 +1073,7 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
 
       staff.school = currSchool._id;
       staff.user = id;
+      student.photoNameUnuiq = await getNextSequenceValue("staffName")
 
       const { publicId, url } = req.body;
 
@@ -2749,73 +2750,109 @@ exports.StaffAvatarsDownload = catchAsyncErron(async (req, res, next) => {
 
 
 
-
-
-
 exports.StaffNewAvatarsDownload = catchAsyncErron(async (req, res, next) => {
-  const schoolId = req.params.id;
-  let {status} = req.body;
+  const schoolId = req.params.id; // School ID from URL parameter
+  const { status } = req.body; // Status from request body
 
   try {
-    // Fetch students' avatars from the database based on school id and status
-    const students = await Staff.find({school: schoolId, status: status});
-    const studentAvatars = students.map((student) => student.avatar.url);
-    console.log(studentAvatars);
+    // Fetch school details and student data
+    const school = await School.findById(schoolId); // Assuming you have a School model
+    if (!school) {
+      return res.status(404).json({ success: false, message: "School not found" });
+    }
 
-    res.status(200).json({
-      success: true,
-      role: "Staff",
-      staffImages: studentAvatars,
+    const students = await Staff.find({ school: schoolId, status });
+    if (!students.length) {
+      return res.status(404).json({ success: false, message: "No students found" });
+    }
+
+    const studentAvatars = students.map((student,index) => ({
+      url: student.avatar.url,
+      name: student.photoNameUnuiq ,
+    }));
+
+    // Create a temporary directory to store the avatars
+    const tempDir = path.join(__dirname, "temp");
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir);
+    }
+
+    // Download the images and save them locally with student names
+    for (let { url, name } of studentAvatars) {
+      try {
+        const response = await axios({
+          url,
+          method: "GET",
+          responseType: "stream",
+        });
+
+        const filePath = path.join(tempDir, `${name.replace(/ /g, "_")}.jpg`);
+        const writer = fs.createWriteStream(filePath);
+        response.data.pipe(writer);
+
+        // Wait until the image is fully downloaded
+        await new Promise((resolve, reject) => {
+          writer.on("finish", resolve);
+          writer.on("error", reject);
+        });
+      } catch (error) {
+        console.error(`Failed to download avatar from ${url}:`, error.message);
+      }
+    }
+
+    // Create a ZIP file named after the school
+    const zipFileName = `${school.name.replace(/ /g, "_")}_avatars.zip`;
+    console.log(zipFileName)
+    const zipFilePath = path.join(__dirname, zipFileName);
+    const output = fs.createWriteStream(zipFilePath);
+    const archive = archiver("zip", { zlib: { level: 9 } });
+
+    archive.pipe(output);
+
+    // Add all the downloaded files to the ZIP archive
+    const files = fs.readdirSync(tempDir);
+    files.forEach((file) => {
+      const filePath = path.join(tempDir, file);
+      archive.file(filePath, { name: file });
+    });
+
+    await archive.finalize();
+
+    // Cleanup the temporary directory after creating the ZIP file
+    fs.rmSync(tempDir, { recursive: true, force: true });
+
+    // Send the ZIP file to the client
+    res.setHeader("Content-Disposition", `attachment; filename="${zipFileName}"`);
+    res.setHeader("Content-Type", "application/zip");
+    const readStream = fs.createReadStream(zipFilePath);
+    readStream.pipe(res);
+
+    // Once the ZIP is sent, delete it from the server
+    readStream.on("close", () => {
+      fs.unlinkSync(zipFilePath); // Clean up the ZIP file
     });
   } catch (error) {
-    console.error("Error downloading student avatars:", error);
-    res.status(500).send("Error downloading student avatars");
+    console.error("Error while creating or downloading ZIP file:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 
-// exports.StaffAvatarsDownload = catchAsyncErron(async (req, res, next) => {
-//   const studentId = req.params.id;
-//   let { status } = req.body;
+
+// exports.StaffNewAvatarsDownload = catchAsyncErron(async (req, res, next) => {
+//   const schoolId = req.params.id;
+//   let {status} = req.body;
 
 //   try {
 //     // Fetch students' avatars from the database based on school id and status
-//     const studentsAvatars = await Student.find({
-//       school: studentId,
-//       status: status,
-//     }).select("avatar");
-//     console.log(studentsAvatars);
+//     const students = await Staff.find({school: schoolId, status: status});
+//     const studentAvatars = students.map((student) => student.avatar.url);
+//     console.log(studentAvatars);
 
 //     res.status(200).json({
 //       success: true,
 //       role: "Staff",
-//       message: "Students found for the provided school ID",
-//       studentImages: studentsAvatars,
+//       staffImages: studentAvatars,
 //     });
-
-//     // // Set response headers
-//     // res.setHeader("Content-Type", "application/zip");
-//     // res.setHeader("Content-Disposition", 'attachment; filename="avatars.zip"');
-
-//     // // Create a writable stream to zip the images
-//     // const zipStream = new yazl.ZipFile();
-
-//     // // Add each avatar to the zip file
-//     // studentsAvatars.forEach((student) => {
-//     //   // Assuming the avatar is stored as a URL, you may need to adjust this part based on how avatars are stored
-//     //   const imageUrl = student.avatar.url;
-//     //   const imageName = student._id + ".jpg"; // Naming the image file with student ID
-
-//     //   // Download the image and add it to the zip file
-//     //   const imageStream = request.get(imageUrl); // Use request module to download the image (you may need to install it)
-//     //   zipStream.addReadStream(imageStream, imageName);
-//     // });
-
-//     // // Pipe the zip file to the response
-//     // zipStream.outputStream.pipe(res);
-
-//     // // End the zip stream
-//     // zipStream.end();
-
 //   } catch (error) {
 //     console.error("Error downloading student avatars:", error);
 //     res.status(500).send("Error downloading student avatars");

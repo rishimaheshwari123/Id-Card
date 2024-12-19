@@ -371,14 +371,29 @@ const Viewdata = () => {
         },
       });
 
-      const response = await axios.post(
-        `/user/student/images/${currSchool}`,
-        { status },
-        {
-          ...config(),
-          responseType: "blob", // Ensure response is a blob
-        }
-      );
+      let response ;
+
+      if(currRole == "student"){
+         response = await axios.post(
+          `/user/student/images/${currSchool}`,
+          { status },
+          {
+            ...config(),
+            responseType: "blob", // Ensure response is a blob
+          }
+        );
+      }
+      if(currRole == "staff"){
+         response = await axios.post(
+          `/user/staff/images/${currSchool}`,
+          { status },
+          {
+            ...config(),
+            responseType: "blob", // Ensure response is a blob
+          }
+        );
+      }
+ 
 
       // Extract filename from response headers
       const contentDisposition = response.headers["content-disposition"];
@@ -914,6 +929,11 @@ const Viewdata = () => {
                   {staff?.husbandName && (
                     <p className="text-gray-700">
                       Husband&apos;s Name: {staff?.husbandName}
+                    </p>
+                  )}
+                  {staff?.photoNameUnuiq && (
+                    <p className="text-gray-700">
+                      Photo Unique No.: {staff?.photoNameUnuiq}
                     </p>
                   )}
                   {staff?.dob && (
