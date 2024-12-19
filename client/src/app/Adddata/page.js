@@ -596,7 +596,7 @@ const Adddata = () => {
                       type="text"
                       id="bloodGroup"
                       value={bloodGroup}
-                      placeholder="Ribbon Colour"
+                      placeholder="Blood Group"
                       onChange={(e) => setBloodGroup(e.target.value)}
                       className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     />
