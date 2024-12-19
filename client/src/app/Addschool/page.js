@@ -657,7 +657,7 @@ const AddSchool = () => {
                 />
                 <span className="text-gray-600">Address</span>
               </label>
-              <label htmlFor="UIDNo" className="flex items-center space-x-2">
+              {/* <label htmlFor="UIDNo" className="flex items-center space-x-2">
                 <input
                   type="checkbox"
                   id="UIDNo"
@@ -666,7 +666,7 @@ const AddSchool = () => {
                   onChange={handleStaffChange}
                 />
                 <span className="text-gray-600">UID No.</span>
-              </label>
+              </label> */}
               <label htmlFor="staffID" className="flex items-center space-x-2">
                 <input
                   type="checkbox"
