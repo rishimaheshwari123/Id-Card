@@ -1047,7 +1047,7 @@ const Adddata = () => {
                     type="text"
                     id="adharNo"
                     value={adharNo}
-                    placeholder="Adhar No."
+                    placeholder="Adhar No. (UID)"
                     onChange={(e) => setAdharNo(e.target.value)}
                     className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
