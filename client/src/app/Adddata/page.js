@@ -8,6 +8,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { redirect, useRouter } from "next/navigation";
 import axios from "axios";
+import Swal from 'sweetalert2';
+
 const Adddata = () => {
   const { user, schools, error } = useSelector((state) => state.user);
   const [currSchool, setCurrSchool] = useState("");
@@ -63,22 +65,32 @@ const Adddata = () => {
 
   const [regNo, setRegNo] = useState("");
 
+
   const handlePhotoFileSelect = async (event) => {
     event.preventDefault();
-    // const files = Array.from(e.target.files); // Convert FileList to an array
-    // setSelectedPhotos((prevPhotos) => [...prevPhotos, ...files]);
-    // console.log("Selected Photos:", selectedPhotos); // Updated state may not reflect immediately
-
     const file = event.target.files[0];
-    console.log(file);
     if (!file) {
-      alert("Please select an image first!");
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Please select an image first!',
+      });
       return;
     }
-
+  
     const formData = new FormData();
     formData.append("file", file);
-
+  
+    // Show loading alert
+    Swal.fire({
+      title: 'Uploading...',
+      text: 'Please wait while we upload your image.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+  
     try {
       const response = await axios.post(
         "https://testid.mahitechnocrafts.in/image/upload",
@@ -89,17 +101,33 @@ const Adddata = () => {
           },
         }
       );
-      console.log(response?.data?.thumbnailImage);
+  
+      // Hide loading alert
+      Swal.close();
+  
       if (response.data.success) {
-        const { public_id, url } = response.data.thumbnailImage; // Assuming the response contains these fields
+        const { public_id, url } = response.data.thumbnailImage;
         setImageData({ publicId: public_id, url: url });
-
-        alert("Image uploaded successfully!");
+  
+        Swal.fire({
+          icon: 'success',
+          title: 'Uploaded!',
+          text: 'Image uploaded successfully!',
+        });
       }
     } catch (error) {
       console.error(error);
+  
+      // Hide loading alert and show error message
+      Swal.close();
+      Swal.fire({
+        icon: 'error',
+        title: 'Upload Failed',
+        text: 'Something went wrong. Please try again later.',
+      });
     }
   };
+  
 
   useEffect(() => {
     if (!user) {

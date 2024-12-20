@@ -1073,7 +1073,7 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
 
       staff.school = currSchool._id;
       staff.user = id;
-      student.photoNameUnuiq = await getNextSequenceValue("staffName")
+      staff.photoNameUnuiq = await getNextSequenceValue("staffName")
 
       const { publicId, url } = req.body;
 
@@ -1193,6 +1193,7 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
       staff.user = school.user;
 
       const { publicId, url } = req.body;
+      staff.photoNameUnuiq = await getNextSequenceValue("staffName")
 
       staff.avatar = {
         publicId: publicId,

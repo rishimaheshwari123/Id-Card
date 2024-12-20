@@ -1005,12 +1005,7 @@ const Viewdata = () => {
                   {staff?.beltNo && (
                     <p className="text-gray-700">Belt No.: {staff?.beltNo}</p>
                   )}
-                  {staff?.photoName && (
-                    <p className="text-gray-700">
-                      Photo Name: {staff?.photoName}
-                    </p>
-                  )}
-                  {staff?.licenceNo && (
+                                   {staff?.licenceNo && (
                     <p className="text-gray-700">
                       Licence No.: {staff?.licenceNo}
                     </p>
