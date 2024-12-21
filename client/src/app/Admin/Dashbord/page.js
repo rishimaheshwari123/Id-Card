@@ -47,7 +47,7 @@ function Dashboard() {
  useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await axios.get("https://testid.mahitechnocrafts.in/admin/get/dashboard",config());
+        const response = await axios.get("https://cardpro.co.in/admin/get/dashboard",config());
         if (response.data.success) {
           setDashboardData(response.data.data);
         }
@@ -66,7 +66,7 @@ function Dashboard() {
   useEffect(() => {
     const fetchChartData = async () => {
       try {
-        const response = await axios.get("https://testid.mahitechnocrafts.in/admin/get/chart-data",config());
+        const response = await axios.get("https://cardpro.co.in/admin/get/chart-data",config());
         if (response.data.success) {
           setChartData(response.data.data);
         }

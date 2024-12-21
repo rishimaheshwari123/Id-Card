@@ -93,7 +93,7 @@ const Adddata = () => {
   
     try {
       const response = await axios.post(
-        "https://testid.mahitechnocrafts.in/image/upload",
+        "https://cardpro.co.in/image/upload",
         formData,
         {
           headers: {
