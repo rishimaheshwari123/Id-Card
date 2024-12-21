@@ -2339,57 +2339,62 @@ exports.GraphData = catchAsyncErron(async (req, res, next) => {
 
 exports.StudentsAvatars = catchAsyncErron(async (req, res, next) => {
   console.log("enter");
+
   const studentId = req.params.id;
-  console.log("enter");
 
-  const school = await School.findById(studentId);
-
-  const files = req.files;
-  console.log(files);
-  const students = await Promise.all(
-    files.map(async (file) => {
-      const fileName = path.parse(file.originalname).name;
-      console.log(fileName);
-      const currStudent = await Student.findOne({
-        school: studentId,
-        photoName: fileName,
+  try {
+    const school = await School.findById(studentId);
+    if (!school) {
+      return res.status(404).json({
+        success: false,
+        message: "School not found",
       });
-      console.log(currStudent);
-      if (currStudent) {
-        if (currStudent.avatar.publicId !== "") {
-          await cloudinary.v2.uploader.destroy(
-            currStudent.avatar.publicId,
-            (error, result) => {
-              if (error) {
-                console.error("Error deleting file from Cloudinary:", error);
-              } else {
-                console.log("File deleted successfully:", result);
-              }
+    }
+
+    const files = req.files;
+    const students = await Promise.all(
+      files.map(async (file) => {
+        const fileName = path.parse(file.originalname).name;
+
+        const currStudent = await Student.findOne({
+          school: studentId,
+          photoName: fileName,
+        });
+
+        if (currStudent) {
+          if (currStudent.avatar.publicId !== "") {
+            try {
+              await cloudinary.v2.uploader.destroy(currStudent.avatar.publicId);
+              console.log("File deleted successfully");
+            } catch (error) {
+              console.error("Error deleting file from Cloudinary:", error);
             }
-          );
+          }
+
+          const fileUri = getDataUri(file);
+          const myavatar = await cloudinary.v2.uploader.upload(fileUri.content);
+
+          currStudent.avatar = {
+            publicId: myavatar.public_id,
+            url: myavatar.secure_url,
+          };
+          currStudent.photoName = "";
+          await currStudent.save();
+
+          return currStudent;
         }
-        const fileUri = getDataUri(file);
-        const myavatar = await cloudinary.v2.uploader.upload(fileUri.content);
+      })
+    );
 
-        currStudent.avatar = {
-          publicId: myavatar.public_id,
-          url: myavatar.secure_url,
-        };
-        currStudent.photoName = "";
-        await currStudent.save();
-
-        console.log(currStudent);
-        return currStudent;
-      }
-    })
-  );
-  console.log(students);
-  // Respond with the updated student information.
-  res.status(200).json({
-    success: true,
-    message: "send photos",
-    students,
-  });
+    res.status(200).json({
+      success: true,
+      message: "Photos updated successfully",
+      students,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    return next(error); // Pass the error to the error handler middleware
+  }
 });
 
 exports.StaffAvatars = catchAsyncErron(async (req, res, next) => {

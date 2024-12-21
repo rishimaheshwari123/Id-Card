@@ -5,15 +5,15 @@ const staffModel = mongoose.Schema(
     name: {
       type: String,
       required: [true, "School Name is Required"],
-      minLength: [3, "Firstname should be atleast of 3 Character"],
+      minLength: [1, "Firstname should be atleast of 3 Character"],
     },
     fatherName: {
       type: String,
-      minLength: [3, "Firstname should be atleast of 3 Character"],
+      minLength: [1, "Firstname should be atleast of 3 Character"],
     },
     husbandName: {
       type: String,
-      minLength: [3, "Firstname should be atleast of 3 Character"],
+      minLength: [1, "Firstname should be atleast of 3 Character"],
     },
     dob: {
       type: String,

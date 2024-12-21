@@ -28,6 +28,8 @@ const Viewdata = () => {
   const [classValue, setClassValue] = useState("");
   const [sectionValue, setSectionValue] = useState("");
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setError] = useState("");
 
   const [studentData, setStudentData] = useState([]);
   const [staffData, setStaffData] = useState([]);
@@ -197,59 +199,82 @@ const Viewdata = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    if (currRole == "student") {
-      const response = await axios.post(
-        `/user/students/${currSchool}?status=${status}`,
-        null,
-        config()
-      );
-      if (
-        response?.data?.message ==
-        "No students found for the provided school ID"
-      ) {
-        toast.error("No Students Added In This School", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-        return;
+    setLoading(true); // Set loading to true before the API request
+    
+    try {
+      let response;
+      if (currRole === "student") {
+        response = await axios.post(
+          `/user/students/${currSchool}?status=${status}`,
+          null,
+          config()
+        );
+        
+        if (response?.data?.message === "No students found for the provided school ID") {
+          toast.error("No Students Added In This School", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          setError("No students found for the provided school")
+        setstudents([]);
+        setStudentData([]);
+        setstaffs([]);
+        setStaffData([]);
+          return;
+        }
+        
+        setstudents(response?.data?.students);
+        setStudentData(response?.data?.students);
+        setsubmited(true);
       }
-
-      setstudents(response?.data?.students);
-      setStudentData(response?.data?.students);
-
-      console.log(response?.data?.students);
-      setsubmited(true);
-    }
-    if (currRole == "staff") {
-      const response = await axios.post(
-        `/user/staffs/${currSchool}?status=${status}`,
-        null,
-        config()
-      );
-      if (
-        response?.data?.message == "No staff found for the provided school ID"
-      ) {
-        toast.error("No Staff Member Added In This School", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-        return;
+      
+      if (currRole === "staff") {
+        response = await axios.post(
+          `/user/staffs/${currSchool}?status=${status}`,
+          null,
+          config()
+        );
+        
+        if (response?.data?.message === "No staff found for the provided school ID") {
+          toast.error("No Staff Member Added In This School", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          setError("No staff found for the provided school")
+          setstudents([]);
+          setStudentData([]);
+          setstaffs([]);
+          setStaffData([]);
+          return;
+        }
+        
+        setstaffs(response?.data?.staff);
+        setStaffData(response?.data?.staff);
+        setsubmited(true);
       }
-      setstaffs(response?.data?.staff);
-      setStaffData(response?.data?.staff);
-
-      console.log(response?.data?.staff);
-      setsubmited(true);
+    } catch (error) {
+      console.error("Error during API request:", error);
+      toast.error("An error occurred while processing your request.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    } finally {
+      setLoading(false); // Set loading to false after the request is complete (success or failure)
     }
   };
 
@@ -613,19 +638,30 @@ const Viewdata = () => {
               </a>
             </div>
 
-            {user && (
+          
+          </div>
+        )}
+
+
+      
+      
+      
+
+
+  <div className="container flex flex-col items-center mt-6 justify-center px-6 mx-auto">
+        {user && (
               <form
-                className="mt-6 w-full max-w-md"
+                className="mt-6 w-full  flex justify-between flex-wrap  "
                 onSubmit={handleFormSubmit}
               >
-                {!loginSchool && schools?.length !== 0 && (
-                  <div className="mb-4">
-                    <label
+                {!loginSchool  && (
+                  <div className="mb-4  ">
+                    {/* <label
                       htmlFor="school"
                       className="block text-md text-center font-medium text-gray-700"
                     >
                       Select School
-                    </label>
+                    </label> */}
                     <select
                       id="school"
                       onChange={handleSchoolSelect}
@@ -642,12 +678,12 @@ const Viewdata = () => {
                   </div>
                 )}
                 <div className="mb-4">
-                  <label
+                  {/* <label
                     htmlFor="Role"
                     className="block text-md text-center font-medium text-gray-700"
                   >
                     Select Role
-                  </label>
+                  </label> */}
                   <select
                     id="Role"
                     onChange={handleRoleSelect}
@@ -660,12 +696,12 @@ const Viewdata = () => {
                   </select>
                 </div>
                 <div className="mb-4">
-                  <label
+                  {/* <label
                     htmlFor="Role"
                     className="block text-md text-center font-medium text-gray-700"
                   >
                     Select Status
-                  </label>
+                  </label> */}
                   <select
                     id="Role"
                     onChange={handleStatusSelect}
@@ -680,7 +716,7 @@ const Viewdata = () => {
                 </div>
                 <button
                   type="submit"
-                  className="w-full mt-2 text-white bg-primary-600 bg-indigo-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-sky-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                  className="  text-white bg-primary-600 bg-indigo-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py- text-center dark:bg-sky-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                 >
                   View Data
                 </button>
@@ -696,12 +732,45 @@ const Viewdata = () => {
               onSubmit={handleFormSubmit}
             ></form>
             <form className="mt-3 w-full max-w-md"></form>
-          </div>
-        )}
+        </div>
+
+
+{
+  loading &&
+     <div className="grid min-h-[calc(100vh-3.5rem)] place-items-center">
+        <div className="spinner"></div>
+      </div>
+}
+
+
+{
+  !submitted && (
+    <div className="flex justify-center items-center  bg-gray-50">
+      <div className="bg-yellow-100 text-yellow-700 p-8 rounded-lg border-l-8 border-yellow-600 shadow-xl mx-auto max-w-md">
+        <p className="font-semibold text-lg text-center leading-relaxed">Please select a School Role and Status.</p>
+      </div>
+    </div>
+  ) 
+}
+{
+  submitted && currRole == "student" &&  students?.length === 0 && (
+    <div className="text-red-600 font-semibold text-center mt-4 p-4 bg-red-100 border-l-4 border-red-500 shadow-md rounded-lg">
+      {errorMsg}
+    </div>
+  )
+}
+{
+  submitted && currRole == "staff" &&  staffs?.length === 0 && (
+    <div className="text-red-600 font-semibold text-center mt-4 p-4 bg-red-100 border-l-4 border-red-500 shadow-md rounded-lg">
+      {errorMsg}
+    </div>
+  )
+}
+
 
         {submitted && currRole == "student" && (
           <div className="container mx-auto px-16 ">
-            <h1 className="text-center text-2xl py-10 font-semibold text-gray-800">
+            <h1 className="text-center text-2xl pb-10 font-semibold text-gray-800">
               Students
             </h1>
             <div className="flex items-center max-w-md mx-auto bg-gray-100 rounded-lg shadow-md overflow-hidden">
