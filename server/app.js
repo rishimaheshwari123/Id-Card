@@ -36,8 +36,9 @@ const allowedOrigins = [
   "http://localhost:3000",
   "https://id-card-bvxf-8tw7c7o4g-arpits-projects-1c6b9bf9.vercel.app",
   "https://id-card-bvxf.vercel.app",
-  "http://www.eagleart.in",
-  "https://www.eagleart.in",
+  "http://www.cardpro.co.in/",
+  "https://www.cardpro.co.in/",
+  "https://cardpro.co.in/",
 ];
 
 app.use(
