@@ -4,8 +4,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { redirect, useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Swal from 'sweetalert2'; // SweetAlert2 for user notifications
+import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa'; // React Icons
 
+import "react-toastify/dist/ReactToastify.css";
 
 function Code() {
     const [inputs, setInputs] = useState(['', '', '', '']);
@@ -20,7 +22,7 @@ function Code() {
 
     useEffect(() => {
         if (user) {
-          redirect('/')
+          redirect('/');
         }
     }, [user]);
 
@@ -75,68 +77,74 @@ function Code() {
         e.preventDefault();
         const verificationCode = inputs.join('');
         console.log('Verification code:', verificationCode);
-        const code = {
-            activationCode: verificationCode
-        }
-        const response = await dispatch(submitOtpStudent(code)) ; 
-        if(response == "successfully register" ){
-            toast.success(response, {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
+        const code = { activationCode: verificationCode };
+        const response = await dispatch(submitOtpStudent(code));
+
+        if (response === "successfully register") {
+            Swal.fire({
+                icon: 'success',
+                title: 'Verification Successful',
+                text: response,
+                confirmButtonText: 'OK',
+                iconColor: '#4CAF50', // Green success color
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp'
+                }
             });
-        } else{
-            toast.error(response, {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-              });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Verification Failed',
+                text: response,
+                confirmButtonText: 'OK',
+                iconColor: '#f44336', // Red error color
+                showClass: {
+                    popup: 'animate__animated animate__fadeInDown'
+                },
+                hideClass: {
+                    popup: 'animate__animated animate__fadeOutUp'
+                }
+            });
         }
     };
 
     return (
-        <div className='w-full h-[100vh] flex justify-center items-center'>
-            <div className="max-w-md mx-auto text-center bg-white px-4 sm:px-8 py-10 rounded-xl shadow">
-            <header className="mb-8">
-                <h1 className="text-2xl font-bold mb-1">Email Verification</h1>
-                <p className="text-[15px] text-slate-500">Enter the 4-digit verification code that was sent to your email address.</p>
-            </header>
-            <form onSubmit={handleSubmit}>
-                <div className="flex items-center justify-center gap-3">
-                    {inputs.map((value, index) => (
-                        <input
-                            key={index}
-                            type="text"
-                            className="w-14 h-14 text-center text-2xl font-extrabold text-slate-900 bg-slate-100 border border-transparent hover:border-slate-200 appearance-none rounded p-4 outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                            value={value}
-                            onChange={(e) => handleInputChange(e, index)}
-                            onKeyDown={(e) => handleKeyDown(e, index)}
-                            onFocus={() => handleFocus(index)}
-                            onPaste={handlePaste}
-                            maxLength="1"
-                            ref={(el) => (inputRefs.current[index] = el)}
-                        />
-                    ))}
-                </div>
-                <div className="max-w-[260px] mx-auto mt-4">
-                    <button
-                        type="submit"
-                        className="w-full inline-flex justify-center whitespace-nowrap rounded-lg bg-indigo-500 px-3.5 py-2.5 text-sm font-medium text-white shadow-sm shadow-indigo-950/10 hover:bg-indigo-600 focus:outline-none focus:ring focus:ring-indigo-300 focus-visible:outline-none focus-visible:ring focus-visible:ring-indigo-300 transition-colors duration-150"
-                    >
-                        Verify Account
-                    </button>
-                </div>
-            </form>
-        
-        </div>
+        <div className='w-full h-[100vh] flex justify-center items-center bg-gray-100'>
+            <div className="max-w-md mx-auto text-center bg-white px-8 py-10 rounded-xl shadow-lg">
+                <header className="mb-8">
+                    <h1 className="text-3xl font-semibold mb-2">Email Verification</h1>
+                    <p className="text-sm text-gray-500">Enter the 4-digit verification code sent to your email address.</p>
+                </header>
+                <form onSubmit={handleSubmit}>
+                    <div className="flex items-center justify-center gap-4 mb-6">
+                        {inputs.map((value, index) => (
+                            <input
+                                key={index}
+                                type="text"
+                                className="w-16 h-16 text-center text-3xl font-bold text-gray-800 bg-gray-200 border border-gray-300 hover:border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                value={value}
+                                onChange={(e) => handleInputChange(e, index)}
+                                onKeyDown={(e) => handleKeyDown(e, index)}
+                                onFocus={() => handleFocus(index)}
+                                onPaste={handlePaste}
+                                maxLength="1"
+                                ref={(el) => (inputRefs.current[index] = el)}
+                            />
+                        ))}
+                    </div>
+                    <div className="max-w-[260px] mx-auto mt-4">
+                        <button
+                            type="submit"
+                            className="w-full inline-flex justify-center whitespace-nowrap rounded-lg bg-indigo-500 px-4 py-3 text-lg font-semibold text-white shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                        >
+                            <FaCheckCircle className="mr-2" /> Verify Account
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }

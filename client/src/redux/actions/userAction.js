@@ -9,6 +9,7 @@ import {
 } from "../sclices/userSclice";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 const config = () => {
   return {
@@ -98,33 +99,39 @@ export const loginUser = (userData) => async (dispatch) => {
 export const loginSchool = (userData) => async (dispatch) => {
   try {
     dispatch(setLoading(true));
-    console.log(userData)
+    console.log(userData);
     const response = await axios.post(`/user/school/login`, {
       ...userData,
     });
-    console.log(response)
+    console.log(response);
     localStorage.removeItem("token");
     localStorage.setItem("token", response.data.token);
     dispatch(currentUser());
+
+    // Success alert with SweetAlert2
+    Swal.fire({
+      icon: 'success',
+      title: 'Login Successful',
+      text: 'Welcome back!',
+      confirmButtonText: 'Okay',
+    });
   } catch (error) {
     let errorMessage = "Login failed"; // Default error message
 
     if (error?.response?.status === 500) {
-      // 401 is the standard code for unauthorized
       errorMessage = "Wrong password provided. Please try again.";
     } else if (error?.response?.data?.message) {
       errorMessage = error.response.data.message; // Server-provided error message
     }
 
-    toast.error(errorMessage, {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
+    // Error alert with SweetAlert2
+    Swal.fire({
+      icon: 'error',
+      title: 'Login Failed',
+      text: errorMessage,
+      confirmButtonText: 'Try Again',
     });
+
     dispatch(setError(error?.response?.data?.message || "Login failed"));
   } finally {
     dispatch(setLoading(false));
@@ -133,24 +140,32 @@ export const loginSchool = (userData) => async (dispatch) => {
 
 export const registerUser = (userData) => async (dispatch) => {
   try {
-    console.log(userData)
+    console.log(userData);
     dispatch(setLoading(true));
+
     const response = await axios.post(`/user/registration`, {
       ...userData,
     });
+
     dispatch(setLoading(false));
-    console.log(response.data)
+    console.log(response.data);
     localStorage.setItem("token", response.data.Token);
+
     if (response?.data?.succcess) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Registration Successful',
+        text: response.data.message,
+        confirmButtonText: 'OK',
+      });
       return response.data.message;
     } else {
       throw new Error(response?.data?.message);
     }
-
-    // dispatch(setStudent(data.student))
   } catch (error) {
-    console.log(error)
+    console.log(error);
     dispatch(setLoading(false));
+
     let errorMessage = "Signin failed"; // Default error message
 
     if (error?.response?.status === 401) {
@@ -160,15 +175,13 @@ export const registerUser = (userData) => async (dispatch) => {
       errorMessage = error.response.data.message; // Server-provided error message
     }
 
-    toast.error(errorMessage, {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: errorMessage,
+      confirmButtonText: 'OK',
     });
+
     dispatch(
       setError(error?.response?.data?.message || "registerStudent failed")
     );

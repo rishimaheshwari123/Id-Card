@@ -8,7 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { redirect, useRouter } from "next/navigation";
 import axios from "axios";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 const Adddata = () => {
   const { user, schools, error } = useSelector((state) => state.user);
@@ -65,32 +65,31 @@ const Adddata = () => {
 
   const [regNo, setRegNo] = useState("");
 
-
   const handlePhotoFileSelect = async (event) => {
     event.preventDefault();
     const file = event.target.files[0];
     if (!file) {
       Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Please select an image first!',
+        icon: "error",
+        title: "Oops...",
+        text: "Please select an image first!",
       });
       return;
     }
-  
+
     const formData = new FormData();
     formData.append("file", file);
-  
+
     // Show loading alert
     Swal.fire({
-      title: 'Uploading...',
-      text: 'Please wait while we upload your image.',
+      title: "Uploading...",
+      text: "Please wait while we upload your image.",
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
       },
     });
-  
+
     try {
       const response = await axios.post(
         "https://cardpro.co.in/image/upload",
@@ -101,33 +100,32 @@ const Adddata = () => {
           },
         }
       );
-  
+
       // Hide loading alert
       Swal.close();
-  
+
       if (response.data.success) {
         const { public_id, url } = response.data.thumbnailImage;
         setImageData({ publicId: public_id, url: url });
-  
+
         Swal.fire({
-          icon: 'success',
-          title: 'Uploaded!',
-          text: 'Image uploaded successfully!',
+          icon: "success",
+          title: "Uploaded!",
+          text: "Image uploaded successfully!",
         });
       }
     } catch (error) {
       console.error(error);
-  
+
       // Hide loading alert and show error message
       Swal.close();
       Swal.fire({
-        icon: 'error',
-        title: 'Upload Failed',
-        text: 'Something went wrong. Please try again later.',
+        icon: "error",
+        title: "Upload Failed",
+        text: "Something went wrong. Please try again later.",
       });
     }
   };
-  
 
   useEffect(() => {
     if (!user) {
@@ -148,6 +146,7 @@ const Adddata = () => {
 
   const handleSchoolSelect = (e) => {
     // console.log("school change ni")
+    if(e.target.value === "") return 
     const school = schools?.find((school) => school._id == e.target.value);
     console.log(school);
     console.log(school?.requiredFields);
@@ -250,7 +249,7 @@ const Adddata = () => {
       setUid("");
       setbeltNo("");
       setstaffID("");
-      setloginSchool(false);  // For boolean values
+      setloginSchool(false); // For boolean values
       setLicenceNo("");
       setIdNo("");
       setHouse("");
@@ -263,7 +262,6 @@ const Adddata = () => {
       setValidUpTo("");
       setCourse("");
       setRegNo("");
-      
     } else {
       toast.error(response, {
         position: "top-right",
@@ -303,7 +301,7 @@ const Adddata = () => {
     if (ihrmsNo) formData.ihrmsNo = ihrmsNo;
     if (beltNo) formData.beltNo = beltNo;
     if (schoolName) formData.schoolName = schoolName;
-    
+
     if (jobStatus) formData.jobStatus = jobStatus;
     if (licenceNo) formData.licenceNo = licenceNo;
     if (panCardNo) formData.panCardNo = panCardNo;
@@ -362,7 +360,7 @@ const Adddata = () => {
       setUid("");
       setbeltNo("");
       setstaffID("");
-      setloginSchool(false);  // For boolean values
+      setloginSchool(false); // For boolean values
       setLicenceNo("");
       setIdNo("");
       setHouse("");
@@ -375,7 +373,6 @@ const Adddata = () => {
       setValidUpTo("");
       setCourse("");
       setRegNo("");
-      
     } else {
       toast.error(response, {
         position: "top-right",
@@ -397,12 +394,7 @@ const Adddata = () => {
       <section className="bg-white dark:bg-gray-900 py-10">
         <div className="container flex flex-col items-center justify-center  px-6 mx-auto">
           <div className="flex items-center justify-center mt-6">
-            <a
-              href="#"
-              className="pb-4 font-medium text-center text-2xl text-gray-800 capitalize border-b-2 border-blue-500 dark:border-blue-400 dark:text-white"
-            >
-              Add Students
-            </a>
+           
           </div>
           {!loginSchool && schools?.length !== 0 && (
             <form className="mt-6 w-full max-w-md" onSubmit={handleFormSubmit}>
@@ -435,25 +427,40 @@ const Adddata = () => {
             </h4>
           )}
           <form className="mt-3 w-full max-w-md">
-            <div className="mb-4">
-              <label
-                htmlFor="Role"
-                className="block text-md text-center font-medium text-gray-700"
-              >
-                Select Role
-              </label>
-              <select
-                id="Role"
-                onChange={handleRoleSelect}
-                value={currRole}
-                className="mt-1 block h-10 border px-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              >
-                <option value="">Select Role</option>
-                <option value="student">Student</option>
-                <option value="staff">Staff</option>
-              </select>
-            </div>
-          </form>
+  <div className="mb-4 w-full flex justify-center items-center gap-4">
+    <label
+      htmlFor="Role"
+      className="block text-md text-center font-medium text-gray-700"
+    >
+      Select Role
+    </label>
+    <div className="mt-1 flex space-x-4">
+      <button
+        type="button"
+        onClick={() => setCurrRole('student')}
+        className={`${
+          currRole === 'student'
+            ? 'bg-blue-500 text-white'
+            : 'bg-gray-200 text-gray-700'
+        } px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+      >
+        Student
+      </button>
+      <button
+        type="button"
+        onClick={() => setCurrRole('staff')}
+        className={`${
+          currRole === 'staff'
+            ? 'bg-blue-500 text-white'
+            : 'bg-gray-200 text-gray-700'
+        } px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+      >
+        Staff
+      </button>
+    </div>
+  </div>
+</form>
+
           {currRole === "student" && (
             <div className="w-[320px]">
               <form action="mt-3 w-[320px] " onSubmit={handleFormSubmit}>
@@ -604,7 +611,7 @@ const Adddata = () => {
                     />
                   </div>
                 )}
-                
+
                 {currSchool?.requiredFields?.includes("Aadhar No.") && (
                   <div className="mb-4">
                     <input

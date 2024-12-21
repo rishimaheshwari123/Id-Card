@@ -602,33 +602,75 @@ const Viewdata = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  const handleSearch = (query) => {
+  const handleSearch = (query, currentRole) => {
     setSearchQuery(query);
-
-    const filtered = studentData.filter((student) => {
-      return (
-        student.name.toLowerCase().includes(query.toLowerCase()) ||
-        (student.fatherName &&
-          student.fatherName.toLowerCase().includes(query.toLowerCase())) ||
-        (student.email &&
-          student.email.toLowerCase().includes(query.toLowerCase())) ||
-        (student.rollNo &&
-          student.rollNo.toLowerCase().includes(query.toLowerCase())) ||
-        (student.class &&
-          student.class.toLowerCase().includes(query.toLowerCase())) ||
-        (student.admissionNo &&
-          student.admissionNo.toLowerCase().includes(query.toLowerCase())) ||
-        (student.contact &&
-          student.contact.toLowerCase().includes(query.toLowerCase())) ||
-        (student.section &&
-          student.section.toLowerCase().includes(query.toLowerCase())) ||
-        (student.session &&
-          student.session.toLowerCase().includes(query.toLowerCase()))
-      );
-    });
-
-    setstudents(filtered);
+  
+    let filtered = [];
+  
+    if (currRole === "student") {
+      filtered = studentData.filter((student) => {
+        return (
+          student.name.toLowerCase().includes(query.toLowerCase()) ||
+          (student.fatherName &&
+            student.fatherName.toLowerCase().includes(query.toLowerCase())) ||
+          (student.email &&
+            student.email.toLowerCase().includes(query.toLowerCase())) ||
+          (student.rollNo &&
+            student.rollNo.toLowerCase().includes(query.toLowerCase())) ||
+          (student.class &&
+            student.class.toLowerCase().includes(query.toLowerCase())) ||
+          (student.admissionNo &&
+            student.admissionNo.toLowerCase().includes(query.toLowerCase())) ||
+          (student.contact &&
+            student.contact.toLowerCase().includes(query.toLowerCase())) ||
+          (student.section &&
+            student.section.toLowerCase().includes(query.toLowerCase())) ||
+          (student.session &&
+            student.session.toLowerCase().includes(query.toLowerCase()))
+        );
+      });
+    } else if (currRole === "staff") {
+      filtered = staffData.filter((staff) => {
+        return (
+          staff.name.toLowerCase().includes(query.toLowerCase()) ||
+          (staff.fatherName &&
+            staff.fatherName.toLowerCase().includes(query.toLowerCase())) ||
+          (staff.husbandName &&
+            staff.husbandName.toLowerCase().includes(query.toLowerCase())) ||
+          (staff.email &&
+            staff.email.toLowerCase().includes(query.toLowerCase())) ||
+          (staff.contact &&
+            staff.contact.toLowerCase().includes(query.toLowerCase())) ||
+          (staff.qualification &&
+            staff.qualification.toLowerCase().includes(query.toLowerCase())) ||
+          (staff.designation &&
+            staff.designation.toLowerCase().includes(query.toLowerCase())) ||
+          (staff.staffType &&
+            staff.staffType.toLowerCase().includes(query.toLowerCase())) ||
+          (staff.doj &&
+            staff.doj.toLowerCase().includes(query.toLowerCase())) ||
+          (staff.staffID &&
+            staff.staffID.toLowerCase().includes(query.toLowerCase())) ||
+          (staff.uid &&
+            staff.uid.toLowerCase().includes(query.toLowerCase())) ||
+          (staff.schoolName &&
+            staff.schoolName.toLowerCase().includes(query.toLowerCase())) ||
+          (staff.bloodGroup &&
+            staff.bloodGroup.toLowerCase().includes(query.toLowerCase())) ||
+          (staff.panCardNo &&
+            staff.panCardNo.toLowerCase().includes(query.toLowerCase()))
+        );
+      });
+    }
+  
+    // Set the filtered data based on role
+    if (currRole === "student") {
+      setstudents(filtered);
+    } else if (currRole === "staff") {
+      setstaffs(filtered);
+    }
   };
+  
 
   const [isAllSelected, setIsAllSelected] = useState(false); // State to track selection
 
@@ -654,22 +696,86 @@ const Viewdata = () => {
 
   const deletHandler = async () => {
     if (currRole == "student") {
-      const response = await axios.post(
-        `/user/students/delete/${currSchool}?`,
-        { studentIds },
-        config()
-      );
-      fatchStudent();
+      // Check if the studentIds array is empty
+      if (studentIds.length === 0) {
+        Swal.fire("No students selected!", "", "warning");
+        return;
+      }
+
+      // Show loading alert
+      Swal.fire({
+        title: "Deleting...",
+        text: "Please wait while we process your request.",
+        icon: "info",
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      try {
+        const response = await axios.post(
+          `/user/students/delete/${currSchool}?`,
+          { studentIds },
+          config()
+        );
+        fatchStudent();
+        // Show success alert after successful deletion
+        Swal.fire("Success!", "Students deleted successfully.", "success");
+      } catch (error) {
+        Swal.fire("Error!", "Something went wrong.", "error");
+      }
     }
+
     if (currRole == "staff") {
-      const response = await axios.post(
-        `/user/staffs/delete/${currSchool}?`,
-        { staffIds },
-        config()
-      );
-      fatchStaff();
+      // Check if the staffIds array is empty
+      if (staffIds.length === 0) {
+        Swal.fire("No staff selected!", "", "warning");
+        return;
+      }
+
+      // Show loading alert
+      Swal.fire({
+        title: "Deleting...",
+        text: "Please wait while we process your request.",
+        icon: "info",
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      try {
+        const response = await axios.post(
+          `/user/staffs/delete/${currSchool}?`,
+          { staffIds },
+          config()
+        );
+        fatchStaff();
+        // Show success alert after successful deletion
+        Swal.fire("Success!", "Staff deleted successfully.", "success");
+      } catch (error) {
+        Swal.fire("Error!", "Something went wrong.", "error");
+      }
     }
   };
+
+  useEffect(() => {
+    const savedSchool = localStorage.getItem("currSchool");
+    const savedRole = localStorage.getItem("currRole");
+    const savedStatus = localStorage.getItem("status");
+
+    if (savedSchool) setCurrSchool(savedSchool);
+    if (savedRole) setCurrRole(savedRole);
+    if (savedStatus) setstatus(savedStatus);
+  }, []);
+
+  // Update localStorage whenever values change
+  useEffect(() => {
+    if (currSchool) localStorage.setItem("currSchool", currSchool);
+    if (currRole) localStorage.setItem("currRole", currRole);
+    if (status) localStorage.setItem("status", status);
+  }, [currSchool, currRole, status]);
   return (
     <div>
       <Nav />
@@ -811,10 +917,10 @@ const Viewdata = () => {
           </div>
         )}
 
-        {submitted && currRole == "student" && (
+        {submitted &&(
           <div className="container mx-auto px-16 ">
             <h1 className="text-center text-2xl pb-10 font-semibold text-gray-800">
-              Students
+             {currRole == "student" ? "Students" :"Staff"} 
             </h1>
             <div className="flex items-center max-w-md mx-auto bg-gray-100 rounded-lg shadow-md overflow-hidden">
               <span className="flex items-center justify-center px-4 text-gray-500">
@@ -822,7 +928,7 @@ const Viewdata = () => {
               </span>
               <input
                 type="text"
-                placeholder="Search students..."
+                placeholder={currRole == "student" ? "Search students..." :"Search Staff"}
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -1006,9 +1112,7 @@ const Viewdata = () => {
         )}
         {submitted && staffs?.length > 0 && (
           <div className="container mx-auto">
-            <h1 className="text-center text-2xl py-10 font-semibold text-gray-800">
-              Staff
-            </h1>
+        
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {staffs?.map((staff) => (
                 <div
@@ -1184,38 +1288,39 @@ const Viewdata = () => {
         {/* Chat Box Button */}
         {submitted && (
           <button
-            className="fixed bottom-4 left-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full shadow-lg"
-            onClick={toggleChatBox}
-          >
-            Move
-          </button>
+  className={`fixed bottom-4 left-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full shadow-lg ${!showChatBox ? 'button-bounce' : ''}`}
+  onClick={toggleChatBox}
+>
+  More
+</button>
+
         )}
 
         {/* List of Buttons in Chat Box */}
 
         {showChatBox && (
           <div className="fixed bottom-16 left-4 flex flex-col gap-3">
-           {
-            !user.school && <>
-            <button
-              className={`flex items-center gap-2 ${
-                isAllSelected
-                  ? "bg-red-600 hover:bg-red-700"
-                  : "bg-blue-600 hover:bg-blue-700"
-              } text-white py-2 px-4 rounded-lg shadow-lg`}
-              onClick={selectAllStudents}
-            >
-              {isAllSelected ? <FaUserTimes /> : <FaUserCheck />}
-              {isAllSelected ? "Unselect All" : "Select All"}
-            </button>
-            <button
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg shadow-lg"
-              onClick={deletHandler}
-            >
-              <FaTrashAlt /> Delete Selected
-            </button>
-            </>
-           }
+            {!user.school && (
+              <>
+                <button
+                  className={`flex items-center gap-2 ${
+                    isAllSelected
+                      ? "bg-red-600 hover:bg-red-700"
+                      : "bg-blue-600 hover:bg-blue-700"
+                  } text-white py-2 px-4 rounded-lg shadow-lg`}
+                  onClick={selectAllStudents}
+                >
+                  {isAllSelected ? <FaUserTimes /> : <FaUserCheck />}
+                  {isAllSelected ? "Unselect All" : "Select All"}
+                </button>
+                <button
+                  className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                  onClick={deletHandler}
+                >
+                  <FaTrashAlt /> Delete Selected
+                </button>
+              </>
+            )}
 
             {/* Pending status */}
             {status === "Panding" && (
