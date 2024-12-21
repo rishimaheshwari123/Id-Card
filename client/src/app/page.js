@@ -28,6 +28,12 @@ export default function Home() {
     }
   }, [user, dispatch]);
 
+
+  useEffect(() => {
+    localStorage.removeItem("currSchool");
+    localStorage.removeItem("currRole");
+    localStorage.removeItem("status");
+  }, []);
   const redirectToAddSchool = () => {
     if (!user) {
       router.push("./signin");
