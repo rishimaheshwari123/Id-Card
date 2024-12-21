@@ -356,7 +356,7 @@ const Nav = () => {
               )}
               <li>
                 <Link
-                  href={"/"}
+                  href={"/About"}
                   className="font-semibold hover:bg-blue-700 hover:text-white rounded-lg py-1.5 px-3 cursor-pointer"
                 >
                   About
