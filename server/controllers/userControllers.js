@@ -1656,6 +1656,8 @@ exports.updateStudentStatusToPending = catchAsyncErron(
   }
 );
 
+
+
 // ---------------------StatusPrint------------
 
 exports.updateStudentStatusToPrinted = catchAsyncErron(
@@ -1710,49 +1712,56 @@ console.log(studentIds)
   }
 );
 
-exports.deleteStudents = catchAsyncErron(async (req, res, next) => {
-  const schoolID = req.params.id;
-  let {studentIds} = req.body;
-
-  // Check if studentIds is a string; if so, try to convert it to an array
-  if (typeof studentIds === "string") {
-    try {
-      studentIds = JSON.parse(`[${studentIds}]`);
-    } catch (error) {
-      studentIds = studentIds
-        .split(",")
-        .map((id) => id.trim().replace(/^"|"$/g, ""));
+exports.deleteStudents = catchAsyncErron(
+  async (req, res, next) => {
+    const schoolID = req.params.id;
+    let {studentIds} = req.body; // Assuming both are passed in the request body
+console.log(studentIds)
+    if (typeof studentIds === "string") {
+      try {
+        studentIds = JSON.parse(`[${studentIds}]`);
+      } catch (error) {
+        // If JSON.parse fails, split the string by commas and manually remove quotes
+        studentIds = studentIds
+          .split(",")
+          .map((id) => id.trim().replace(/^"|"$/g, ""));
+      }
     }
-  }
 
-  // Validate inputs
-  if (!schoolID || !Array.isArray(studentIds) || studentIds.length === 0) {
-    return res.status(400).json({
-      success: false,
-      message:
-        "Invalid request. Please provide a school ID and a list of student IDs.",
+    // Validate inputs (schoolId and studentIds)
+    if (!schoolID || !studentIds) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid request. Please provide a school ID and a list of student IDs.",
+      });
+    }
+
+    // Update status of students
+    const updated = await Student.deleteMany(
+      {
+        _id: {$in: studentIds}, // Filter documents by student IDs
+        school: schoolID, // Ensure the students belong to the specified school
+      },
+     
+    );
+
+    // If no documents were updated, it could mean invalid IDs were provided or they don't match the school ID
+    if (updated.matchedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "No matching students found for the provided IDs and school ID.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `${updated.modifiedCount} students' status updated to "Printed"`,
     });
   }
+);
 
-  // Delete students
-  const deletionResult = await Student.deleteMany({
-    _id: {$in: studentIds},
-    school: schoolID,
-  });
-
-  // Check if the deletion was successful
-  if (deletionResult.deletedCount === 0) {
-    return res.status(404).json({
-      success: false,
-      message: "No matching students found for the provided IDs and school ID.",
-    });
-  }
-
-  res.status(200).json({
-    success: true,
-    message: `${deletionResult.deletedCount} students deleted successfully.`,
-  });
-});
 
 // ---------------------StatusReaduToPrint Staff----------------
 
@@ -1907,49 +1916,55 @@ exports.updateStaffStatusToPrinted = catchAsyncErron(async (req, res, next) => {
   });
 });
 
-exports.deleteStaff = catchAsyncErron(async (req, res, next) => {
-  const schoolID = req.params.id;
-  let {staffIds} = req.body;
-
-  // Check if studentIds is a string; if so, try to convert it to an array
-  if (typeof staffIds === "string") {
-    try {
-      staffIds = JSON.parse(`[${staffIds}]`);
-    } catch (error) {
-      staffIds = staffIds
-        .split(",")
-        .map((id) => id.trim().replace(/^"|"$/g, ""));
+exports.deleteStaff = catchAsyncErron(
+  async (req, res, next) => {
+    const schoolID = req.params.id;
+    let {staffIds} = req.body; // Assuming both are passed in the request body
+console.log(staffIds)
+    if (typeof staffIds === "string") {
+      try {
+        staffIds = JSON.parse(`[${staffIds}]`);
+      } catch (error) {
+        // If JSON.parse fails, split the string by commas and manually remove quotes
+        staffIds = staffIds
+          .split(",")
+          .map((id) => id.trim().replace(/^"|"$/g, ""));
+      }
     }
-  }
 
-  // Validate inputs
-  if (!schoolID || !Array.isArray(staffIds) || staffIds.length === 0) {
-    return res.status(400).json({
-      success: false,
-      message:
-        "Invalid request. Please provide a school ID and a list of student IDs.",
+    // Validate inputs (schoolId and studentIds)
+    if (!schoolID || !staffIds) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Invalid request. Please provide a school ID and a list of student IDs.",
+      });
+    }
+
+    // Update status of students
+    const updated = await Staff.deleteMany(
+      {
+        _id: {$in: staffIds}, // Filter documents by student IDs
+        school: schoolID, // Ensure the students belong to the specified school
+      },
+     
+    );
+
+    // If no documents were updated, it could mean invalid IDs were provided or they don't match the school ID
+    if (updated.matchedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "No matching students found for the provided IDs and school ID.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `${updated.modifiedCount} students' status updated to "Printed"`,
     });
   }
-
-  // Delete students
-  const deletionResult = await Staff.deleteMany({
-    _id: {$in: staffIds},
-    school: schoolID,
-  });
-
-  // Check if the deletion was successful
-  if (deletionResult.deletedCount === 0) {
-    return res.status(404).json({
-      success: false,
-      message: "No matching staff found for the provided IDs and school ID.",
-    });
-  }
-
-  res.status(200).json({
-    success: true,
-    message: `${deletionResult.deletedCount} staff deleted successfully.`,
-  });
-});
+);
 
 // exports.studentListExcel = catchAsyncErron(async (req, res, next) => {
 //   const schoolID = req.params.id;

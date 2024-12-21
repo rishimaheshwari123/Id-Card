@@ -11,6 +11,14 @@ import Image from "next/image";
 import Swal from "sweetalert2";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { FaSearch } from "react-icons/fa";
+import {
+  FaFileExport,
+  FaImages,
+  FaCheck,
+  FaArrowLeft,
+  FaUserCheck,
+  FaUserTimes,
+} from "react-icons/fa";
 
 const Viewdata = () => {
   const { user, schools, error } = useSelector((state) => state.user);
@@ -145,16 +153,25 @@ const Viewdata = () => {
     console.log(response?.data?.users);
   };
 
+  useEffect(() => {
+    if (currRole && currSchool && status) {
+      handleFormSubmit(false);
+    }
+  }, [currRole, currSchool, status]);
+
   const handleRoleSelect = (e) => {
     setCurrRole(e.target.value);
+    console.log("Selected Role:", e.target.value);
   };
 
   const handleStatusSelect = (e) => {
     setstatus(e.target.value);
+    console.log("Selected Status:", e.target.value);
   };
 
   const handleSchoolSelect = (e) => {
     setCurrSchool(e.target.value);
+    console.log("Selected School:", e.target.value);
   };
 
   // Function to toggle chat box visibility
@@ -163,7 +180,7 @@ const Viewdata = () => {
   };
 
   const fatchStudent = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     const response = await axios.post(
       `/user/students/${currSchool}?status=${status}`,
       null,
@@ -186,7 +203,7 @@ const Viewdata = () => {
   };
 
   const fatchStaff = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     const response = await axios.post(
       `/user/staffs/${currSchool}?status=${status}`,
       null,
@@ -198,70 +215,52 @@ const Viewdata = () => {
   };
 
   const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true); // Set loading to true before the API request
-    
+    if (e) e.preventDefault();
+
+    setLoading(true); // Start the loading spinner
+    resetState(); // Reset state for students and staff
+
     try {
-      let response;
-      if (currRole === "student") {
-        response = await axios.post(
-          `/user/students/${currSchool}?status=${status}`,
-          null,
-          config()
-        );
-        
-        if (response?.data?.message === "No students found for the provided school ID") {
-          toast.error("No Students Added In This School", {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-          });
-          setError("No students found for the provided school")
-        setstudents([]);
-        setStudentData([]);
-        setstaffs([]);
-        setStaffData([]);
-          return;
-        }
-        
-        setstudents(response?.data?.students);
-        setStudentData(response?.data?.students);
-        setsubmited(true);
+      // Determine endpoint and error messages dynamically based on role
+      const isStudent = currRole === "student";
+      const endpoint = isStudent
+        ? `/user/students/${currSchool}?status=${status}`
+        : `/user/staffs/${currSchool}?status=${status}`;
+      const noDataMessage = isStudent
+        ? "No students found for the provided school ID"
+        : "No staff found for the provided school ID";
+      const toastMessage = isStudent
+        ? "No Students Added In This School"
+        : "No Staff Member Added In This School";
+
+      // Make the API request
+      const response = await axios.post(endpoint, null, config());
+
+      // Handle "No data found" scenario
+      if (response?.data?.message === noDataMessage) {
+        toast.error(toastMessage, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        setError(noDataMessage);
+        resetState(); // Reset state again for safety
+        return;
       }
-      
-      if (currRole === "staff") {
-        response = await axios.post(
-          `/user/staffs/${currSchool}?status=${status}`,
-          null,
-          config()
-        );
-        
-        if (response?.data?.message === "No staff found for the provided school ID") {
-          toast.error("No Staff Member Added In This School", {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-          });
-          setError("No staff found for the provided school")
-          setstudents([]);
-          setStudentData([]);
-          setstaffs([]);
-          setStaffData([]);
-          return;
-        }
-        
-        setstaffs(response?.data?.staff);
-        setStaffData(response?.data?.staff);
-        setsubmited(true);
+
+      // Update state based on role
+      if (isStudent) {
+        setstudents(response?.data?.students || []);
+        setStudentData(response?.data?.students || []);
+      } else {
+        setstaffs(response?.data?.staff || []);
+        setStaffData(response?.data?.staff || []);
       }
+      setsubmited(true); // Mark form as submitted
     } catch (error) {
       console.error("Error during API request:", error);
       toast.error("An error occurred while processing your request.", {
@@ -273,9 +272,18 @@ const Viewdata = () => {
         draggable: true,
         progress: undefined,
       });
+      resetState(); // Reset state on error
     } finally {
-      setLoading(false); // Set loading to false after the request is complete (success or failure)
+      setLoading(false); // End the loading spinner
     }
+  };
+
+  // Helper function to reset state
+  const resetState = () => {
+    setstudents([]);
+    setStudentData([]);
+    setstaffs([]);
+    setStaffData([]);
   };
 
   const downloadExcel = async () => {
@@ -396,10 +404,10 @@ const Viewdata = () => {
         },
       });
 
-      let response ;
+      let response;
 
-      if(currRole == "student"){
-         response = await axios.post(
+      if (currRole == "student") {
+        response = await axios.post(
           `/user/student/images/${currSchool}`,
           { status },
           {
@@ -408,8 +416,8 @@ const Viewdata = () => {
           }
         );
       }
-      if(currRole == "staff"){
-         response = await axios.post(
+      if (currRole == "staff") {
+        response = await axios.post(
           `/user/staff/images/${currSchool}`,
           { status },
           {
@@ -418,7 +426,6 @@ const Viewdata = () => {
           }
         );
       }
- 
 
       // Extract filename from response headers
       const contentDisposition = response.headers["content-disposition"];
@@ -623,9 +630,50 @@ const Viewdata = () => {
     setstudents(filtered);
   };
 
+  const [isAllSelected, setIsAllSelected] = useState(false); // State to track selection
+
+  const selectAllStudents = () => {
+    if (isAllSelected) {
+      // Clear all selections
+      setStudentIds([]);
+      setStaffIds([]);
+    } else {
+      // Select all based on current role
+      if (currRole === "student") {
+        const allStudentIds = students.map((student) => student._id);
+        setStudentIds(allStudentIds);
+      }
+
+      if (currRole === "staff") {
+        const allStaffIds = staffs.map((staff) => staff._id);
+        setStaffIds(allStaffIds);
+      }
+    }
+    setIsAllSelected(!isAllSelected); // Toggle the state
+  };
+
+  const deletHandler = async () => {
+    if (currRole == "student") {
+      const response = await axios.post(
+        `/user/students/delete/${currSchool}?`,
+        { studentIds },
+        config()
+      );
+      fatchStudent();
+    }
+    if (currRole == "staff") {
+      const response = await axios.post(
+        `/user/staffs/delete/${currSchool}?`,
+        { staffIds },
+        config()
+      );
+      fatchStaff();
+    }
+  };
   return (
     <div>
       <Nav />
+
       <section className="bg-white dark:bg-gray-900 py-10 ">
         {!submitted && (
           <div className="container flex flex-col items-center justify-center px-6 mx-auto">
@@ -637,136 +685,131 @@ const Viewdata = () => {
                 View Data
               </a>
             </div>
-
-          
           </div>
         )}
 
-
-      
-      
-      
-
-
-  <div className="container flex flex-col items-center mt-6 justify-center px-6 mx-auto">
-        {user && (
-              <form
-                className="mt-6 w-full  flex justify-between flex-wrap  "
-                onSubmit={handleFormSubmit}
-              >
-                {!loginSchool  && (
-                  <div className="mb-4  ">
-                    {/* <label
-                      htmlFor="school"
-                      className="block text-md text-center font-medium text-gray-700"
-                    >
-                      Select School
-                    </label> */}
-                    <select
-                      id="school"
-                      onChange={handleSchoolSelect}
-                      value={currSchool}
-                      className="mt-1 h-10 px-3 border block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    >
-                      <option value="">Select School</option>
-                      {schools?.map((school) => (
-                        <option key={school._id} value={school._id}>
-                          {school.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-                <div className="mb-4">
-                  {/* <label
-                    htmlFor="Role"
-                    className="block text-md text-center font-medium text-gray-700"
-                  >
-                    Select Role
-                  </label> */}
-                  <select
-                    id="Role"
-                    onChange={handleRoleSelect}
-                    value={currRole}
-                    className="mt-1 block h-10 border px-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  >
-                    <option value="">Select Role</option>
-                    <option value="student">Student</option>
-                    <option value="staff">Staff</option>
-                  </select>
-                </div>
-                <div className="mb-4">
-                  {/* <label
-                    htmlFor="Role"
-                    className="block text-md text-center font-medium text-gray-700"
-                  >
-                    Select Status
-                  </label> */}
-                  <select
-                    id="Role"
-                    onChange={handleStatusSelect}
-                    value={status}
-                    className="mt-1 block h-10 border px-3 w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  >
-                    <option value="">Select Status</option>
-                    <option value="Panding">Pending</option>
-                    <option value="Ready to print">Ready to print</option>
-                    <option value="Printed">Printed</option>
-                  </select>
-                </div>
-                <button
-                  type="submit"
-                  className="  text-white bg-primary-600 bg-indigo-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py- text-center dark:bg-sky-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                >
-                  View Data
-                </button>
-              </form>
-            )}
-            {!loginSchool && schools?.length === 0 && (
-              <h4 className="text-center text-2xl py-2 px-5 text-red-500">
-                Please add a School
-              </h4>
-            )}
+        <div className="container flex flex-col items-center mt-6 justify-center px-6 mx-auto">
+          {user && (
             <form
-              className="mt-3 w-full max-w-md"
+              className="mt-6 w-full flex justify-between flex-wrap"
               onSubmit={handleFormSubmit}
-            ></form>
-            <form className="mt-3 w-full max-w-md"></form>
+            >
+              {/* School Dropdown */}
+              {!loginSchool && (
+                <div className="mb-4">
+                  <select
+                    id="school"
+                    onChange={handleSchoolSelect}
+                    value={currSchool}
+                    className="mt-1 h-10 px-3 border block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  >
+                    <option value="">Select School</option>
+                    {schools?.map((school) => (
+                      <option key={school._id} value={school._id}>
+                        {school.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Role Selection Buttons */}
+              <div className="mb-4 flex space-x-4">
+                <button
+                  type="button"
+                  onClick={() => setCurrRole("student")}
+                  className={`px-4 py-1 rounded-md font-medium ${
+                    currRole === "student"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  Student
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrRole("staff")}
+                  className={`px-4 py-1 rounded-md font-medium ${
+                    currRole === "staff"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  Staff
+                </button>
+              </div>
+
+              {/* Status Selection Buttons */}
+              <div className="mb-4 flex space-x-4">
+                <button
+                  type="button"
+                  onClick={() => setstatus("Panding")}
+                  className={`px-3 py-1 rounded-md font-medium ${
+                    status === "Panding"
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  Pending
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setstatus("Ready to print")}
+                  className={`px-3 py-1 rounded-md font-medium ${
+                    status === "Ready to print"
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  Ready to Print
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setstatus("Printed")}
+                  className={`px-2 py-1 rounded-md font-medium ${
+                    status === "Printed"
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  Printed
+                </button>
+              </div>
+            </form>
+          )}
+
+          {!loginSchool && schools?.length === 0 && (
+            <h4 className="text-center text-2xl py-2 px-5 text-red-500">
+              Please add a School
+            </h4>
+          )}
         </div>
 
+        {loading && (
+          <div className="grid min-h-[calc(100vh-3.5rem)] place-items-center">
+            <div className="spinner"></div>
+          </div>
+        )}
 
-{
-  loading &&
-     <div className="grid min-h-[calc(100vh-3.5rem)] place-items-center">
-        <div className="spinner"></div>
-      </div>
-}
-
-
-{
-  !submitted && (
-    <div className="flex justify-center items-center  bg-gray-50">
-      <div className="bg-yellow-100 text-yellow-700 p-8 rounded-lg border-l-8 border-yellow-600 shadow-xl mx-auto max-w-md">
-        <p className="font-semibold text-lg text-center leading-relaxed">Please select a School Role and Status.</p>
-      </div>
-    </div>
-  ) 
-}
-{
-  submitted && currRole == "student" &&  students?.length === 0 && (
-    <div className="text-red-600 font-semibold text-center mt-4 p-4 bg-red-100 border-l-4 border-red-500 shadow-md rounded-lg">
-      {errorMsg}
-    </div>
-  )
-}
-{
-  submitted && currRole == "staff" &&  staffs?.length === 0 && (
-    <div className="text-red-600 font-semibold text-center mt-4 p-4 bg-red-100 border-l-4 border-red-500 shadow-md rounded-lg">
-      {errorMsg}
-    </div>
-  )
-}
-
+        {!submitted && (
+          <div className="flex justify-center items-center  bg-gray-50">
+            <div className="bg-yellow-100 text-yellow-700 p-8 rounded-lg border-l-8 border-yellow-600 shadow-xl mx-auto max-w-md">
+              <p className="font-semibold text-lg text-center leading-relaxed">
+                Please select a School Role and Status.
+              </p>
+            </div>
+          </div>
+        )}
+        {submitted && currRole == "student" && students?.length === 0 && (
+          <div className="text-red-600 font-semibold text-center mt-4 p-4 bg-red-100 border-l-4 border-red-500 shadow-md rounded-lg">
+            {errorMsg}
+          </div>
+        )}
+        {submitted && currRole == "staff" && staffs?.length === 0 && (
+          <div className="text-red-600 font-semibold text-center mt-4 p-4 bg-red-100 border-l-4 border-red-500 shadow-md rounded-lg">
+            {errorMsg}
+          </div>
+        )}
 
         {submitted && currRole == "student" && (
           <div className="container mx-auto px-16 ">
@@ -1074,7 +1117,7 @@ const Viewdata = () => {
                   {staff?.beltNo && (
                     <p className="text-gray-700">Belt No.: {staff?.beltNo}</p>
                   )}
-                                   {staff?.licenceNo && (
+                  {staff?.licenceNo && (
                     <p className="text-gray-700">
                       Licence No.: {staff?.licenceNo}
                     </p>
@@ -1149,41 +1192,58 @@ const Viewdata = () => {
         )}
 
         {/* List of Buttons in Chat Box */}
+
         {showChatBox && (
-          <div className="fixed bottom-16 left-4 flex flex-col gap-2">
+          <div className="fixed bottom-16 left-4 flex flex-col gap-3">
+           {
+            !user.school && <>
+            <button
+              className={`flex items-center gap-2 ${
+                isAllSelected
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-blue-600 hover:bg-blue-700"
+              } text-white py-2 px-4 rounded-lg shadow-lg`}
+              onClick={selectAllStudents}
+            >
+              {isAllSelected ? <FaUserTimes /> : <FaUserCheck />}
+              {isAllSelected ? "Unselect All" : "Select All"}
+            </button>
+            <button
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg shadow-lg"
+              onClick={deletHandler}
+            >
+              <FaTrashAlt /> Delete Selected
+            </button>
+            </>
+           }
+
             {/* Pending status */}
             {status === "Panding" && (
               <>
                 {(user?.exportExcel || user?.school?.exportExcel) && (
                   <button
-                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg shadow-lg"
                     onClick={downloadExcel}
                   >
-                    Export Excel
+                    <FaFileExport /> Export Excel
                   </button>
                 )}
                 {(user?.exportImage || user?.school?.exportImages) && (
                   <button
-                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                    className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg shadow-lg"
                     onClick={downloadImages}
                   >
-                    Export Images
+                    <FaImages /> Export Images
                   </button>
                 )}
                 {user?.school && (
                   <>
                     <button
-                      className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                      className="flex items-center gap-2 bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded-lg shadow-lg"
                       onClick={modeToReadytoprint}
                     >
-                      Move to Ready
+                      <FaCheck /> Move to Ready
                     </button>
-                    {/* <button
-                      className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
-                      onClick={modeToPrinted}
-                    >
-                      Move to Printed
-                    </button> */}
                   </>
                 )}
               </>
@@ -1192,38 +1252,36 @@ const Viewdata = () => {
             {/* Ready to Print status */}
             {status === "Ready to print" && (
               <>
-                {/* {user?.school && ( */}
-
-                {!user.school && (  <button
-                  className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
-                  onClick={modeToPrinted}
-                >
-                  Move to Printed
-                </button>)}
-              
-                {/* )} */}
+                {!user.school && (
+                  <button
+                    className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                    onClick={modeToPrinted}
+                  >
+                    <FaCheck /> Move to Printed
+                  </button>
+                )}
                 {user.school && (
                   <button
-                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                    className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
                     onClick={modeToPending}
                   >
-                    Move Back to Pending
+                    <FaArrowLeft /> Move Back to Pending
                   </button>
                 )}
                 {(user?.exportExcel || user?.school?.exportExcel) && (
                   <button
-                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg shadow-lg"
                     onClick={downloadExcel}
                   >
-                    Export Excel
+                    <FaFileExport /> Export Excel
                   </button>
                 )}
                 {(user?.exportImage || user?.school?.exportImages) && (
                   <button
-                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                    className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg shadow-lg"
                     onClick={downloadImages}
                   >
-                    Export Images
+                    <FaImages /> Export Images
                   </button>
                 )}
               </>
@@ -1234,18 +1292,18 @@ const Viewdata = () => {
               <>
                 {(user?.exportExcel || user?.school?.exportExcel) && (
                   <button
-                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg shadow-lg"
                     onClick={downloadExcel}
                   >
-                    Export Excel
+                    <FaFileExport /> Export Excel
                   </button>
                 )}
                 {(user?.exportImage || user?.school?.exportImages) && (
                   <button
-                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg"
+                    className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg shadow-lg"
                     onClick={downloadImages}
                   >
-                    Export Images
+                    <FaImages /> Export Images
                   </button>
                 )}
               </>

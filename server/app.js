@@ -17,10 +17,10 @@ app.use(express.json({ limit: "500mb" }));
 app.use(express.urlencoded({ extended: true }));
 const cookieParser = require("cookie-parser");
 
-app.use((req, res, next) => {
-  req.setTimeout(3600000); // 1 hour in milliseconds
-  next();
-});
+// app.use((req, res, next) => {
+//   req.setTimeout(3600000); // 1 hour in milliseconds
+//   next();
+// });
 
 // app.use(
 // 	fileUpload({

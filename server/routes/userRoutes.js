@@ -128,6 +128,7 @@ router.post("/student/change-status/readyto/:id", isAuthenticated ,updateStudent
 
 router.post("/student/change-status/pending/:id", isAuthenticated ,updateStudentStatusToPending);
 
+
 router.post("/student/change-status/printed/:id", isAuthenticated ,updateStudentStatusToPrinted);
 
 router.post("/staff/change-status/readyto/:id", isAuthenticated ,updateStaffStatusToPrint);
