@@ -237,7 +237,7 @@ const EditStudent = ({ params }) => {
   
     try {
       const response = await axios.post(
-        "https://cardpro.co.in/image/upload",
+        "https://api.cardpro.co.in/image/upload",
         formData,
         {
           headers: {
