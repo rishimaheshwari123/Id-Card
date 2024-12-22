@@ -11,38 +11,29 @@ export const metadata = {
   keywords:
     "ID card creation, professional ID cards, employee ID cards, student ID cards, custom ID cards, ID card service, ID card design",
   author: "ID Card Pro",
-   icons: {
-      icon: '/favicon.ico',
-    },
   robots: "index, follow", // Tells search engines to index and follow the links
   openGraph: {
     title: "Create Professional ID Cards with Your Company Name",
     description:
       "Our company offers high-quality ID card creation services with customizable designs for all needs.",
-      images: [
-        {
-          url: "/favicon.ico", // Larger image for social media previews
-          width: 1200,
-          height: 630,
-          alt: "Affordable PG and Tiffin Services Near VIT Bhopal"
-        }
-      ],
+   
     url: "https://cardpro.co.in/", // Replace with your actual URL
     type: "website",
+    images: [
+      {
+        url: "/favicon.ico", // Larger image for social media previews
+        width: 1200,
+        height: 630,
+        alt: "Create Professional ID Cards with Your Company Name"
+      }
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Create Professional ID Cards with Your Company Name",
     description:
       "Our company offers high-quality ID card creation services with customizable designs for all needs.",
-      images: [
-        {
-          url: "/favicon.ico", // Larger image for social media previews
-          width: 1200,
-          height: 630,
-          alt: "Affordable PG and Tiffin Services Near VIT Bhopal"
-        }
-      ],
+    image: "/favicon.ico", // Replace with your own image path for Twitter card
   },
   favicon: "/favicon.ico", // Path to your favicon file
 };
