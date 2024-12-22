@@ -11,6 +11,9 @@ export const metadata = {
   keywords:
     "ID card creation, professional ID cards, employee ID cards, student ID cards, custom ID cards, ID card service, ID card design",
   author: "ID Card Pro",
+  icons: {
+    icon: "/favicon.ico",
+  },
   robots: "index, follow", // Tells search engines to index and follow the links
   openGraph: {
     title: "Create Professional ID Cards with Your Company Name",
@@ -25,7 +28,14 @@ export const metadata = {
     title: "Create Professional ID Cards with Your Company Name",
     description:
       "Our company offers high-quality ID card creation services with customizable designs for all needs.",
-    image: "/favicon.ico", // Replace with your own image path for Twitter card
+    images: [
+      {
+        url: "/favicon.ico", // Larger image for social media previews
+        width: 1200,
+        height: 630,
+        alt: "Affordable PG and Tiffin Services Near VIT Bhopal",
+      },
+    ],
   },
   favicon: "/favicon.ico", // Path to your favicon file
 };
@@ -81,7 +91,7 @@ export default function RootLayout({ children }) {
         {/* Structured Data Script */}
       </head>
       <body className={inter.className}>
-      <iframe
+        <iframe
           src="https://www.googletagmanager.com/ns.html?id=GTM-NMVVPGBT"
           height="0"
           width="0"
