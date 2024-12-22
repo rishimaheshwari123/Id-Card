@@ -5,6 +5,8 @@ import Script from "next/script";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
+  metadataBase: new URL("https://cardpro.co.in"), // Replace with your actual website URL
+
   title: " ID Card Pro |  | ID Card Creation Service ",
   description:
     "Create professional ID cards for employees, students, and more with our fast and reliable ID card creation service.",
