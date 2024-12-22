@@ -16,6 +16,7 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from "../../../../../axiosconfig";
 import Swal from "sweetalert2";
 import Image from "next/image";
+import ImageUploaderWithCrop from "@/component/ImageUpload";
 
 const Editsatff = ({ params }) => {
   const [currSchool, setcurrschool] = useState();
@@ -281,33 +282,8 @@ const Editsatff = ({ params }) => {
                             width={550}
                             alt="logo"
                           />
-                            <label
-                              htmlFor="dropzone-file"
-                              className="flex items-center px-3 py-3 mx-auto mt-6 text-center border-2 border-dashed rounded-lg cursor-pointer"
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="w-6 h-6 text-gray-300"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                                />
-                              </svg>
-                              <h2 className="mx-3 text-gray-400">Update Student Profile Photos</h2>
-                              <input
-                                id="dropzone-file"
-                                type="file"
-                                className=""
-                                multiple
-                                onChange={handlePhotoFileSelect}
-                              />
-                            </label>
+                          <ImageUploaderWithCrop setImageData={setImageData}></ImageUploaderWithCrop>
+
                         </div>
               <label
                 htmlFor="name"

@@ -9,7 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { redirect, useRouter } from "next/navigation";
 import axios from "axios";
 import Swal from "sweetalert2";
-
+import ImageUpload from "@/component/ImageUpload";
 const Adddata = () => {
   const { user, schools, error } = useSelector((state) => state.user);
   const [currSchool, setCurrSchool] = useState("");
@@ -775,7 +775,7 @@ const Adddata = () => {
                     />
                   </div>
                 )} */}
-                <label
+                {/* <label
                   htmlFor="dropzone-file"
                   className="flex items-center px-3 py-3 mx-auto mt-6 text-center border-2 border-dashed rounded-lg cursor-pointer"
                 >
@@ -801,8 +801,9 @@ const Adddata = () => {
                     multiple
                     onChange={handlePhotoFileSelect}
                   />
-                </label>
+                </label> */}
 
+<ImageUpload setImageData={setImageData}></ImageUpload>
                 {/* Repeat above pattern for other fields */}
                 {/* Add input fields for other student schema fields */}
                 {/* Add a submit button */}
@@ -1162,7 +1163,7 @@ const Adddata = () => {
               {/* Repeat above pattern for other fields */}
               {/* Add a submit button */}
 
-              <label
+              {/* <label
                 htmlFor="dropzone-file"
                 className="flex items-center px-3 py-3 mx-auto mt-6 text-center border-2 border-dashed rounded-lg cursor-pointer"
               >
@@ -1188,7 +1189,11 @@ const Adddata = () => {
                   multiple
                   onChange={handlePhotoFileSelect}
                 />
-              </label>
+              </label> */}
+
+
+<ImageUpload setImageData={setImageData} />
+
               <button
                 type="submit"
                 className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
