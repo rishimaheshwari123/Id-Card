@@ -59,6 +59,7 @@ const Adddata = () => {
   const [extraField1, setExtraField1] = useState("");
   const [extraField2, setExtraField2] = useState("");
   const [imageData, setImageData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
+  const [selectedImage, setSelectedImage] = useState(null); // Base64 image data
 
   const [validUpTo, setValidUpTo] = useState("");
   const [course, setCourse] = useState("");
@@ -206,6 +207,7 @@ const Adddata = () => {
     console.log(response);
 
     if (response == "successfully Register") {
+      
       toast.success(response, {
         position: "top-right",
         autoClose: 5000,
@@ -215,6 +217,7 @@ const Adddata = () => {
         draggable: true,
         progress: undefined,
       });
+      setSelectedImage(null)
       // Clear all form values after dispatching the form
       setHusbandName("");
       setName("");
@@ -317,7 +320,8 @@ const Adddata = () => {
 
     // Dispatch action to add staff with formData
     const response = await dispatch(addStaff(formData, currSchool._id));
-    if (response == "successfully Register") {
+    console.log(response)
+    if (response == "Successfully Registered") {
       toast.success(response, {
         position: "top-right",
         autoClose: 5000,
@@ -327,6 +331,8 @@ const Adddata = () => {
         draggable: true,
         progress: undefined,
       });
+      setSelectedImage(null)
+
       setHusbandName("");
       setName("");
       setFatherName("");
@@ -803,7 +809,7 @@ const Adddata = () => {
                   />
                 </label> */}
 
-<ImageUpload setImageData={setImageData}></ImageUpload>
+<ImageUpload setImageData={setImageData}  setSelectedImage={setSelectedImage} selectedImage={selectedImage} />
                 {/* Repeat above pattern for other fields */}
                 {/* Add input fields for other student schema fields */}
                 {/* Add a submit button */}
@@ -1192,7 +1198,7 @@ const Adddata = () => {
               </label> */}
 
 
-<ImageUpload setImageData={setImageData} />
+<ImageUpload setImageData={setImageData} setSelectedImage={setSelectedImage} selectedImage={selectedImage} />
 
               <button
                 type="submit"

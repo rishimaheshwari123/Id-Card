@@ -51,6 +51,7 @@ const Editsatff = ({ params }) => {
   const [extraField2, setExtraField2] = useState("");
   const [id, setID] = useState();
   const [imageData, setImageData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
+  const [selectedImage, setSelectedImage] = useState(null); // Base64 image data
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -126,7 +127,7 @@ const Editsatff = ({ params }) => {
       const formData = {};
 
       // Add non-empty fields to formData
-    formData.avatar = imageData;
+      formData.avatar = imageData;
 
       if (name) formData.name = name.trim();
       if (fatherName) formData.fatherName = fatherName.trim();
@@ -161,6 +162,7 @@ const Editsatff = ({ params }) => {
 
       const response = await dispatch(editStaff(formData, id));
       if (response == "Staff updated successfully") {
+        setSelectedImage(null);
         toast.success(response, {
           position: "top-right",
           autoClose: 5000,
@@ -171,7 +173,7 @@ const Editsatff = ({ params }) => {
           progress: undefined,
         });
         // Clear all form values after dispatching the form
-        router.push("/");
+        // router.push("/");
       } else {
         toast.error(response, {
           position: "top-right",
@@ -196,35 +198,33 @@ const Editsatff = ({ params }) => {
     }
   };
 
-
-
   const handlePhotoFileSelect = async (event) => {
     event.preventDefault();
-  
+
     const file = event.target.files[0];
     console.log(file);
-  
+
     if (!file) {
       alert("Please select an image first!");
       return;
     }
-  
+
     // Show SweetAlert2 loading indicator
     const loadingAlert = Swal.fire({
-      title: 'Uploading...',
-      text: 'Please wait while your image is being uploaded.',
+      title: "Uploading...",
+      text: "Please wait while your image is being uploaded.",
       didOpen: () => {
         Swal.showLoading(); // Show the loading spinner
       },
       allowOutsideClick: false, // Prevent closing the popup outside
       willClose: () => {
         Swal.hideLoading(); // Hide loading when alert closes
-      }
+      },
     });
-  
+
     const formData = new FormData();
     formData.append("file", file);
-  
+
     try {
       const response = await axios.post(
         "https://api.cardpro.co.in/image/upload",
@@ -235,32 +235,32 @@ const Editsatff = ({ params }) => {
           },
         }
       );
-  
+
       console.log(response?.data?.thumbnailImage);
-  
+
       if (response.data.success) {
         const { public_id, url } = response.data.thumbnailImage; // Assuming the response contains these fields
         setImageData({ publicId: public_id, url: url });
-  
+
         // Close the loading alert and show success message
         loadingAlert.close();
         Swal.fire({
-          title: 'Success!',
-          text: 'Image uploaded successfully!',
-          icon: 'success',
-          confirmButtonText: 'OK',
+          title: "Success!",
+          text: "Image uploaded successfully!",
+          icon: "success",
+          confirmButtonText: "OK",
         });
       }
     } catch (error) {
       console.error(error);
-  
+
       // Close the loading alert and show error message
       loadingAlert.close();
       Swal.fire({
-        title: 'Error!',
-        text: 'Something went wrong, please try again.',
-        icon: 'error',
-        confirmButtonText: 'OK',
+        title: "Error!",
+        text: "Something went wrong, please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
       });
     }
   };
@@ -275,16 +275,19 @@ const Editsatff = ({ params }) => {
             </h3>
             <div className="mb-4">
               <div className="w-full flex justify-center items-center flex-col">
-                          <Image
-                            src={imageData.url}
-                            className="w-[100px]"
-                            height={550}
-                            width={550}
-                            alt="logo"
-                          />
-                          <ImageUploaderWithCrop setImageData={setImageData}></ImageUploaderWithCrop>
-
-                        </div>
+                <Image
+                  src={imageData.url}
+                  className="w-[100px]"
+                  height={550}
+                  width={550}
+                  alt="logo"
+                />
+                <ImageUploaderWithCrop
+                  setImageData={setImageData}
+                  setSelectedImage={setSelectedImage}
+                  selectedImage={selectedImage}
+                />
+              </div>
               <label
                 htmlFor="name"
                 className="block text-sm font-medium text-gray-700"

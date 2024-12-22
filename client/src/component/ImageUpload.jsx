@@ -4,8 +4,8 @@ import "react-image-crop/dist/ReactCrop.css";
 import Swal from "sweetalert2";
 import axios from "axios";
 
-const ImageUploaderWithCrop = ({ setImageData }) => {
-  const [selectedImage, setSelectedImage] = useState(null); // Base64 image data
+const ImageUploaderWithCrop = ({ setImageData ,selectedImage,setSelectedImage }) => {
+  // const [selectedImage, setSelectedImage] = useState(null); // Base64 image data
   const [crop, setCrop] = useState({ unit: "%", width: 75, height: 75, aspect: 1, x: 12.5, y: 12.5 }); // Increased crop size
 
   const [completedCrop, setCompletedCrop] = useState(null); // Holds the completed crop data

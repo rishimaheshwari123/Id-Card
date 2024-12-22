@@ -319,14 +319,43 @@ export const updateStudent = (userData) => async (dispatch) => {
 export const addStudent = (studntData, id) => async (dispatch) => {
   try {
     dispatch(setLoading(true));
+    
+    // Show the loading SweetAlert2 spinner
+    Swal.fire({
+      title: 'Processing...',
+      text: 'Please wait while we register the student.',
+      icon: 'info',
+      allowOutsideClick: false, // Prevent closing the alert
+      didOpen: () => {
+        Swal.showLoading(); // Show the loading spinner
+      }
+    });
+
     const response = await axios.post(`/user/registration/student/${id}`, {
       ...studntData,
     }, config());
+
     dispatch(setLoading(false));
+
+    // Close the loading SweetAlert2 spinner and show success message
+    Swal.fire({
+      icon: 'success',
+      title: 'Student Registered Successfully!',
+      text: response.data.message,
+    });
+
     return response.data.message;
   } catch (error) {
-    console.log(error)
+    console.log(error);
     dispatch(setLoading(false));
+
+    // Close the loading SweetAlert2 spinner and show error message
+    Swal.fire({
+      icon: 'error',
+      title: 'Registration Failed',
+      text: error?.response?.data?.message || "registerStudent failed",
+    });
+
     dispatch(
       setError(error?.response?.data?.message || "registerStudent failed")
     );
@@ -335,16 +364,49 @@ export const addStudent = (studntData, id) => async (dispatch) => {
 
 export const addStaff = (staffData, id) => async (dispatch) => {
   try {
+    // Dispatch to set loading state in your app
     dispatch(setLoading(true));
+
+    // Show the loading SweetAlert2 spinner
+    Swal.fire({
+      title: 'Processing...',
+      text: 'Please wait while we register the staff.',
+      icon: 'info',
+      allowOutsideClick: false, // Prevent closing the alert
+      didOpen: () => {
+        Swal.showLoading(); // Show the loading spinner
+      }
+    });
+
     const response = await axios.post(`/user/registration/staff/${id}`, {
       ...staffData,
     }, config());
+
+    // Dispatch to set loading state to false after successful response
     dispatch(setLoading(false));
+
+    // Close the loading SweetAlert2 spinner and show success message
+    Swal.fire({
+      icon: 'success',
+      title: 'Staff Registered Successfully!',
+      text: response.data.message,
+    });
+
     return response.data.message;
   } catch (error) {
+    // Dispatch to set loading state to false in case of error
     dispatch(setLoading(false));
+
+    // Close the loading SweetAlert2 spinner and show error message
+    Swal.fire({
+      icon: 'error',
+      title: 'Registration Failed',
+      text: error?.response?.data?.message || "registerStaff failed",
+    });
+
+    // Dispatch the error message
     dispatch(
-      setError(error?.response?.data?.message || "registerStudent failed")
+      setError(error?.response?.data?.message || "registerStaff failed")
     );
   }
 };
