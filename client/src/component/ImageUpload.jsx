@@ -4,9 +4,9 @@ import "react-image-crop/dist/ReactCrop.css";
 import Swal from "sweetalert2";
 import axios from "axios";
 
-const ImageUploaderWithCrop = ({setImageData}) => {
+const ImageUploaderWithCrop = ({ setImageData }) => {
   const [selectedImage, setSelectedImage] = useState(null); // Base64 image data
-  const [crop, setCrop] = useState({ unit: "%", width: 50, height: 50, aspect: 1, x: 25, y: 25 }); // Initial crop state (slightly cropped)
+  const [crop, setCrop] = useState({ unit: "%", width: 75, height: 75, aspect: 1, x: 12.5, y: 12.5 }); // Increased crop size
 
   const [completedCrop, setCompletedCrop] = useState(null); // Holds the completed crop data
   const imageRef = useRef(null); // Reference to the image element
@@ -33,13 +33,15 @@ const ImageUploaderWithCrop = ({setImageData}) => {
   const onImageLoad = () => {
     if (imageRef.current) {
       const { naturalWidth, naturalHeight } = imageRef.current;
-      setCrop({
-        unit: "%",
-        width: 50,
-        aspect: naturalWidth / naturalHeight, // Dynamically set aspect ratio based on image
-      });
+      setCrop((prevCrop) => ({
+        ...prevCrop,
+        width: naturalWidth > 800 ? 75 : 50, // Adjust based on image size
+        height: naturalHeight > 800 ? 75 : 50, // Adjust based on image size
+        aspect: naturalWidth / naturalHeight,
+      }));
     }
   };
+  
 
   // Updates the crop state as the user drags the crop area
   const onCropChange = (newCrop) => {
