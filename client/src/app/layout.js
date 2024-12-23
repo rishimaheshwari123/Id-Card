@@ -45,6 +45,8 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         {/* Google Analytics Script */}
+        <link rel="icon" href="/favicon.ico" />
+
         <Script
           id="gtm-script"
           strategy="afterInteractive"
