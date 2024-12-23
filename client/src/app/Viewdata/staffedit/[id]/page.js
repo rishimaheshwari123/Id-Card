@@ -124,11 +124,20 @@ const Editsatff = ({ params }) => {
     e.preventDefault();
     console.log("call");
     try {
+         // Show loading alert
+         Swal.fire({
+          title: "Please wait...",
+          text: "Updating staff data...",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
       const formData = {};
-
+  
       // Add non-empty fields to formData
       formData.avatar = imageData;
-
+  
       if (name) formData.name = name.trim();
       if (fatherName) formData.fatherName = fatherName.trim();
       if (husbandName) formData.husbandName = husbandName.trim();
@@ -149,7 +158,6 @@ const Editsatff = ({ params }) => {
       if (dateOfIssue) formData.dateOfIssue = dateOfIssue.trim();
       if (ihrmsNo) formData.ihrmsNo = ihrmsNo.trim();
       if (beltNo) formData.beltNo = beltNo.trim();
-      // Adding the new fields
       if (licenceNo) formData.licenceNo = licenceNo.trim();
       if (idNo) formData.idNo = idNo.trim();
       if (jobStatus) formData.jobStatus = jobStatus.trim();
@@ -159,41 +167,43 @@ const Editsatff = ({ params }) => {
       if (extraField2) formData.extraField2 = extraField2.trim();
       console.log(formData);
       console.log(id);
-
+  
+   
+  
       const response = await dispatch(editStaff(formData, id));
-      if (response == "Staff updated successfully") {
+      if (response === "Staff updated successfully") {
         setSelectedImage(null);
-        toast.success(response, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-        // Clear all form values after dispatching the form
-        // router.push("/");
+  
+        // Show success alert with two buttons
+        Swal.fire({
+          icon: "success",
+          title: "Staff Updated Successfully",
+         
+        })
+      router.push("/Viewdata");
+
       } else {
-        toast.error(response, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
+        // Show error alert
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: response,
+          timer: 5000,
+          showConfirmButton: false,
+          toast: true,
+          position: "top-end",
         });
       }
     } catch (error) {
-      toast.error(error, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
+      // Show error alert for unexpected errors
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message,
+        timer: 5000,
+        showConfirmButton: false,
+        toast: true,
+        position: "top-end",
       });
     }
   };

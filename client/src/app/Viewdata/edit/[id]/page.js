@@ -131,17 +131,20 @@ const EditStudent = ({ params }) => {
   }, [user]);
 
 
-  const handleFormSubmit = async (e) => {
+   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    console.log("sumit");
-
-    // Create an empty object to store form data
-    const formData = {
-      name,
-    };
+    console.log("submit");
+    Swal.fire({
+      title: "Please wait...",
+      text: "Updating student data...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    const formData = { name };
     formData.avatar = imageData;
-
-    // Add values to formData only if they are not empty
+  
     if (fatherName) formData.fatherName = fatherName;
     if (motherName) formData.motherName = motherName;
     if (dob) formData.dob = dob;
@@ -159,7 +162,6 @@ const EditStudent = ({ params }) => {
     if (aadharNo) formData.aadharNo = aadharNo;
     if (ribbionColour) formData.ribbionColour = ribbionColour;
     if (routeNo) formData.routeNo = routeNo;
-    // Add other student schema fields here
     if (houseName) formData.houseName = houseName;
     if (validUpTo) formData.validUpTo = validUpTo;
     if (course) formData.course = course;
@@ -168,41 +170,42 @@ const EditStudent = ({ params }) => {
     if (regNo) formData.regNo = regNo;
     if (extraField1) formData.extraField1 = extraField1;
     if (extraField2) formData.extraField2 = extraField2;
-
-    // Log formData
+  
     console.log(formData);
     console.log(ID);
     console.log(StudentlId, "param");
-
+  
+    // Show loading alert
+   
+  
     // Dispatch action to add student with formData
     const response = await dispatch(editStudent(formData, ID));
     console.log(response);
-
-    if (response == "Student updated successfully") {
-      setSelectedImage(null)
-      toast.success(response, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-      // Clear all form values after dispatching the form
-      // router.push("/");
+  
+    if (response === "Student updated successfully") {
+      setSelectedImage(null);
+  
+      // Show success alert with two buttons
+      Swal.fire({
+        icon: "success",
+        title: "Student Updated Successfully",
+        
+      })
+      router.push("/Viewdata");
     } else {
-      toast.error(response, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
+      // Show error alert
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: response,
+        timer: 5000,
+        showConfirmButton: false,
+        toast: true,
+        position: "top-end",
       });
     }
   };
+  
 
 
 
