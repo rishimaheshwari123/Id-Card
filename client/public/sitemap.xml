@@ -12,15 +12,12 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://cardpro.co.in/products</loc>
+    <loc>https://cardpro.co.in/Signin</loc>
     <priority>0.7</priority>
   </url>
+
   <url>
-    <loc>https://cardpro.co.in/services</loc>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://cardpro.co.in/blog</loc>
+    <loc>https://cardpro.co.in/Signin</loc>
     <priority>0.6</priority>
   </url>
 </urlset>
