@@ -63,33 +63,57 @@ export const currentSchool = (userData) => async (dispatch) => {
 export const loginUser = (userData) => async (dispatch) => {
   try {
     dispatch(setLoading(true));
-    console.log(userData)
+    console.log(userData);
+
+    // Show loading alert
+    Swal.fire({
+      title: "Please wait...",
+      text: "Logging you in...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
     const response = await axios.post(`/user/login`, {
       ...userData,
     });
-    console.log(response)
+    console.log(response);
+
     localStorage.removeItem("token");
     localStorage.setItem("token", response.data.token);
     dispatch(currentUser());
+
+    // Show success alert
+    Swal.fire({
+      icon: "success",
+      title: "Login Successful",
+      text: "You have been logged in successfully.",
+      timer: 2000,
+   
+    });
   } catch (error) {
     let errorMessage = "Login failed"; // Default error message
 
     if (error?.response?.status === 500) {
-      // 401 is the standard code for unauthorized
       errorMessage = "Wrong password provided. Please try again.";
     } else if (error?.response?.data?.message) {
       errorMessage = error.response.data.message; // Server-provided error message
     }
 
-    toast.error(errorMessage, {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
+    // Show error alert
+    Swal.fire({
+      icon: "error",
+      title: "Login Failed",
+      text: errorMessage,
+      timer: 5000,
+      confirmButtonText: "Try Again",
+
+   
+    
+     
     });
+
     dispatch(setError(error?.response?.data?.message || "Login failed"));
   } finally {
     dispatch(setLoading(false));
@@ -100,20 +124,32 @@ export const loginSchool = (userData) => async (dispatch) => {
   try {
     dispatch(setLoading(true));
     console.log(userData);
+
+    // Show loading alert
+    Swal.fire({
+      title: "Please wait...",
+      text: "Logging you in...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
     const response = await axios.post(`/user/school/login`, {
       ...userData,
     });
     console.log(response);
+
     localStorage.removeItem("token");
     localStorage.setItem("token", response.data.token);
     dispatch(currentUser());
 
     // Success alert with SweetAlert2
     Swal.fire({
-      icon: 'success',
-      title: 'Login Successful',
-      text: 'Welcome back!',
-      confirmButtonText: 'Okay',
+      icon: "success",
+      title: "Login Successful",
+      text: "Welcome back!",
+      confirmButtonText: "Okay",
     });
   } catch (error) {
     let errorMessage = "Login failed"; // Default error message
@@ -126,10 +162,10 @@ export const loginSchool = (userData) => async (dispatch) => {
 
     // Error alert with SweetAlert2
     Swal.fire({
-      icon: 'error',
-      title: 'Login Failed',
+      icon: "error",
+      title: "Login Failed",
       text: errorMessage,
-      confirmButtonText: 'Try Again',
+      confirmButtonText: "Try Again",
     });
 
     dispatch(setError(error?.response?.data?.message || "Login failed"));

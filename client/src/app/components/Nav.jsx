@@ -14,7 +14,7 @@ import { MdOutlineLocalPhone } from "react-icons/md";
 import { MdOutlineRoundaboutLeft } from "react-icons/md";
 import { IoCartOutline } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser, logoutUser } from "@/redux/actions/userAction";
+import { currentUser, loginUser, logoutUser } from "@/redux/actions/userAction";
 import Image from "next/image";
 
 const Nav = () => {
@@ -24,6 +24,13 @@ const Nav = () => {
   const sidebarRef = useRef();
   const dispatch = useDispatch();
 
+  
+
+    useEffect(() => {
+      if (!user) {
+        dispatch(currentUser());
+      }
+    }, [user, dispatch]);
   // Close sidebar if clicked outside
   useEffect(() => {
     const handleDocumentClick = (event) => {

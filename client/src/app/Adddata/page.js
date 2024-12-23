@@ -66,67 +66,7 @@ const Adddata = () => {
 
   const [regNo, setRegNo] = useState("");
 
-  const handlePhotoFileSelect = async (event) => {
-    event.preventDefault();
-    const file = event.target.files[0];
-    if (!file) {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Please select an image first!",
-      });
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    // Show loading alert
-    Swal.fire({
-      title: "Uploading...",
-      text: "Please wait while we upload your image.",
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
-
-    try {
-      const response = await axios.post(
-        "https://api.cardpro.co.in/image/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      // Hide loading alert
-      Swal.close();
-
-      if (response.data.success) {
-        const { public_id, url } = response.data.thumbnailImage;
-        setImageData({ publicId: public_id, url: url });
-
-        Swal.fire({
-          icon: "success",
-          title: "Uploaded!",
-          text: "Image uploaded successfully!",
-        });
-      }
-    } catch (error) {
-      console.error(error);
-
-      // Hide loading alert and show error message
-      Swal.close();
-      Swal.fire({
-        icon: "error",
-        title: "Upload Failed",
-        text: "Something went wrong. Please try again later.",
-      });
-    }
-  };
+ 
 
   useEffect(() => {
     if (!user) {
@@ -139,11 +79,7 @@ const Adddata = () => {
     }
   }, [user]);
 
-  const handleRoleSelect = (e) => {
-    e.preventDefault();
-    setCurrRole(e.target.value);
-    console.log(e.target.value);
-  };
+
 
   const handleSchoolSelect = (e) => {
     // console.log("school change ni")
@@ -252,7 +188,7 @@ const Adddata = () => {
       setUid("");
       setbeltNo("");
       setstaffID("");
-      setloginSchool(false); // For boolean values
+    
       setLicenceNo("");
       setIdNo("");
       setHouse("");
@@ -366,7 +302,7 @@ const Adddata = () => {
       setUid("");
       setbeltNo("");
       setstaffID("");
-      setloginSchool(false); // For boolean values
+
       setLicenceNo("");
       setIdNo("");
       setHouse("");
