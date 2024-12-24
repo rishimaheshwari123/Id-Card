@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { aadExcel, aadExcelstaff, submitStudentPhotos } from "@/redux/actions/userAction";
 import { useRouter } from "next/navigation";
 import axios from "../../../axiosconfig";
-
+import Swal from "sweetalert2";
 
 const Addexcel = () => {
   const { schools, error } = useSelector((state) => state.user);
@@ -125,11 +125,22 @@ const Addexcel = () => {
     }
   };
 
-  const handleSubmitnowfuntiion = async (event) => {
+   const handleSubmitnowfuntiion = async (event) => {
     event.preventDefault();
-    const loadingToastId = toast.loading('Uploading photos...');
+  
+    // Show loading alert
+    Swal.fire({
+      title: 'Uploading photos...',
+      text: 'Please wait while your photos are being uploaded.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+  
     const formData = new FormData();
     console.log("Selected photos:", selectedPhotos); // Log selectedPhotos array
+  let message ;
     selectedPhotos.forEach((file, index) => {
       // Append each file with a unique key based on its index
       formData.append(`file`, file);
@@ -139,49 +150,58 @@ const Addexcel = () => {
     for (const pair of formData.entries()) {
       console.log(pair[0] + ', ' + pair[1]);
     }
-    if( currRole = "student"){
-      try {
-            const response = await axios.post(`/user/student/avatars/${currSchool}`, formData, {
+  
+    try {
+      let response = 'Successfully Uploaded';
+  
+      if (currRole === "student") {
+        response = await axios.post(`/user/student/avatars/${currSchool}`, formData, {
           withCredentials: true,
           headers: {
             "Content-Type": "multipart/form-data",
             authorization: `${localStorage.getItem("token")}`,
           },
-        }
-      );
-        console.log(response.data);
-        toast.update(loadingToastId, { render: response.data.message, type: "success", isLoading: false, autoClose: 5000 });
-        // toast.success(response.data.message)
-        setSelectedPhotos([])
-  
-      } catch (error) {
-        toast.update(loadingToastId, { render: 'Failed to upload photos', type: "error", isLoading: false, autoClose: 5000 });
-        console.error('Error uploading photos:', error);
-      }
-    }
-    if( currRole = "staff"){
-      try {
-            const response = await axios.post(`/user/staff/avatars/${currSchool}`, formData, {
+        });
+        message = `Uploaded ${response.data.students.length} Photo`;
+        
+      } else if (currRole === "staff") {
+        response = await axios.post(`/user/staff/avatars/${currSchool}`, formData, {
           withCredentials: true,
           headers: {
             "Content-Type": "multipart/form-data",
             authorization: `${localStorage.getItem("token")}`,
           },
-        }
-      );
-        console.log(response.data);
-        toast.update(loadingToastId, { render: response.data.message, type: "success", isLoading: false, autoClose: 5000 });
-        // toast.success(response.data.message)
-        setSelectedPhotos([])
-  
-      } catch (error) {
-        toast.update(loadingToastId, { render: 'Failed to upload photos', type: "error", isLoading: false, autoClose: 5000 });
-        console.error('Error uploading photos:', error);
+        });
+        message = `Uploaded ${response.data.staffs.length} Photo`;
+        
       }
-    }
+  
+      console.log(response.data.staffs);
 
+      // Close loading alert and show success message
+      Swal.fire({
+        icon: 'success',
+        title: 'Upload Successful',
+        text: message,
+        timer: 5000,
+        timerProgressBar: true,
+      });
   
+      // setSelectedPhotos([]);
+    } catch (error) {
+      console.error('Error uploading photos:', error);
+  
+      // Close loading alert and show error message
+      Swal.fire({
+        icon: 'error',
+        title: 'Upload Failed',
+        text: 'Failed to upload photos. Please try again.',
+        timer: 5000,
+        timerProgressBar: true,
+      });
+    }
   };
+  
   
 
 

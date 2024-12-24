@@ -566,10 +566,22 @@ export const deletUser = (user) => async (dispatch) => {
 
 export const aadExcel = (fileData, schooId) => async (dispatch) => {
   try {
+    // Show loading alert
+    Swal.fire({
+      title: 'Uploading...',
+      text: 'Please wait while the file is being uploaded.',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
     dispatch(setLoading(true));
-    console.log("student")
+    console.log("student");
+
     const formData = new FormData();
     formData.append("file", fileData);
+
     const response = await axios.post(
       `/upload-excel/${schooId}`,
       formData,
@@ -581,14 +593,35 @@ export const aadExcel = (fileData, schooId) => async (dispatch) => {
         },
       }
     );
+
     dispatch(currentUser());
     dispatch(setLoading(false));
+
+    // Show success alert with the response message
+    Swal.fire({
+      icon: 'success',
+      title: 'Upload Successful',
+      text: response.data.message,
+      timer: 5000,
+      timerProgressBar: true,
+    });
+
     return response.data.message;
   } catch (error) {
     dispatch(setLoading(false));
-    console.error(error,);
+    console.error(error);
+
+    // Show error alert
+    Swal.fire({
+      icon: 'error',
+      title: 'Upload Failed',
+      text: error?.response?.data?.message || 'Failed to upload the file. Please try again.',
+      timer: 5000,
+      timerProgressBar: true,
+    });
+
     dispatch(
-      setError(error?.response?.data?.message || "fail to upload Resume")
+      setError(error?.response?.data?.message || "Fail to upload Resume")
     );
   }
 };
