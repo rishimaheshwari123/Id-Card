@@ -147,7 +147,28 @@ const Addexcel = () => {
             "Content-Type": "multipart/form-data",
             authorization: `${localStorage.getItem("token")}`,
           },
-        });
+        }
+      );
+        console.log(response.data);
+        toast.update(loadingToastId, { render: response.data.message, type: "success", isLoading: false, autoClose: 5000 });
+        // toast.success(response.data.message)
+        setSelectedPhotos([])
+  
+      } catch (error) {
+        toast.update(loadingToastId, { render: 'Failed to upload photos', type: "error", isLoading: false, autoClose: 5000 });
+        console.error('Error uploading photos:', error);
+      }
+    }
+    if( currRole = "staff"){
+      try {
+            const response = await axios.post(`/user/staff/avatars/${currSchool}`, formData, {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+            authorization: `${localStorage.getItem("token")}`,
+          },
+        }
+      );
         console.log(response.data);
         toast.update(loadingToastId, { render: response.data.message, type: "success", isLoading: false, autoClose: 5000 });
         // toast.success(response.data.message)
@@ -174,7 +195,7 @@ const Addexcel = () => {
               href="#"
               className="pb-4 font-medium text-center text-2xl text-gray-800 capitalize border-b-2 border-blue-500 dark:border-blue-400 dark:text-white"
             >
-              Add Students With Excel
+              Add Data With Excel
             </a>
           </div>
           {schools?.length !== 0 && (
@@ -290,7 +311,7 @@ const Addexcel = () => {
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                 />
               </svg>
-              <h2 className="mx-3 text-gray-400">Student Profile Photos</h2>
+              <h2 className="mx-3 text-gray-400">{currRole === "student" ? "Student Profile Photos" : "Staff Profile Photos"}</h2>
               <input
                 id="dropzone-file"
                 type="file"
