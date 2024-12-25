@@ -1008,7 +1008,7 @@ const Viewdata = () => {
             {name}
           </option>
         ) : (
-          <option  value=" ">
+          <option key={index} value=" ">
             Without Class Name
           </option>
         )
