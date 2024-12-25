@@ -962,11 +962,12 @@ const Viewdata = () => {
             </h1>
 
             {/* Search Section */}
-            <div className="bg-gray-100 rounded-lg shadow-md p-4">
+            <div className="bg-gray-100 rounded-lg shadow-md p-4 w-full">
               {/* Responsive Layout */}
               <div className="flex flex-col sm:flex-row items-center gap-4">
                 {/* Search Input */}
-                <div className="flex items-center bg-white rounded-md shadow-sm w-full sm:w-auto flex-grow">
+                <div className="flex items-center justify-around w-full">
+                <div className="flex items-center  bg-white rounded-md shadow-sm w-full sm:w-auto flex-grow">
                   <span className="flex items-center justify-center px-4 text-gray-500">
                     <FaSearch />
                   </span>
@@ -986,14 +987,15 @@ const Viewdata = () => {
                 {/* Search Button */}
                 <button
                   onClick={() => handleSearch(searchQuery)}
-                  className="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                  className="w- sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                 >
                   Search
                 </button>
 
+                </div>
                 {/* Class Dropdown (For Students) */}
                 {currRole === "student" && className && className.length > 0 && (
-  <div className="flex flex-col sm:flex-row items-center gap-4">
+  <div className="flex  items-center gap-4">
     {/* Dropdown */}
     <select
       value={classNameValue || ""} // Ensure value is always a string
@@ -1001,7 +1003,7 @@ const Viewdata = () => {
       className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
       style={{ maxHeight: "200px", overflowY: "auto" }}
     >
-      <option value=""> Select a class </option>
+      <option value=""> All Class</option>
       {className.map((name, index) =>
         name && name.trim() ? ( // Ensure name is valid
           <option key={index} value={name}>
@@ -1016,12 +1018,7 @@ const Viewdata = () => {
     </select>
 
     {/* "All" Button */}
-    <button
-      onClick={() => setclassNameValue("")} // Reset dropdown value
-      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm sm:text-base"
-    >
-      All
-    </button>
+   
   </div>
 )}
 
