@@ -47,7 +47,7 @@ const Viewdata = () => {
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [className, setClassname] = useState([]);
-  const [classNameValue, setclassNameValue] = useState('');
+  const [classNameValue, setclassNameValue] = useState("");
 
   const [studentData, setStudentData] = useState([]);
   const [staffData, setStaffData] = useState([]);
@@ -173,7 +173,7 @@ const Viewdata = () => {
     status,
     pagination.currentPage,
     pagination.pageSize,
-    classNameValue
+    classNameValue,
   ]);
 
   const handleRoleSelect = (e) => {
@@ -622,12 +622,11 @@ const Viewdata = () => {
     setstudents(filtered);
   };
 
-
   const handleSearch = (query, currentRole) => {
     setSearchQuery(query);
-    if(currRole === "student"){
-      handleFormSubmit(false)
-      return
+    if (currRole === "student") {
+      handleFormSubmit(false);
+      return;
     }
 
     let filtered = [];
@@ -788,10 +787,15 @@ const Viewdata = () => {
     const savedSchool = localStorage.getItem("currSchool");
     const savedRole = localStorage.getItem("currRole");
     const savedStatus = localStorage.getItem("status");
+    const classValuelocal = localStorage.getItem("classValuelocal");
+    const searchLocal = localStorage.getItem("searchLocal");
 
+    console.log(savedStatus)
     if (savedSchool) setCurrSchool(savedSchool);
     if (savedRole) setCurrRole(savedRole);
     if (savedStatus) setstatus(savedStatus);
+    if (classValuelocal) setclassNameValue(classValuelocal);
+    if (searchLocal) setSearchQuery(searchLocal);
   }, []);
 
   // Update localStorage whenever values change
@@ -799,7 +803,9 @@ const Viewdata = () => {
     if (currSchool) localStorage.setItem("currSchool", currSchool);
     if (currRole) localStorage.setItem("currRole", currRole);
     if (status) localStorage.setItem("status", status);
-  }, [currSchool, currRole, status]);
+    if (searchQuery) localStorage.setItem("searchLocal", searchQuery);
+    if (classNameValue) localStorage.setItem("classValuelocal", classNameValue);
+  }, [currSchool, currRole, status,classNameValue,searchQuery]);
 
   const setPage = (page) => {
     // Ensure that the page is within the valid range
@@ -949,53 +955,82 @@ const Viewdata = () => {
         )}
 
         {submitted && (
-  <div className="container mx-auto px-16">
-    <h1 className="text-center text-2xl pb-10 font-semibold text-gray-800">
-      {currRole == "student" ? "Students" : "Staff"}
-    </h1>
+          <div className="container mx-auto px-4 sm:px-8 lg:px-16">
+            {/* Heading */}
+            <h1 className="text-center text-xl sm:text-2xl lg:text-3xl pb-6 font-semibold text-gray-800">
+              {currRole === "student" ? "Students" : "Staff"}
+            </h1>
 
-    <div className="flex items-center max-w-md mx-auto bg-gray-100 rounded-lg shadow-md overflow-hidden">
-      <span className="flex items-center justify-center px-4 text-gray-500">
-        <FaSearch />
-      </span>
-      <input
-        type="text"
-        placeholder={
-          currRole == "student" ? "Search students..." : "Search Staff"
-        }
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-      />
-      {/* Search Button */}
-      <button
-        onClick={() => handleSearch(searchQuery)} // Trigger the search on button click
-        className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        Search
-      </button>
+            {/* Search Section */}
+            <div className="bg-gray-100 rounded-lg shadow-md p-4">
+              {/* Responsive Layout */}
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                {/* Search Input */}
+                <div className="flex items-center bg-white rounded-md shadow-sm w-full sm:w-auto flex-grow">
+                  <span className="flex items-center justify-center px-4 text-gray-500">
+                    <FaSearch />
+                  </span>
+                  <input
+                    type="text"
+                    placeholder={
+                      currRole === "student"
+                        ? "Search students..."
+                        : "Search staff..."
+                    }
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full p-2 sm:p-3 border-none focus:outline-none rounded-r-md text-sm sm:text-base"
+                  />
+                </div>
 
-      {currRole === "student" && className && className.length > 0 && (
-  <div style={{ position: "relative" }}>
-    <select onChange={(e) => setclassNameValue(e.target.value)} style={{ maxHeight: "200px", overflowY: "auto" }}>
-      <option value="">Select a class</option>
-      {className.map((name, index) => 
-        name ? (  // Check if class name is not null
+                {/* Search Button */}
+                <button
+                  onClick={() => handleSearch(searchQuery)}
+                  className="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                >
+                  Search
+                </button>
+
+                {/* Class Dropdown (For Students) */}
+                {currRole === "student" && className && className.length > 0 && (
+  <div className="flex flex-col sm:flex-row items-center gap-4">
+    {/* Dropdown */}
+    <select
+      value={classNameValue || ""} // Ensure value is always a string
+      onChange={(e) => setclassNameValue(e.target.value)} // Update state on change
+      className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+      style={{ maxHeight: "200px", overflowY: "auto" }}
+    >
+      <option value=""> Select a class </option>
+      {className.map((name, index) =>
+        name && name.trim() ? ( // Ensure name is valid
           <option key={index} value={name}>
             {name}
           </option>
-        ) : null
+        ) : (
+          <option  value=" ">
+            Without Class Name
+          </option>
+        )
       )}
     </select>
+
+    {/* "All" Button */}
+    <button
+      onClick={() => setclassNameValue("")} // Reset dropdown value
+      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm sm:text-base"
+    >
+      All
+    </button>
   </div>
 )}
 
 
 
-    </div>
-  </div>
-)}
-
+              </div>
+            </div>
+          </div>
+        )}
 
         {submitted && students?.length > 0 && (
           <div className="container mx-auto px-16 ">

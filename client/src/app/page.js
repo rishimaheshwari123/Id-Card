@@ -33,6 +33,8 @@ export default function Home() {
     localStorage.removeItem("currSchool");
     localStorage.removeItem("currRole");
     localStorage.removeItem("status");
+    localStorage.removeItem("searchLocal");
+    localStorage.removeItem("classValuelocal");
   }, []);
   const redirectToAddSchool = () => {
     if (!user) {

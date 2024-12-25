@@ -320,22 +320,22 @@ const EditSchool = ({ params }) => {
                 />
                 <span className="text-gray-600">Class</span>
               </label>
-              <label htmlFor="rollNo" className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="rollNo"
-                  name="Roll No."
-                  checked={requiredFields.includes("Roll No.")}
-                  onChange={handleChange}
-                />
-                <span className="text-gray-600">Section</span>
-              </label>
               <label htmlFor="section" className="flex items-center space-x-2">
                 <input
                   type="checkbox"
                   id="section"
                   name="Section"
                   checked={requiredFields.includes("Section")}
+                  onChange={handleChange}
+                />
+                <span className="text-gray-600">Section</span>
+              </label>
+              <label htmlFor="rollno" className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="rollno"
+                  name="Roll No."
+                  checked={requiredFields.includes("Roll No.")}
                   onChange={handleChange}
                 />
                 <span className="text-gray-600">Roll No.</span>
