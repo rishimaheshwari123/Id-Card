@@ -47,6 +47,8 @@ const Viewdata = () => {
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [className, setClassname] = useState([]);
+  const [sections, setSections] = useState([]);
+  const [sectionValueSearch, setSectionValueSearch] = useState([]);
   const [classNameValue, setclassNameValue] = useState("");
 
   const [studentData, setStudentData] = useState([]);
@@ -174,6 +176,7 @@ const Viewdata = () => {
     pagination.currentPage,
     pagination.pageSize,
     classNameValue,
+    sectionValueSearch
   ]);
 
   const handleRoleSelect = (e) => {
@@ -241,7 +244,7 @@ const Viewdata = () => {
       // Determine endpoint and error messages dynamically based on role
       const isStudent = currRole === "student";
       const endpoint = isStudent
-        ? `/user/students/${currSchool}?status=${status}&page=${pagination.currentPage}&limit=${pagination.pageSize}&search=${searchQuery}&studentClass=${classNameValue}`
+        ? `/user/students/${currSchool}?status=${status}&page=${pagination.currentPage}&limit=${pagination.pageSize}&search=${searchQuery}&studentClass=${classNameValue}&section=${sectionValueSearch}`
         : `/user/staffs/${currSchool}?status=${status}`;
       const noDataMessage = isStudent
         ? "No students found for the provided school ID"
@@ -278,6 +281,7 @@ const Viewdata = () => {
         });
         setStudentData(response?.data?.students || []);
         setClassname(response?.data?.uniqueStudents || []);
+        setSections(response?.data?.uniqueSection || []);
       } else {
         setstaffs(response?.data?.staff || []);
         setStaffData(response?.data?.staff || []);
@@ -788,6 +792,7 @@ const Viewdata = () => {
     const savedRole = localStorage.getItem("currRole");
     const savedStatus = localStorage.getItem("status");
     const classValuelocal = localStorage.getItem("classValuelocal");
+    const sectionValueSearchLocal = localStorage.getItem("sectionValuelocal");
     const searchLocal = localStorage.getItem("searchLocal");
 
     console.log(savedStatus)
@@ -795,6 +800,7 @@ const Viewdata = () => {
     if (savedRole) setCurrRole(savedRole);
     if (savedStatus) setstatus(savedStatus);
     if (classValuelocal) setclassNameValue(classValuelocal);
+    if (sectionValueSearchLocal) setSectionValueSearch(sectionValueSearchLocal);
     if (searchLocal) setSearchQuery(searchLocal);
   }, []);
 
@@ -805,7 +811,8 @@ const Viewdata = () => {
     if (status) localStorage.setItem("status", status);
     if (searchQuery) localStorage.setItem("searchLocal", searchQuery);
     if (classNameValue) localStorage.setItem("classValuelocal", classNameValue);
-  }, [currSchool, currRole, status,classNameValue,searchQuery]);
+    if (sectionValueSearch) localStorage.setItem("sectionValuelocal", sectionValueSearch);
+  }, [currSchool, currRole, status,classNameValue,searchQuery,sectionValueSearch]);
 
   const setPage = (page) => {
     // Ensure that the page is within the valid range
@@ -1010,10 +1017,33 @@ const Viewdata = () => {
             {name}
           </option>
         ) : (
-          <option key={index} value=" ">
+          <option key={index} value="no-class">
             Without Class Name
           </option>
         )
+      )}
+    </select>
+
+    {/* "All" Button */}
+   
+  </div>
+)}
+                {currRole === "student" && sections && sections.length > 0 && (
+  <div className="flex  items-center gap-4">
+    {/* Dropdown */}
+    <select
+      value={sectionValueSearch || ""} // Ensure value is always a string
+      onChange={(e) => setSectionValueSearch(e.target.value)} // Update state on change
+      className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+      style={{ maxHeight: "200px", overflowY: "auto" }}
+    >
+      <option value=""> All Section</option>
+      {sections.map((name, index) =>
+        name &&  ( // Ensure name is valid
+          <option key={index} value={name}>
+            {name}
+          </option>
+        ) 
       )}
     </select>
 

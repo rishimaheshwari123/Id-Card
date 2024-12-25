@@ -1405,10 +1405,14 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
     const status = req.query.status; // Status from query parameters
     const search = req.query.search; // Search term from query parameters
     const studentClass = req.query.studentClass; // Search term from query parameters
-    const { section } = req.body; // Class and section from request body
+    const section = req.query.section; // Search term from query parameters
+   
 console.log(studentClass)
     let queryObj = { school: schoolId };
+    const SchoolData = await School.findById(schoolId)
+   
     const uniqueStudents = await Student.distinct("class", queryObj); // Replace "studentID" with the field you consider unique
+    const uniqueSection = SchoolData.requiredFields.includes("Section") ? await Student.distinct("section", queryObj) : []; // Replace "studentID" with the field you consider unique
     
     // Adding status filter if provided
     if (status) {
@@ -1422,9 +1426,14 @@ function escapeRegex(value) {
 }
 
 if (studentClass) {
-  const escapedClassName = escapeRegex(studentClass); // Escape special characters
-  queryObj.class = { $regex: `^${escapedClassName}$`, $options: "i" }; // Exact match with regex
+  if (studentClass === 'no-class' || studentClass === '') {
+    queryObj.class = null; // Logic to filter for "Without Class Name"
+  } else {
+    const escapedClassName = escapeRegex(studentClass); // Escape special characters
+    queryObj.class = { $regex: `^${escapedClassName}$`, $options: "i" }; // Exact match with regex
+  }
 }
+
 
     
 
@@ -1489,7 +1498,8 @@ if (studentClass) {
         currentPage: page,
         pageSize: limit,
       },
-      uniqueStudents
+      uniqueStudents,
+      uniqueSection
     });
   } catch (error) {
     console.error("Error in getAllStudentsInSchool route:", error);

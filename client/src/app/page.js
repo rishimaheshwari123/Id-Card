@@ -35,6 +35,7 @@ export default function Home() {
     localStorage.removeItem("status");
     localStorage.removeItem("searchLocal");
     localStorage.removeItem("classValuelocal");
+    localStorage.removeItem("sectionValuelocal");
   }, []);
   const redirectToAddSchool = () => {
     if (!user) {

@@ -1,135 +1,75 @@
-import React, { useState, useRef } from "react";
-import ReactCrop from "react-image-crop";
-import "react-image-crop/dist/ReactCrop.css";
+import React, { useState } from "react";
+import Cropper from "react-cropper";
+import "cropperjs/dist/cropper.css";
 import Swal from "sweetalert2";
 import axios from "axios";
 
-const ImageUploaderWithCrop = ({ setImageData ,selectedImage,setSelectedImage }) => {
-  // const [selectedImage, setSelectedImage] = useState(null); // Base64 image data
-  const [crop, setCrop] = useState({ unit: "%", width: 75, height: 75, aspect: 1, x: 12.5, y: 12.5 }); // Increased crop size
+const ImageUploaderWithCrop = ({ setImageData, selectedImage, setSelectedImage }) => {
+  const [cropper, setCropper] = useState(null);
 
-  const [completedCrop, setCompletedCrop] = useState(null); // Holds the completed crop data
-  const imageRef = useRef(null); // Reference to the image element
-
-  // Handles image file selection and converts it to base64
   const handlePhotoFileSelect = (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        setSelectedImage(reader.result); // Store the base64 image data
+        setSelectedImage(reader.result);
       };
-      reader.readAsDataURL(file); // Convert file to base64
+      reader.readAsDataURL(file);
     } else {
       Swal.fire({
         icon: "error",
-        title: "Oops...",
-        text: "Please select a valid image file!",
+        title: "Invalid File",
+        text: "Please select a valid image file.",
       });
     }
   };
 
-  // Called when the image is loaded, sets the crop area based on image dimensions
-  const onImageLoad = () => {
-    if (imageRef.current) {
-      const { naturalWidth, naturalHeight } = imageRef.current;
-      setCrop((prevCrop) => ({
-        ...prevCrop,
-        width: naturalWidth > 800 ? 75 : 50, // Adjust based on image size
-        height: naturalHeight > 800 ? 75 : 50, // Adjust based on image size
-        aspect: naturalWidth / naturalHeight,
-      }));
-    }
-  };
-  
-
-  // Updates the crop state as the user drags the crop area
-  const onCropChange = (newCrop) => {
-    setCrop(newCrop);
-  };
-
-  // This is triggered when cropping is completed (after the user finishes selecting the crop area)
-  const onCropComplete = (newCrop) => {
-    setCompletedCrop(newCrop);
-  };
-
-  // Function to get the cropped image as a Blob
-  const getCroppedImage = async (crop) => {
-    if (!imageRef.current || !crop.width || !crop.height) return null;
-
-    const canvas = document.createElement("canvas");
-    const scaleX = imageRef.current.naturalWidth / imageRef.current.width;
-    const scaleY = imageRef.current.naturalHeight / imageRef.current.height;
-
-    canvas.width = crop.width;
-    canvas.height = crop.height;
-
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(
-      imageRef.current,
-      crop.x * scaleX,
-      crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
-      0,
-      0,
-      crop.width,
-      crop.height
-    );
-
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => {
-        resolve(blob);
-      }, "image/jpeg");
-    });
-  };
-
-  // Upload the cropped image
   const handleUpload = async () => {
-    if (!completedCrop) {
+    if (!cropper) {
       Swal.fire({
         icon: "error",
-        title: "Oops...",
-        text: "Please crop the image first!",
+        title: "Crop Required",
+        text: "Please crop the image before uploading.",
       });
       return;
     }
 
-    const croppedBlob = await getCroppedImage(completedCrop);
-    if (!croppedBlob) return;
+    const croppedCanvas = cropper.getCroppedCanvas();
+    if (!croppedCanvas) return;
+
+    const croppedBlob = await new Promise((resolve) => {
+      croppedCanvas.toBlob((blob) => {
+        resolve(blob);
+      }, "image/jpeg");
+    });
 
     const formData = new FormData();
     formData.append("file", croppedBlob);
 
     Swal.fire({
       title: "Uploading...",
-      text: "Please wait while we upload your image.",
+      text: "Please wait while the image is being uploaded.",
       allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
+      didOpen: () => Swal.showLoading(),
     });
 
     try {
       const response = await axios.post(
-        "https://api.cardpro.co.in/image/upload", // Replace with your image upload API
+        "https://api.cardpro.co.in/image/upload",
         formData,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
       Swal.close();
 
       if (response.data.success) {
-
         const { public_id, url } = response.data.thumbnailImage;
-        setImageData({ publicId: public_id, url: url });
+        setImageData({ publicId: public_id, url });
         Swal.fire({
           icon: "success",
-          title: "Uploaded!",
+          title: "Uploaded",
           text: "Image uploaded successfully!",
         });
       }
@@ -138,7 +78,7 @@ const ImageUploaderWithCrop = ({ setImageData ,selectedImage,setSelectedImage })
       Swal.fire({
         icon: "error",
         title: "Upload Failed",
-        text: "Something went wrong. Please try again later.",
+        text: "Failed to upload the image. Please try again later.",
       });
     }
   };
@@ -173,25 +113,27 @@ const ImageUploaderWithCrop = ({ setImageData ,selectedImage,setSelectedImage })
       </label>
 
       {selectedImage && (
-        <div className="mt-4 ">
-          <ReactCrop
+        <div className="mt-4">
+          <Cropper
             src={selectedImage}
-            crop={crop}
-            onChange={onCropChange}
-            onComplete={onCropComplete}
-            minWidth={100} // Minimum crop width
-            minHeight={100} // Minimum crop height
-          >
-            <img
-              ref={imageRef}
-              src={selectedImage}
-              onLoad={onImageLoad}
-              alt="Crop Preview"
-            />
-          </ReactCrop>
+            style={{ height: 400, width: "100%" }}
+            aspectRatio={0}        // Disable fixed aspect ratio
+            guides={false}         // Disable guides
+            viewMode={3}           // Allow free resizing and movement of the crop box
+            dragMode="move"       // Allow moving the crop box
+            responsive={true}
+            autoCropArea={1}       // Maximize crop area
+            checkOrientation={false}
+            wheelZoom={true}       // Enable zoom with mouse wheel
+            zoomable={true}        // Enable zoom with buttons
+            minCropBoxWidth={50}   // Minimum crop box width
+            minCropBoxHeight={50}  // Minimum crop box height
+            toggleDragModeOnDblclick={false}  // Disable double-click mode toggle
+            onInitialized={(instance) => setCropper(instance)}  // Initialize the cropper instance
+          />
           <p
             onClick={handleUpload}
-            className="mt-4 px-4 py-2 cursor-pointer bg-blue-500 text-white rounded"
+            className="mt-4 cursor-pointer px-4 py-2 bg-blue-500 text-white rounded"
           >
             Upload
           </p>
