@@ -1400,93 +1400,69 @@ exports.allSchool = catchAsyncErron(async (req, res, next) => {
 // Assuming you have required necessary modules and defined Student model
 
 exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
-  // const schoolId = req.params.id; // School ID from request params
-  // const status = req.query.status; // State from query parameters
-  // const studentClass = req.body.class;
-  // const section = req.body.section;
-
-  // let queryObj = { school: schoolId };
-  // if (status) {
-  //   queryObj.status = status; // Assuming your student schema has a 'state' field
-  // }
-
-  // // Find all students in the given school using the school ID
-  // let students = await Student.find(queryObj);
-
-  // if (!students || students.length === 0) {
-  //   // If no students are found for the given school, return an appropriate response
-  //   return res.status(404).json({
-  //     success: false,
-  //     role: "student",
-  //     message: "No students found for the provided school ID",
-  //   });
-  // }
-
-  // if (studentClass || section) {
-  //   students = students.filter(student => {
-  //     // Check if student's class matches the provided class (case-insensitive)
-  //     const classMatch = studentClass ? student.class.toLowerCase() === studentClass.toLowerCase() : true;
-  //     // Check if student's section matches the provided section (case-insensitive)
-  //     const sectionMatch = section ? student.section.toLowerCase() === section.toLowerCase() : true;
-  //     // Return true only if both class and section matches
-  //     return classMatch && sectionMatch;
-  //   });
-  // }
-
-  // const studentsWithRole = students.map(student => {
-  //   return {
-  //     ...student.toObject(),
-  //     role: "student"
-  //   };
-  // });
-
-  // // Respond with the list of students found in the school
-  // res.status(200).json({
-  //   success: true,
-  //   message: "Students found for the provided school ID",
-  //   students: studentsWithRole,
-  // });
-
   try {
     const schoolId = req.params.id; // School ID from request params
-    const status = req.query.status; // State from query parameters
-    const {studentClass, section} = req.body; // Class and section from request body
-
-    let queryObj = {school: schoolId};
+    const status = req.query.status; // Status from query parameters
+    const search = req.query.search; // Search term from query parameters
+    const studentClass = req.query.studentClass; // Search term from query parameters
+    const { section } = req.body; // Class and section from request body
+console.log(studentClass)
+    let queryObj = { school: schoolId };
+    const uniqueStudents = await Student.distinct("class", queryObj); // Replace "studentID" with the field you consider unique
+    
+    // Adding status filter if provided
     if (status) {
-      queryObj.status = status; // Assuming your student schema has a 'state' field
+      queryObj.status = status;
     }
 
-    // Apply filter conditions only if they are provided
-    // if (studentClass) {
-    //   queryObj.class = { $regex: studentClass, $options: "i" };
-    // }
-    console.log(studentClass);
+    // Adding class and section filter if provided
+// Function to escape special characters for regex
+function escapeRegex(value) {
+  return value.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+}
 
-    if (studentClass) {
-      // Check if studentClass is a numeric value or a string value like "1st", "2nd", etc.
-      // if (/^\d+$/.test(studentClass)) {
-      //   queryObj.class = parseInt(studentClass); // Convert to number and filter
-      // } else {
-      //   queryObj.class = { $regex: studentClass, $options: "i" }; // Case-insensitive string matching
-      // }
-      // queryObj.class = studentClass;
-      queryObj.class = {$regex: studentClass, $options: "i"};
-    }
-    console.log(queryObj);
+if (studentClass) {
+  const escapedClassName = escapeRegex(studentClass); // Escape special characters
+  queryObj.class = { $regex: `^${escapedClassName}$`, $options: "i" }; // Exact match with regex
+}
+
+    
 
     if (section) {
-      queryObj.section = {$regex: section, $options: "i"}; // Case-insensitive
+      queryObj.section = { $regex: section, $options: "i" };
     }
 
-    // Find all students in the given school using the school ID and optional status
-    let students = await Student.find(queryObj);
-    // let newcalss = { $regex: studentClass, $options: "i" };
-    // queryObj.class = { $regex: studentClass, $options: "i" };
-    // let students = await Student.find({ school:schoolId, class:"6th"});
+    // If there is a search term, add the search logic
+    if (search) {
+      queryObj.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { rollNo: { $regex: search, $options: 'i' } },
+        { section: { $regex: search, $options: 'i' } },
+        { class: { $regex: search, $options: 'i' } },
+        { fatherName: { $regex: search, $options: 'i' } },
+        { motherName: { $regex: search, $options: 'i' } },
+        { contact: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { admissionNo: { $regex: search, $options: 'i' } },
+        { studentID: { $regex: search, $options: 'i' } },
+        { aadharNo: { $regex: search, $options: 'i' } },
+        { regNo: { $regex: search, $options: 'i' } }
+        // You can add more fields here as needed
+      ];
+    }
+
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+    const limit = parseInt(req.query.limit) || 10; // Default to 10 students per page
+
+    // Find all students based on the queryObj
+
+    const totalStudents = await Student.countDocuments(queryObj); // Count total students for pagination
+    const students = await Student.find(queryObj)
+      .skip((page - 1) * limit) // Skip the results based on the page number
+      .limit(limit); // Limit the number of results per page
 
     if (!students || students.length === 0) {
-      // If no students are found for the given school, return an appropriate response
       return res.json({
         success: false,
         role: "student",
@@ -1498,20 +1474,30 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
       return {
         ...student.toObject(),
         role: "student",
+        
       };
     });
 
-    // Respond with the list of students found in the school
+    // Respond with the list of students and pagination info
     res.status(200).json({
       success: true,
       message: "Students found for the provided school ID",
       students: studentsWithRole,
+      pagination: {
+        totalStudents,
+        totalPages: Math.ceil(totalStudents / limit),
+        currentPage: page,
+        pageSize: limit,
+      },
+      uniqueStudents
     });
   } catch (error) {
     console.error("Error in getAllStudentsInSchool route:", error);
-    res.status(500).json({success: false, error: "Internal Server Error"});
+    res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 });
+
+
 
 exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
   const schoolId = req.params.id; // School ID from request params

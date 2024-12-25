@@ -136,4 +136,26 @@
 .button-bounce {
   animation: bounce 1.5s ease-in-out infinite;
 }
+select {
+  position: relative; /* Ensures dropdown is positioned relative to the select element */
+  z-index: 10; /* Ensures that the dropdown appears above other elements */
+}
+
+select option {
+  /* Optional: Style options for better display */
+  padding: 8px;
+}
+
+select:focus {
+  outline: none; /* Remove focus outline if you want to customize the focus effect */
+}
+
+div {
+  position: relative; /* Ensure parent div is positioned for dropdown */
+}
+
+select {
+  max-height: 200px; /* Limit the height of the dropdown */
+  overflow-y: auto; /* Enable scrolling if dropdown exceeds max-height */
+}
 

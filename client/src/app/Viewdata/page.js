@@ -19,6 +19,7 @@ import {
   FaUserCheck,
   FaUserTimes,
 } from "react-icons/fa";
+import Pagination from "@/component/Pagination";
 
 const Viewdata = () => {
   const { user, schools, error } = useSelector((state) => state.user);
@@ -38,6 +39,15 @@ const Viewdata = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setError] = useState("");
+  const [pagination, setPagination] = useState({
+    totalStudents: 0,
+    totalPages: 0,
+    currentPage: 1,
+    pageSize: 50,
+  });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [className, setClassname] = useState([]);
+  const [classNameValue, setclassNameValue] = useState('');
 
   const [studentData, setStudentData] = useState([]);
   const [staffData, setStaffData] = useState([]);
@@ -157,7 +167,14 @@ const Viewdata = () => {
     if (currRole && currSchool && status) {
       handleFormSubmit(false);
     }
-  }, [currRole, currSchool, status]);
+  }, [
+    currRole,
+    currSchool,
+    status,
+    pagination.currentPage,
+    pagination.pageSize,
+    classNameValue
+  ]);
 
   const handleRoleSelect = (e) => {
     setCurrRole(e.target.value);
@@ -224,7 +241,7 @@ const Viewdata = () => {
       // Determine endpoint and error messages dynamically based on role
       const isStudent = currRole === "student";
       const endpoint = isStudent
-        ? `/user/students/${currSchool}?status=${status}`
+        ? `/user/students/${currSchool}?status=${status}&page=${pagination.currentPage}&limit=${pagination.pageSize}&search=${searchQuery}&studentClass=${classNameValue}`
         : `/user/staffs/${currSchool}?status=${status}`;
       const noDataMessage = isStudent
         ? "No students found for the provided school ID"
@@ -235,7 +252,6 @@ const Viewdata = () => {
 
       // Make the API request
       const response = await axios.post(endpoint, null, config());
-
       // Handle "No data found" scenario
       if (response?.data?.message === noDataMessage) {
         toast.error(toastMessage, {
@@ -255,7 +271,13 @@ const Viewdata = () => {
       // Update state based on role
       if (isStudent) {
         setstudents(response?.data?.students || []);
+        setPagination({
+          ...pagination,
+          totalStudents: response.data.pagination.totalStudents,
+          totalPages: response.data.pagination.totalPages,
+        });
         setStudentData(response?.data?.students || []);
+        setClassname(response?.data?.uniqueStudents || []);
       } else {
         setstaffs(response?.data?.staff || []);
         setStaffData(response?.data?.staff || []);
@@ -600,13 +622,16 @@ const Viewdata = () => {
     setstudents(filtered);
   };
 
-  const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (query, currentRole) => {
     setSearchQuery(query);
-  
+    if(currRole === "student"){
+      handleFormSubmit(false)
+      return
+    }
+
     let filtered = [];
-  
+
     if (currRole === "student") {
       filtered = studentData.filter((student) => {
         return (
@@ -662,7 +687,7 @@ const Viewdata = () => {
         );
       });
     }
-  
+
     // Set the filtered data based on role
     if (currRole === "student") {
       setstudents(filtered);
@@ -670,7 +695,6 @@ const Viewdata = () => {
       setstaffs(filtered);
     }
   };
-  
 
   const [isAllSelected, setIsAllSelected] = useState(false); // State to track selection
 
@@ -776,6 +800,13 @@ const Viewdata = () => {
     if (currRole) localStorage.setItem("currRole", currRole);
     if (status) localStorage.setItem("status", status);
   }, [currSchool, currRole, status]);
+
+  const setPage = (page) => {
+    // Ensure that the page is within the valid range
+    if (page >= 1 && page <= pagination.totalPages) {
+      setPagination({ ...pagination, currentPage: page });
+    }
+  };
   return (
     <div>
       <Nav />
@@ -917,28 +948,64 @@ const Viewdata = () => {
           </div>
         )}
 
-        {submitted &&(
-          <div className="container mx-auto px-16 ">
-            <h1 className="text-center text-2xl pb-10 font-semibold text-gray-800">
-             {currRole == "student" ? "Students" :"Staff"} 
-            </h1>
-            <div className="flex items-center max-w-md mx-auto bg-gray-100 rounded-lg shadow-md overflow-hidden">
-              <span className="flex items-center justify-center px-4 text-gray-500">
-                <FaSearch />
-              </span>
-              <input
-                type="text"
-                placeholder={currRole == "student" ? "Search students..." :"Search Staff"}
-                value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-          </div>
-        )}
+        {submitted && (
+  <div className="container mx-auto px-16">
+    <h1 className="text-center text-2xl pb-10 font-semibold text-gray-800">
+      {currRole == "student" ? "Students" : "Staff"}
+    </h1>
+
+    <div className="flex items-center max-w-md mx-auto bg-gray-100 rounded-lg shadow-md overflow-hidden">
+      <span className="flex items-center justify-center px-4 text-gray-500">
+        <FaSearch />
+      </span>
+      <input
+        type="text"
+        placeholder={
+          currRole == "student" ? "Search students..." : "Search Staff"
+        }
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+      />
+      {/* Search Button */}
+      <button
+        onClick={() => handleSearch(searchQuery)} // Trigger the search on button click
+        className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        Search
+      </button>
+
+      {currRole === "student" && className && className.length > 0 && (
+  <div style={{ position: "relative" }}>
+    <select onChange={(e) => setclassNameValue(e.target.value)} style={{ maxHeight: "200px", overflowY: "auto" }}>
+      <option value="">Select a class</option>
+      {className.map((name, index) => 
+        name ? (  // Check if class name is not null
+          <option key={index} value={name}>
+            {name}
+          </option>
+        ) : null
+      )}
+    </select>
+  </div>
+)}
+
+
+
+    </div>
+  </div>
+)}
+
 
         {submitted && students?.length > 0 && (
           <div className="container mx-auto px-16 ">
+            {pagination.totalPages > 0 && (
+              <Pagination
+                totalPages={pagination.totalPages}
+                currentPage={pagination.currentPage}
+                setPage={setPage}
+              />
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {students?.map((student) => (
                 <div
@@ -1112,7 +1179,6 @@ const Viewdata = () => {
         )}
         {submitted && staffs?.length > 0 && (
           <div className="container mx-auto">
-        
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {staffs?.map((staff) => (
                 <div
@@ -1288,12 +1354,13 @@ const Viewdata = () => {
         {/* Chat Box Button */}
         {submitted && (
           <button
-  className={`fixed bottom-4 left-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full shadow-lg ${!showChatBox ? 'button-bounce' : ''}`}
-  onClick={toggleChatBox}
->
-  More
-</button>
-
+            className={`fixed bottom-4 left-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full shadow-lg ${
+              !showChatBox ? "button-bounce" : ""
+            }`}
+            onClick={toggleChatBox}
+          >
+            More
+          </button>
         )}
 
         {/* List of Buttons in Chat Box */}
