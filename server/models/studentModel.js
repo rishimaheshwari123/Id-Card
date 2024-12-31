@@ -39,6 +39,7 @@ const studentModel = mongoose.Schema(
       },
     },
     rollNo: String,
+    parentChanges: String,
     class: String,
     section: String,
     session: String,

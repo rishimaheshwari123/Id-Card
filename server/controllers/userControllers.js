@@ -706,9 +706,13 @@ console.log(req.body)
     }
     if (req.body.class) {
       currStudent.class = req.body.class;
+    }else{
+      currStudent.class = null
     }
     if (req.body.section) {
       currStudent.section = req.body.section;
+    }else{
+      currStudent.section = null
     }
     if (req.body.session) {
       currStudent.session = req.body.session;
@@ -747,6 +751,8 @@ if (req.body.validUpTo) {
 }
 if (req.body.course) {
   currStudent.course = req.body.course;
+}else{
+  currStudent.course = null 
 }
 if (req.body.batch) {
   currStudent.batch = req.body.batch;
@@ -1406,14 +1412,17 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
     const search = req.query.search; // Search term from query parameters
     const studentClass = req.query.studentClass; // Search term from query parameters
     const section = req.query.section; // Search term from query parameters
+    const course = req.query.course; // Search term from query parameters
    
-console.log(studentClass)
+    console.log(course)
     let queryObj = { school: schoolId };
     const SchoolData = await School.findById(schoolId)
    
-    const uniqueStudents = await Student.distinct("class", queryObj); // Replace "studentID" with the field you consider unique
+    const uniqueStudents = SchoolData.requiredFields.includes("Class") ?  await Student.distinct("class", queryObj) : []; // Replace "studentID" with the field you consider unique
     const uniqueSection = SchoolData.requiredFields.includes("Section") ? await Student.distinct("section", queryObj) : []; // Replace "studentID" with the field you consider unique
+    const uniqueCourse = SchoolData.requiredFields.includes("Course") ? await Student.distinct("course", queryObj) : []; // Replace "studentID" with the field you consider unique
     
+    // console.log(uniqueStudents)
     // Adding status filter if provided
     if (status) {
       queryObj.status = status;
@@ -1431,6 +1440,14 @@ if (studentClass) {
   } else {
     const escapedClassName = escapeRegex(studentClass); // Escape special characters
     queryObj.class = { $regex: `^${escapedClassName}$`, $options: "i" }; // Exact match with regex
+  }
+}
+if (course) {
+  if (course === 'no-class' || course === '') {
+    queryObj.course = null; // Logic to filter for "Without Class Name"
+  } else {
+    const escapedcourseName = escapeRegex(course); // Escape special characters
+    queryObj.course = { $regex: `^${escapedcourseName}$`, $options: "i" }; // Exact match with regex
   }
 }
 
@@ -1499,7 +1516,8 @@ if (studentClass) {
         pageSize: limit,
       },
       uniqueStudents,
-      uniqueSection
+      uniqueSection,
+      uniqueCourse
     });
   } catch (error) {
     console.error("Error in getAllStudentsInSchool route:", error);
@@ -3125,3 +3143,21 @@ exports.getStaff = catchAsyncErron(async (req, res, next) => {
     staff: staff,
   });
 });
+
+
+
+exports.getSchoolById = async (req, res) => {
+  try {
+    const { id } = req.params;  // Get the schoolId from URL params
+    const school = await School.findById(id);  // Fetch school from database
+
+    if (!school) {
+      return res.status(404).json({ success: false, message: 'School not found' });
+    }
+    
+    return res.status(200).json({ success: true, data: school });
+  } catch (err) {
+    console.error("Error fetching school data:", err);
+    return res.status(500).json({ success: false, message: 'Error retrieving school data' });
+  }
+}

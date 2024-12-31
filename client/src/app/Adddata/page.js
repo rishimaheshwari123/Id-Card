@@ -339,7 +339,7 @@ const Adddata = () => {
            
           </div>
           {!loginSchool && schools?.length !== 0 && (
-            <form className="mt-6 w-full max-w-md" onSubmit={handleFormSubmit}>
+            <form className="mt-6 w-full max-w-md" >
               <div className="mb-4">
                 <label
                   htmlFor="school"
@@ -405,7 +405,7 @@ const Adddata = () => {
 
           {currRole === "student" && (
             <div className="w-[320px]">
-              <form action="mt-3 w-[320px] " onSubmit={handleFormSubmit}>
+              <form action="mt-3 w-[320px] " >
                 <h3 className="text-center text-xl py-3 border-b-2 mb-4 border-indigo-500">
                   Add Student
                 </h3>
@@ -751,6 +751,7 @@ const Adddata = () => {
                 {/* Add a submit button */}
                 <button
                   type="submit"
+                  onClick={handleFormSubmit}
                   className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                 >
                   Add Student
@@ -761,7 +762,7 @@ const Adddata = () => {
         </div>
         {currRole === "staff" && (
           <div className="w-[320px] m-auto ">
-            <form action="mt-3 w-[320px]" onSubmit={handleStaffFormSubmit}>
+            <form action="mt-3 w-[320px]" >
               <h3 className="text-center text-xl py-3 border-b-2 mb-4 border-indigo-500">
                 Add Staff
               </h3>
@@ -1138,6 +1139,7 @@ const Adddata = () => {
 
               <button
                 type="submit"
+                onClick={handleStaffFormSubmit}
                 className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
               >
                 Add Staff

@@ -307,7 +307,7 @@ export const editStudent = (studntData, id) => async (dispatch) => {
     dispatch(setLoading(true));
     const response = await axios.post(`/user/edit/student/${id}`, {
       ...studntData,
-    }, config());
+    },);
     dispatch(setLoading(false));
     return response.data.message;
   } catch (error) {

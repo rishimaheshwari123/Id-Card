@@ -18,8 +18,10 @@ import {
   FaArrowLeft,
   FaUserCheck,
   FaUserTimes,
+  FaShareAlt,
 } from "react-icons/fa";
 import Pagination from "@/component/Pagination";
+import Link from "next/link";
 
 const Viewdata = () => {
   const { user, schools, error } = useSelector((state) => state.user);
@@ -51,9 +53,20 @@ const Viewdata = () => {
   const [sectionValueSearch, setSectionValueSearch] = useState([]);
   const [classNameValue, setclassNameValue] = useState("");
 
+  // Course for
+  const [unqiueCourse, setUnqiueCourse] = useState([]);
+  const [courseValueSearch, setCourseValueSearch] = useState([]);
+
+
   const [studentData, setStudentData] = useState([]);
   const [staffData, setStaffData] = useState([]);
 
+  const resetState = () => {
+    setstudents([]);
+    setStudentData([]);
+    setstaffs([]);
+    setStaffData([]);
+  };
   useEffect(() => {
     console.log(user);
     if (!user) {
@@ -108,6 +121,7 @@ const Viewdata = () => {
         config()
       );
       fatchStudent(e);
+      setStudentIds([]);
     }
     if (currRole == "staff") {
       const response = await axios.post(
@@ -128,6 +142,7 @@ const Viewdata = () => {
         config()
       );
       fatchStudent(e);
+      setStudentIds([]);
     }
     if (currRole == "staff") {
       const response = await axios.post(
@@ -148,6 +163,7 @@ const Viewdata = () => {
         config()
       );
       fatchStudent(e);
+      setStudentIds([]);
     }
     if (currRole == "staff") {
       const response = await axios.post(
@@ -159,38 +175,45 @@ const Viewdata = () => {
     }
   };
 
-  const searchUsers = async () => {
-    const response = await axios.post(`/admin/users`, null, config());
-    setUsers(response?.data?.users);
-    console.log(response?.data?.users);
+  const setPage = (page) => {
+    // Ensure that the page is within the valid range
+    if (page >= 1 && page <= pagination.totalPages) {
+      setPagination({ ...pagination, currentPage: page });
+    }
   };
 
   useEffect(() => {
     if (currRole && currSchool && status) {
       handleFormSubmit(false);
     }
-  }, [
-    currRole,
-    currSchool,
-    status,
-    pagination.currentPage,
-    pagination.pageSize,
-    classNameValue,
-    sectionValueSearch
-  ]);
+  }, [pagination.currentPage, pagination.pageSize]);
 
-  const handleRoleSelect = (e) => {
-    setCurrRole(e.target.value);
-    console.log("Selected Role:", e.target.value);
-  };
-
-  const handleStatusSelect = (e) => {
-    setstatus(e.target.value);
-    console.log("Selected Status:", e.target.value);
-  };
+  useEffect(() => {
+    if (currRole && currSchool && status) {
+      setPagination({
+        totalStudents: 0,
+        totalPages: 0,
+        currentPage: 1,
+        pageSize: 50,
+      });
+      handleFormSubmit(false);
+    }
+  }, [currRole, currSchool, status, classNameValue, sectionValueSearch,courseValueSearch]);
 
   const handleSchoolSelect = (e) => {
+    if (e.target.value === "") {
+      return;
+    }
     setCurrSchool(e.target.value);
+    setclassNameValue("");
+    setCourseValueSearch('')
+    setSectionValueSearch("");
+    setPagination({
+      totalStudents: 0,
+      totalPages: 0,
+      currentPage: 1,
+      pageSize: 50,
+    });
     console.log("Selected School:", e.target.value);
   };
 
@@ -206,6 +229,8 @@ const Viewdata = () => {
       null,
       config()
     );
+    setStudentIds([]);
+
     setstudents(response?.data?.students);
     console.log(response?.data?.students);
     setStudentData(response?.data?.students);
@@ -244,7 +269,7 @@ const Viewdata = () => {
       // Determine endpoint and error messages dynamically based on role
       const isStudent = currRole === "student";
       const endpoint = isStudent
-        ? `/user/students/${currSchool}?status=${status}&page=${pagination.currentPage}&limit=${pagination.pageSize}&search=${searchQuery}&studentClass=${classNameValue}&section=${sectionValueSearch}`
+        ? `/user/students/${currSchool}?status=${status}&page=${pagination.currentPage}&limit=${pagination.pageSize}&search=${searchQuery}&studentClass=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}`
         : `/user/staffs/${currSchool}?status=${status}`;
       const noDataMessage = isStudent
         ? "No students found for the provided school ID"
@@ -282,6 +307,7 @@ const Viewdata = () => {
         setStudentData(response?.data?.students || []);
         setClassname(response?.data?.uniqueStudents || []);
         setSections(response?.data?.uniqueSection || []);
+        setUnqiueCourse(response?.data?.uniqueCourse || []);
       } else {
         setstaffs(response?.data?.staff || []);
         setStaffData(response?.data?.staff || []);
@@ -305,12 +331,6 @@ const Viewdata = () => {
   };
 
   // Helper function to reset state
-  const resetState = () => {
-    setstudents([]);
-    setStudentData([]);
-    setstaffs([]);
-    setStaffData([]);
-  };
 
   const downloadExcel = async () => {
     try {
@@ -381,43 +401,6 @@ const Viewdata = () => {
     }
   };
 
-  // const downloadStudentAvatars = async () => {
-  //   try {
-  //     console.log("downlod image");
-  //     // Make a POST request to the backend route that fetches student avatars
-  //     const response = await axios.post(
-  //       `/user/student/images/${currSchool}`,
-  //       { status },
-  //       config()
-  //     );
-  //     const { studentImages } = response.data;
-  //     const zip = new JSZip();
-
-  //     // Iterate over each image URL
-  //     studentImages.forEach((imageUrl, index) => {
-  //       // Fetch each image
-  //       fetch(imageUrl)
-  //         .then((response) => response.blob())
-  //         .then((blob) => {
-  //           // Add each image to the zip file
-  //           zip.file(`image_${index}.jpg`, blob);
-  //         });
-  //     });
-
-  //     // Generate the zip file asynchronously
-  //     zip.generateAsync({ type: "blob" }).then((blob) => {
-  //       // Trigger the download of the zip file
-  //       const link = document.createElement("a");
-  //       link.href = URL.createObjectURL(blob);
-  //       link.download = "student_images.zip";
-  //       link.click();
-  //     });
-  //   } catch (error) {
-  //     console.error("Error downloading student avatars:", error);
-  //     // Handle error
-  //   }
-  // };
-
   const downloadImages = async () => {
     try {
       // Show SweetAlert2 loading popup
@@ -481,27 +464,6 @@ const Viewdata = () => {
         title: "Download Failed",
         text: "An error occurred while downloading the avatars.",
       });
-    }
-  };
-
-  const downloadImage = async (imageUrl) => {
-    try {
-      // const response = await axios.get(imageUrl, {
-      //   responseType: "blob",
-      // });
-
-      // const blob = new Blob([response?.data], {
-      //   type: response.headers["content-type"],
-      // });
-      const url = window.URL.createObjectURL(new Blob([imageUrl])) || null;
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = imageUrl.split("/").pop();
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error(error);
     }
   };
 
@@ -629,6 +591,12 @@ const Viewdata = () => {
   const handleSearch = (query, currentRole) => {
     setSearchQuery(query);
     if (currRole === "student") {
+      setPagination({
+        totalStudents: 0,
+        totalPages: 0,
+        currentPage: 1,
+        pageSize: 50,
+      });
       handleFormSubmit(false);
       return;
     }
@@ -794,14 +762,16 @@ const Viewdata = () => {
     const classValuelocal = localStorage.getItem("classValuelocal");
     const sectionValueSearchLocal = localStorage.getItem("sectionValuelocal");
     const searchLocal = localStorage.getItem("searchLocal");
+    const CourseLocal = localStorage.getItem("courseLocal");
 
-    console.log(savedStatus)
+    console.log(savedStatus);
     if (savedSchool) setCurrSchool(savedSchool);
     if (savedRole) setCurrRole(savedRole);
     if (savedStatus) setstatus(savedStatus);
     if (classValuelocal) setclassNameValue(classValuelocal);
     if (sectionValueSearchLocal) setSectionValueSearch(sectionValueSearchLocal);
     if (searchLocal) setSearchQuery(searchLocal);
+    if (CourseLocal) setCourseValueSearch(CourseLocal);
   }, []);
 
   // Update localStorage whenever values change
@@ -811,15 +781,68 @@ const Viewdata = () => {
     if (status) localStorage.setItem("status", status);
     if (searchQuery) localStorage.setItem("searchLocal", searchQuery);
     if (classNameValue) localStorage.setItem("classValuelocal", classNameValue);
-    if (sectionValueSearch) localStorage.setItem("sectionValuelocal", sectionValueSearch);
-  }, [currSchool, currRole, status,classNameValue,searchQuery,sectionValueSearch]);
+    if (sectionValueSearch)
+      localStorage.setItem("sectionValuelocal", sectionValueSearch);
+  }, [
+    currSchool,
+    currRole,
+    status,
+    classNameValue,
+    searchQuery,
+    sectionValueSearch,
+  ]);
+  const handleShare = (studentID, name) => {
+    if (!studentID || !currSchool) {
+      console.error("Student ID or school ID is missing.");
+      return;
+    }
 
-  const setPage = (page) => {
-    // Ensure that the page is within the valid range
-    if (page >= 1 && page <= pagination.totalPages) {
-      setPagination({ ...pagination, currentPage: page });
+    const shareUrl = `https://api.whatsapp.com/send?text=Hello! Here is the profile link for ${name}: ${window.location.origin}/parent/${studentID}?schoolid=${currSchool}. Check it out now!`;
+    window.open(shareUrl, "_blank");
+  };
+
+  const moveReadySingle = async (studentId) => {
+    try {
+      // Show loading spinner
+      Swal.fire({
+        title: "Updating...",
+        text: "Please wait while the status is being updated.",
+        icon: "info",
+        showCancelButton: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading(); // Display loading spinner
+        },
+      });
+
+      // Make the API call
+      const response = await axios.post(
+        `/user/student/change-status/readyto/${currSchool}?`,
+        { studentIds: [studentId] }, // Wrap studentId in an array
+        config()
+      );
+
+      // Fetch updated student list
+      fatchStudent();
+      setStudentIds([]);
+      // Close the loading spinner and show success message
+      Swal.fire({
+        title: "Success!",
+        text: "Student status has been updated.",
+        icon: "success",
+      });
+    } catch (error) {
+      console.error("Error updating status:", error);
+
+      // Close the loading spinner and show error message
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to update student status. Please try again later.",
+        icon: "error",
+      });
     }
   };
+
   return (
     <div>
       <Nav />
@@ -974,85 +997,125 @@ const Viewdata = () => {
               <div className="flex flex-col sm:flex-row items-center gap-4">
                 {/* Search Input */}
                 <div className="flex items-center justify-around w-full">
-                <div className="flex items-center  bg-white rounded-md shadow-sm w-full sm:w-auto flex-grow">
-                  <span className="flex items-center justify-center px-4 text-gray-500">
-                    <FaSearch />
-                  </span>
-                  <input
-                    type="text"
-                    placeholder={
-                      currRole === "student"
-                        ? "Search students..."
-                        : "Search staff..."
-                    }
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full p-2 sm:p-3 border-none focus:outline-none rounded-r-md text-sm sm:text-base"
-                  />
+                  <div className="flex items-center  bg-white rounded-md shadow-sm w-full sm:w-auto flex-grow">
+                    <span className="flex items-center justify-center px-4 text-gray-500">
+                      <FaSearch />
+                    </span>
+                    <input
+                      type="text"
+                      placeholder={
+                        currRole === "student"
+                          ? "Search students..."
+                          : "Search staff..."
+                      }
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full p-2 sm:p-3 border-none focus:outline-none rounded-r-md text-sm sm:text-base"
+                    />
+                  </div>
+
+                  {/* Search Button */}
+                  <button
+                    onClick={() => handleSearch(searchQuery)}
+                    className="w- sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                  >
+                    Search
+                  </button>
                 </div>
 
-                {/* Search Button */}
-                <button
-                  onClick={() => handleSearch(searchQuery)}
-                  className="w- sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                >
-                  Search
-                </button>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+  {/* Class Dropdown (For Students) */}
+  {currRole === "student" && className && className.length > 0 && (
+    <div className="flex items-center gap-4">
+      {/* Dropdown */}
+      <select
+        value={classNameValue || ""} // Ensure value is always a string
+        onChange={(e) => {
+          setclassNameValue(e.target.value);
+          setPagination({
+            totalStudents: 0,
+            totalPages: 0,
+            currentPage: 1,
+            pageSize: 50,
+          });
+        }}
+        className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+        style={{ maxHeight: "200px", overflowY: "auto" }}
+      >
+        <option value=""> All Class</option>
+        {className.map((name, index) =>
+          name && name.trim() ? (
+            <option key={index} value={name}>
+              {name}
+            </option>
+          ) : (
+            <option key={index} value="no-class">
+              Without Class Name
+            </option>
+          )
+        )}
+      </select>
+    </div>
+  )}
 
-                </div>
-                {/* Class Dropdown (For Students) */}
-                {currRole === "student" && className && className.length > 0 && (
-  <div className="flex  items-center gap-4">
-    {/* Dropdown */}
-    <select
-      value={classNameValue || ""} // Ensure value is always a string
-      onChange={(e) => setclassNameValue(e.target.value)} // Update state on change
-      className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-      style={{ maxHeight: "200px", overflowY: "auto" }}
-    >
-      <option value=""> All Class</option>
-      {className.map((name, index) =>
-        name && name.trim() ? ( // Ensure name is valid
-          <option key={index} value={name}>
-            {name}
-          </option>
-        ) : (
-          <option key={index} value="no-class">
-            Without Class Name
-          </option>
-        )
-      )}
-    </select>
+  {/* Course Dropdown (For Students) */}
+  {currRole === "student" && className && unqiueCourse.length > 0 && (
+    <div className="flex items-center gap-4">
+      {/* Dropdown */}
+      <select
+        value={courseValueSearch || ""} // Ensure value is always a string
+        onChange={(e) => {
+          setCourseValueSearch(e.target.value);
+          setPagination({
+            totalStudents: 0,
+            totalPages: 0,
+            currentPage: 1,
+            pageSize: 50,
+          });
+        }}
+        className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+        style={{ maxHeight: "200px", overflowY: "auto" }}
+      >
+        <option value=""> All Courses</option>
+        {unqiueCourse.map((name, index) =>
+          name && name.trim() ? (
+            <option key={index} value={name}>
+              {name}
+            </option>
+          ) : (
+            <option key={index} value="no-class">
+              Without Course Name
+            </option>
+          )
+        )}
+      </select>
+    </div>
+  )}
 
-    {/* "All" Button */}
-   
-  </div>
-)}
-                {currRole === "student" && sections && sections.length > 0 && (
-  <div className="flex  items-center gap-4">
-    {/* Dropdown */}
-    <select
-      value={sectionValueSearch || ""} // Ensure value is always a string
-      onChange={(e) => setSectionValueSearch(e.target.value)} // Update state on change
-      className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-      style={{ maxHeight: "200px", overflowY: "auto" }}
-    >
-      <option value=""> All Section</option>
-      {sections.map((name, index) =>
-        name &&  ( // Ensure name is valid
-          <option key={index} value={name}>
-            {name}
-          </option>
-        ) 
-      )}
-    </select>
-
-    {/* "All" Button */}
-   
-  </div>
-)}
-
-
+  {/* Section Dropdown (For Students) */}
+  {currRole === "student" && sections && sections.length > 0 && (
+    <div className="flex items-center gap-4">
+      {/* Dropdown */}
+      <select
+        value={sectionValueSearch || ""} // Ensure value is always a string
+        onChange={(e) => {
+          setSectionValueSearch(e.target.value);
+          setPagination({
+            totalStudents: 0,
+            totalPages: 0,
+            currentPage: 1,
+            pageSize: 50,
+          });
+        }} // Update state on change
+        className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+        style={{ maxHeight: "200px", overflowY: "auto" }}
+      >
+        <option value=""> All Section</option>
+        {sections.map((name, index) => name && <option key={index} value={name}>{name}</option>)}
+      </select>
+    </div>
+  )}
+</div>
 
               </div>
             </div>
@@ -1072,13 +1135,21 @@ const Viewdata = () => {
               {students?.map((student) => (
                 <div
                   key={student?._id}
-                  className={`shadow-md p-4 rounded-md border w-full bg-indigo-50 ${
+                  className={`shadow-md relative p-4 rounded-md border w-full bg-indigo-50 ${
                     studentIds.includes(student._id)
                       ? "border-blue-500"
                       : "border-indigo-50"
                   }`}
                   onClick={() => handleStudentSelect(student._id)}
                 >
+                  {status === "Panding" && (
+                    <button
+                      onClick={() => handleShare(student._id, student.name)}
+                      className="absolute top-2 right-5 p-2 z-10  bg-indigo-900 text-white rounded-full opacity-75 hover:opacity-100 hover:bg-indigo-700"
+                    >
+                      <FaShareAlt size={20} />
+                    </button>
+                  )}
                   <div className="flex justify-center mb-2">
                     {/* Display student avatar */}
                     {/* <Image
@@ -1211,26 +1282,39 @@ const Viewdata = () => {
                     </p>
                   )}
 
-                  <div className="w-full flex justify-center items-center mt-2">
+                  <div className="w-full  flex justify-center items-center mt-2">
                     {status === "Panding" && (
                       <>
                         {/* Edit Button */}
                         <button
                           onClick={() => redirectToStudentEdit(student._id)}
-                          className="flex items-center px-5 py-1 bg-indigo-600 text-white m-2 rounded-md hover:bg-indigo-700"
+                          className="flex items-center text-sm lg:px-5 px-2 py-1 bg-indigo-600 text-white m-2 rounded-md hover:bg-indigo-700"
                         >
                           <FaEdit className="mr-2" />
                           Edit
                         </button>
 
                         {/* Delete Button */}
-                        <button
-                          onClick={() => deleteStudent(student._id)}
-                          className="flex items-center px-5 py-1 bg-red-600 text-white m-2 rounded-md hover:bg-red-700"
-                        >
-                          <FaTrashAlt className="mr-2" />
-                          Delete
-                        </button>
+                        {user?.school ? (
+                          <>
+                            <button
+                              className="flex items-center gap-2 text-sm bg-yellow-600 hover:bg-yellow-700 text-white py-1 px-2 rounded-lg shadow-lg"
+                              onClick={(e) => {
+                                moveReadySingle(student._id);
+                              }}
+                            >
+                              Move to Ready
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => deleteStudent(student._id)}
+                            className="flex items-center px-5 py-1 bg-red-600 text-white m-2 rounded-md hover:bg-red-700"
+                          >
+                            <FaTrashAlt className="mr-2" />
+                            Delete
+                          </button>
+                        )}
                       </>
                     )}
                   </div>

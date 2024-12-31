@@ -49,7 +49,8 @@ const { ExcelUpload,
     getStudent,
     getStaff,
     setImagesData,
-    setExcleData} = require("../controllers/userControllers");
+    setExcleData,
+    getSchoolById} = require("../controllers/userControllers");
 const isAuthenticated = require("../middlewares/auth");
 const router = express.Router();
 
@@ -106,7 +107,7 @@ router.get("/student/:id", upload, isAuthenticated ,getStudent);
 
 router.get("/staff/:id", upload, isAuthenticated ,getStaff);
 
-router.post("/edit/student/:id", upload, isAuthenticated ,editStudent);
+router.post("/edit/student/:id", upload, editStudent);
 
 router.post("/edit/staff/:id", upload, isAuthenticated ,editStaff);
 
@@ -167,6 +168,9 @@ router.get("/search/student/:id", isAuthenticated ,SerchStudent);
 // router.put("/user",isAuthenticated,updateUserInfo)
 // router.post("/uplaad/excel",ExcelUpload)
 
+// add on 
+router.get("/getschool/:id", getSchoolById);
+router.post("/student/:id", upload, getStudent);
 
 
 module.exports = router;
