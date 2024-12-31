@@ -1,25 +1,18 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import Nav from "../../../components/Nav";
-import { useRouter } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  currentUser,
-  editStaff,
-  editStudent,
-  updateSchool,
-} from "@/redux/actions/userAction";
-import { RiContactsBook2Line } from "react-icons/ri";
-import { FaRegAddressCard } from "react-icons/fa";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import axios from "../../../../../axiosconfig";
+import React, { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation"; // Correct hook for query parameters
+import axios from "../../../../axiosconfig";
 import Swal from "sweetalert2";
 import Image from "next/image";
 import ImageUploaderWithCrop from "@/component/ImageUpload";
+import { useDispatch } from "react-redux";
 
-const Editsatff = ({ params }) => {
+function page({params}) {
+  const searchParams = useSearchParams(); // Get query parameters
+  const [error, setError] = useState(null); // State to track errors
   const [currSchool, setcurrschool] = useState();
+
+
   const [name, setName] = useState("");
   const [fatherName, setFatherName] = useState("");
   const [husbandName, setHusbandName] = useState("");
@@ -53,12 +46,25 @@ const Editsatff = ({ params }) => {
   const [imageData, setImageData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
   const [selectedImage, setSelectedImage] = useState(null); // Base64 image data
 
-  const router = useRouter();
-  const dispatch = useDispatch();
-  const StudentlId = params ? params?.id : null; // Assuming you have a route
 
-  // Assuming you have stored the school data in your Redux store
-  const { user, schools, error } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+
+
+  const schoolId = searchParams.get("schoolid"); // Access query param
+
+  useEffect(() => {
+    if (schoolId) {
+      // Fetch school data by schoolId from backend
+      axios
+        .get(`user/getschool/${schoolId}`)
+        .then((response) => {
+          setcurrschool(response.data.data); // Update the state with fetched data
+        })
+        .catch((err) => {
+          setError("Error fetching school data"); // Handle error if request fails
+        });
+    }
+  }, [schoolId]); // Re-run effect when schoolId changes
 
   useEffect(() => {
     const staffId = params ? params.id : null;
@@ -108,17 +114,10 @@ const Editsatff = ({ params }) => {
         setExtraField1(staffData?.extraField1); // New field
         setExtraField2(staffData?.extraField2); // New field
       }
-      if (user?.role == "school") {
-        setcurrschool(user?.school);
-      } else {
-        let school = schools?.find(
-          (school) => school?._id == staffData?.school
-        );
-        setcurrschool(school);
-      }
+   
     };
     factchstudent();
-  }, [user]);
+  }, []);
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -133,7 +132,9 @@ const Editsatff = ({ params }) => {
             Swal.showLoading();
           },
         });
-      const formData = {};
+
+        const shareUpdate = "true"
+      const formData = {shareUpdate};
   
       // Add non-empty fields to formData
       formData.avatar = imageData;
@@ -180,7 +181,7 @@ const Editsatff = ({ params }) => {
           title: "Staff Updated Successfully",
          
         })
-      router.push("/Viewdata");
+    
 
       } else {
         // Show error alert
@@ -208,79 +209,10 @@ const Editsatff = ({ params }) => {
     }
   };
 
-  const handlePhotoFileSelect = async (event) => {
-    event.preventDefault();
-
-    const file = event.target.files[0];
-    console.log(file);
-
-    if (!file) {
-      alert("Please select an image first!");
-      return;
-    }
-
-    // Show SweetAlert2 loading indicator
-    const loadingAlert = Swal.fire({
-      title: "Uploading...",
-      text: "Please wait while your image is being uploaded.",
-      didOpen: () => {
-        Swal.showLoading(); // Show the loading spinner
-      },
-      allowOutsideClick: false, // Prevent closing the popup outside
-      willClose: () => {
-        Swal.hideLoading(); // Hide loading when alert closes
-      },
-    });
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const response = await axios.post(
-        "https://api.cardpro.co.in/image/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      console.log(response?.data?.thumbnailImage);
-
-      if (response.data.success) {
-        const { public_id, url } = response.data.thumbnailImage; // Assuming the response contains these fields
-        setImageData({ publicId: public_id, url: url });
-
-        // Close the loading alert and show success message
-        loadingAlert.close();
-        Swal.fire({
-          title: "Success!",
-          text: "Image uploaded successfully!",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
-      }
-    } catch (error) {
-      console.error(error);
-
-      // Close the loading alert and show error message
-      loadingAlert.close();
-      Swal.fire({
-        title: "Error!",
-        text: "Something went wrong, please try again.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-    }
-  };
+  return <div>
 
 
-  
-  return (
-    <>
-      <Nav />
-      <section className="bg-white dark:bg-gray-900 py-10 w-full flex justify-center items-center pt-16 ">
+<section className="bg-white dark:bg-gray-900 py-10 w-full flex justify-center items-center pt-16 ">
         <div className="w-[320px]">
           <form action="mt-3 w-[320px]" onSubmit={handleFormSubmit}>
             <h3 className="text-center text-xl py-3 border-b-2 mb-4 border-indigo-500">
@@ -797,8 +729,7 @@ const Editsatff = ({ params }) => {
           </form>
         </div>
       </section>
-    </>
-  );
-};
+  </div>;
+}
 
-export default Editsatff;
+export default page;

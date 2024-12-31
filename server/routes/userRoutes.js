@@ -103,13 +103,13 @@ router.post("/registration/student/:id", upload, isAuthenticated ,addStudent);
 
 router.post("/registration/staff/:id", upload, isAuthenticated ,addStaff);
 
-router.get("/student/:id", upload, isAuthenticated ,getStudent);
+router.get("/student/:id", upload, getStudent);
 
-router.get("/staff/:id", upload, isAuthenticated ,getStaff);
+router.get("/staff/:id", upload, getStaff);
 
 router.post("/edit/student/:id", upload, editStudent);
 
-router.post("/edit/staff/:id", upload, isAuthenticated ,editStaff);
+router.post("/edit/staff/:id", upload, editStaff);
 
 router.post("/student/avatars/:id", upload, isAuthenticated , StudentsAvatars);
 

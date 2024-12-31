@@ -20,8 +20,13 @@ import {
   FaUserTimes,
   FaShareAlt,
 } from "react-icons/fa";
+
+import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+
+
 import Pagination from "@/component/Pagination";
 import Link from "next/link";
+import Staff from "../Admin/Staff/page";
 
 const Viewdata = () => {
   const { user, schools, error } = useSelector((state) => state.user);
@@ -56,7 +61,6 @@ const Viewdata = () => {
   // Course for
   const [unqiueCourse, setUnqiueCourse] = useState([]);
   const [courseValueSearch, setCourseValueSearch] = useState([]);
-
 
   const [studentData, setStudentData] = useState([]);
   const [staffData, setStaffData] = useState([]);
@@ -198,7 +202,14 @@ const Viewdata = () => {
       });
       handleFormSubmit(false);
     }
-  }, [currRole, currSchool, status, classNameValue, sectionValueSearch,courseValueSearch]);
+  }, [
+    currRole,
+    currSchool,
+    status,
+    classNameValue,
+    sectionValueSearch,
+    courseValueSearch,
+  ]);
 
   const handleSchoolSelect = (e) => {
     if (e.target.value === "") {
@@ -206,7 +217,7 @@ const Viewdata = () => {
     }
     setCurrSchool(e.target.value);
     setclassNameValue("");
-    setCourseValueSearch('')
+    setCourseValueSearch("");
     setSectionValueSearch("");
     setPagination({
       totalStudents: 0,
@@ -791,6 +802,7 @@ const Viewdata = () => {
     searchQuery,
     sectionValueSearch,
   ]);
+
   const handleShare = (studentID, name) => {
     if (!studentID || !currSchool) {
       console.error("Student ID or school ID is missing.");
@@ -798,6 +810,15 @@ const Viewdata = () => {
     }
 
     const shareUrl = `https://api.whatsapp.com/send?text=Hello! Here is the profile link for ${name}: ${window.location.origin}/parent/${studentID}?schoolid=${currSchool}. Check it out now!`;
+    window.open(shareUrl, "_blank");
+  };
+  const handleShare2 = (studentID, name) => {
+    if (!studentID || !currSchool) {
+      console.error("Student ID or school ID is missing.");
+      return;
+    }
+
+    const shareUrl = `https://api.whatsapp.com/send?text=Hello! Here is the profile link for ${name}: ${window.location.origin}/staff/${studentID}?schoolid=${currSchool}. Check it out now!`;
     window.open(shareUrl, "_blank");
   };
 
@@ -815,22 +836,42 @@ const Viewdata = () => {
         },
       });
 
-      // Make the API call
-      const response = await axios.post(
-        `/user/student/change-status/readyto/${currSchool}?`,
-        { studentIds: [studentId] }, // Wrap studentId in an array
-        config()
-      );
+      if (currRole == "student") {
+        // Make the API call
+        const response = await axios.post(
+          `/user/student/change-status/readyto/${currSchool}?`,
+          { studentIds: [studentId] }, // Wrap studentId in an array
+          config()
+        );
 
-      // Fetch updated student list
-      fatchStudent();
-      setStudentIds([]);
-      // Close the loading spinner and show success message
-      Swal.fire({
-        title: "Success!",
-        text: "Student status has been updated.",
-        icon: "success",
-      });
+        // Fetch updated student list
+        fatchStudent();
+        setStudentIds([]);
+        // Close the loading spinner and show success message
+        Swal.fire({
+          title: "Success!",
+          text: "Student status has been updated.",
+          icon: "success",
+        });
+      }
+
+
+      if (currRole == "staff") {
+        const response = await axios.post(
+          `/user/staff/change-status/readyto/${currSchool}?`,
+          { staffIds:[studentId] },
+          config()
+        );
+        fatchStaff();
+        setStudentIds([]);
+        Swal.fire({
+          title: "Success!",
+          text: "Student status has been updated.",
+          icon: "success",
+        });
+      }
+      
+      
     } catch (error) {
       console.error("Error updating status:", error);
 
@@ -1024,99 +1065,111 @@ const Viewdata = () => {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-  {/* Class Dropdown (For Students) */}
-  {currRole === "student" && className && className.length > 0 && (
-    <div className="flex items-center gap-4">
-      {/* Dropdown */}
-      <select
-        value={classNameValue || ""} // Ensure value is always a string
-        onChange={(e) => {
-          setclassNameValue(e.target.value);
-          setPagination({
-            totalStudents: 0,
-            totalPages: 0,
-            currentPage: 1,
-            pageSize: 50,
-          });
-        }}
-        className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-        style={{ maxHeight: "200px", overflowY: "auto" }}
-      >
-        <option value=""> All Class</option>
-        {className.map((name, index) =>
-          name && name.trim() ? (
-            <option key={index} value={name}>
-              {name}
-            </option>
-          ) : (
-            <option key={index} value="no-class">
-              Without Class Name
-            </option>
-          )
-        )}
-      </select>
-    </div>
-  )}
+                  {/* Class Dropdown (For Students) */}
+                  {currRole === "student" &&
+                    className &&
+                    className.length > 0 && (
+                      <div className="flex items-center gap-4">
+                        {/* Dropdown */}
+                        <select
+                          value={classNameValue || ""} // Ensure value is always a string
+                          onChange={(e) => {
+                            setclassNameValue(e.target.value);
+                            setPagination({
+                              totalStudents: 0,
+                              totalPages: 0,
+                              currentPage: 1,
+                              pageSize: 50,
+                            });
+                          }}
+                          className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                          style={{ maxHeight: "200px", overflowY: "auto" }}
+                        >
+                          <option value=""> All Class</option>
+                          {className.map((name, index) =>
+                            name && name.trim() ? (
+                              <option key={index} value={name}>
+                                {name}
+                              </option>
+                            ) : (
+                              <option key={index} value="no-class">
+                                Without Class Name
+                              </option>
+                            )
+                          )}
+                        </select>
+                      </div>
+                    )}
 
-  {/* Course Dropdown (For Students) */}
-  {currRole === "student" && className && unqiueCourse.length > 0 && (
-    <div className="flex items-center gap-4">
-      {/* Dropdown */}
-      <select
-        value={courseValueSearch || ""} // Ensure value is always a string
-        onChange={(e) => {
-          setCourseValueSearch(e.target.value);
-          setPagination({
-            totalStudents: 0,
-            totalPages: 0,
-            currentPage: 1,
-            pageSize: 50,
-          });
-        }}
-        className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-        style={{ maxHeight: "200px", overflowY: "auto" }}
-      >
-        <option value=""> All Courses</option>
-        {unqiueCourse.map((name, index) =>
-          name && name.trim() ? (
-            <option key={index} value={name}>
-              {name}
-            </option>
-          ) : (
-            <option key={index} value="no-class">
-              Without Course Name
-            </option>
-          )
-        )}
-      </select>
-    </div>
-  )}
+                  {/* Course Dropdown (For Students) */}
+                  {currRole === "student" &&
+                    className &&
+                    unqiueCourse.length > 0 && (
+                      <div className="flex items-center gap-4">
+                        {/* Dropdown */}
+                        <select
+                          value={courseValueSearch || ""} // Ensure value is always a string
+                          onChange={(e) => {
+                            setCourseValueSearch(e.target.value);
+                            setPagination({
+                              totalStudents: 0,
+                              totalPages: 0,
+                              currentPage: 1,
+                              pageSize: 50,
+                            });
+                          }}
+                          className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                          style={{ maxHeight: "200px", overflowY: "auto" }}
+                        >
+                          <option value=""> All Courses</option>
+                          {unqiueCourse.map((name, index) =>
+                            name && name.trim() ? (
+                              <option key={index} value={name}>
+                                {name}
+                              </option>
+                            ) : (
+                              <option key={index} value="no-class">
+                                Without Course Name
+                              </option>
+                            )
+                          )}
+                        </select>
+                      </div>
+                    )}
 
-  {/* Section Dropdown (For Students) */}
-  {currRole === "student" && sections && sections.length > 0 && (
-    <div className="flex items-center gap-4">
-      {/* Dropdown */}
-      <select
-        value={sectionValueSearch || ""} // Ensure value is always a string
-        onChange={(e) => {
-          setSectionValueSearch(e.target.value);
-          setPagination({
-            totalStudents: 0,
-            totalPages: 0,
-            currentPage: 1,
-            pageSize: 50,
-          });
-        }} // Update state on change
-        className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-        style={{ maxHeight: "200px", overflowY: "auto" }}
-      >
-        <option value=""> All Section</option>
-        {sections.map((name, index) => name && <option key={index} value={name}>{name}</option>)}
-      </select>
-    </div>
-  )}
-</div>
-
+                  {/* Section Dropdown (For Students) */}
+                  {currRole === "student" &&
+                    sections &&
+                    sections.length > 0 && (
+                      <div className="flex items-center gap-4">
+                        {/* Dropdown */}
+                        <select
+                          value={sectionValueSearch || ""} // Ensure value is always a string
+                          onChange={(e) => {
+                            setSectionValueSearch(e.target.value);
+                            setPagination({
+                              totalStudents: 0,
+                              totalPages: 0,
+                              currentPage: 1,
+                              pageSize: 50,
+                            });
+                          }} // Update state on change
+                          className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                          style={{ maxHeight: "200px", overflowY: "auto" }}
+                        >
+                          <option value=""> All Section</option>
+                          {sections.map(
+                            (name, index) =>
+                              name && (
+                                <option key={index} value={name}>
+                                  {name}
+                                </option>
+                              )
+                          )}
+                        </select>
+                      </div>
+                    )}
+                </div>
               </div>
             </div>
           </div>
@@ -1150,15 +1203,15 @@ const Viewdata = () => {
                       <FaShareAlt size={20} />
                     </button>
                   )}
+                  {status === "Panding" && (
+                    <button
+                      onClick={() => deleteStudent(student._id)}
+                      className="absolute top-2 left-5 p-2 z-10 items-center bg-red-600 text-white  rounded-full hover:bg-red-700"
+                    >
+                      <FaTrashAlt />
+                    </button>
+                  )}
                   <div className="flex justify-center mb-2">
-                    {/* Display student avatar */}
-                    {/* <Image
-                    height={80}
-                    width={80}
-                    src={student?.avatar?.url}
-                    alt={student?.name}
-                    className="w-20 h-20 rounded-full"
-                    ></Image> */}
                     <Image
                       height={50}
                       width={50}
@@ -1171,6 +1224,19 @@ const Viewdata = () => {
                     /> */}
                   </div>
                   {/* Render student card resembling ID card */}
+                  <h2 className="text-lg font-medium text-gray-700 text-center py-2">
+  {student?.parentChanges ? (
+    <>
+      <FaCheckCircle className="text-green-500 inline mr-2" />
+      Updates By Parent
+    </>
+  ) : (
+    <>
+      <FaTimesCircle className="text-red-500 inline mr-2" />
+      Unverified By Parent
+    </>
+  )}
+</h2>
                   <h2 className="text-lg font-medium text-gray-700 text-center py-2">
                     {student?.name}
                   </h2>
@@ -1295,7 +1361,7 @@ const Viewdata = () => {
                         </button>
 
                         {/* Delete Button */}
-                        {user?.school ? (
+                        {user?.school && (
                           <>
                             <button
                               className="flex items-center gap-2 text-sm bg-yellow-600 hover:bg-yellow-700 text-white py-1 px-2 rounded-lg shadow-lg"
@@ -1306,14 +1372,6 @@ const Viewdata = () => {
                               Move to Ready
                             </button>
                           </>
-                        ) : (
-                          <button
-                            onClick={() => deleteStudent(student._id)}
-                            className="flex items-center px-5 py-1 bg-red-600 text-white m-2 rounded-md hover:bg-red-700"
-                          >
-                            <FaTrashAlt className="mr-2" />
-                            Delete
-                          </button>
                         )}
                       </>
                     )}
@@ -1337,6 +1395,22 @@ const Viewdata = () => {
                   onClick={() => handleStaffSelect(staff._id)}
                   // onClick={() => console.log("hello")}
                 >
+                  {status === "Panding" && (
+                    <button
+                      onClick={() => handleShare2(staff._id, staff.name)}
+                      className="absolute top-2 right-5 p-2 z-10  bg-indigo-900 text-white rounded-full opacity-75 hover:opacity-100 hover:bg-indigo-700"
+                    >
+                      <FaShareAlt size={20} />
+                    </button>
+                  )}
+                  {status === "Panding" && (
+                    <button
+                      onClick={() => deleteStaff(staff._id)}
+                      className="absolute top-2 left-5 p-2 z-10 items-center bg-red-600 text-white  rounded-full hover:bg-red-700"
+                    >
+                      <FaTrashAlt />
+                    </button>
+                  )}
                   <div className="flex justify-center mb-2">
                     <Image
                       height={50}
@@ -1346,6 +1420,19 @@ const Viewdata = () => {
                       className="w-20 h-20"
                     />
                   </div>
+                  <h2 className="text-lg font-medium text-gray-700 text-center py-2">
+  {staff?.shareUpdate ? (
+    <>
+      <FaCheckCircle className="text-green-500 inline mr-2" />
+      Verified
+    </>
+  ) : (
+    <>
+      <FaTimesCircle className="text-red-500 inline mr-2" />
+      Unverified 
+    </>
+  )}
+</h2>
                   <h2 className="text-lg font-medium text-gray-700 text-center py-2">
                     {staff?.name}
                   </h2>
@@ -1480,13 +1567,18 @@ const Viewdata = () => {
                         </button>
 
                         {/* Delete Button */}
-                        <button
-                          onClick={() => deleteStaff(staff._id)}
-                          className="flex items-center px-5 py-1 bg-red-600 text-white m-2 rounded-md hover:bg-red-700"
-                        >
-                          <FaTrashAlt className="mr-2" />
-                          Delete
-                        </button>
+                        {user?.school && (
+                          <>
+                            <button
+                              className="flex items-center gap-2 text-sm bg-yellow-600 hover:bg-yellow-700 text-white py-1 px-2 rounded-lg shadow-lg"
+                              onClick={(e) => {
+                                moveReadySingle(staff._id);
+                              }}
+                            >
+                              Move to Ready
+                            </button>
+                          </>
+                        )}
                       </>
                     )}
                   </div>

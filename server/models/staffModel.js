@@ -51,6 +51,7 @@ const staffModel = mongoose.Schema(
 
     //More fileds added
     photoNameUnuiq: String,
+    shareUpdate: String,
     adharNo: String,
     staffType: String,
     licenceNo: String,
