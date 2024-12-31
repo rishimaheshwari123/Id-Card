@@ -1,4 +1,4 @@
-"use client";
+'use client'
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation"; // Correct hook for query parameters
 import axios from "../../../../axiosconfig";
@@ -7,7 +7,7 @@ import Image from "next/image";
 import ImageUploaderWithCrop from "@/component/ImageUpload";
 import { useDispatch } from "react-redux";
 
-function page({params}) {
+function Page({params}) {
   const searchParams = useSearchParams(); // Get query parameters
   const [error, setError] = useState(null); // State to track errors
   const [currSchool, setcurrschool] = useState();
@@ -732,4 +732,4 @@ function page({params}) {
   </div>;
 }
 
-export default page;
+export default Page;
