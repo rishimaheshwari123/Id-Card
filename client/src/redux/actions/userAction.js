@@ -564,7 +564,7 @@ export const deletUser = (user) => async (dispatch) => {
   }
 };
 
-export const aadExcel = (fileData, schooId) => async (dispatch) => {
+export const aadExcel = (fileData, schooId,dataHeading) => async (dispatch) => {
   try {
     // Show loading alert
     Swal.fire({
@@ -581,6 +581,10 @@ export const aadExcel = (fileData, schooId) => async (dispatch) => {
 
     const formData = new FormData();
     formData.append("file", fileData);
+    
+    if (dataHeading) {
+      formData.append("data", JSON.stringify(dataHeading)); // Convert to JSON string
+    }
 
     const response = await axios.post(
       `/upload-excel/${schooId}`,

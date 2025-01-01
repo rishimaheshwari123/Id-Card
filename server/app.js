@@ -73,7 +73,29 @@ const errorHandler = require("./utils/errorHandler");
 
 app.post("/upload-excel/:id", upload, isAuthenticated, async (req, res) => {
   const file = req.files[0];
-console.log(req.files)
+  const mappings = JSON.parse(req.body.data); // Mapping data sent from frontend
+
+  const cleanMapping = (data) => {
+    const cleanedData = {};
+    for (let key in data) {
+      // Remove spaces from keys
+      const cleanedKey = key.replace(/[\s.'-]+/g, ''); // Remove all spaces, dashes, periods, and single quotes
+
+      cleanedData[cleanedKey] = data[key];
+    }
+    return cleanedData;
+  };
+
+  // Clean the received mapping data
+  const cleanedMappings = cleanMapping(mappings);
+
+  // Now you can access cleaned keys without spaces
+  console.log(cleanedMappings); // Example for "Student Name" with no spaces
+
+  
+
+
+
   if (!file) {
     return res.status(400).send("No file uploaded.");
   }
@@ -89,7 +111,7 @@ console.log(req.files)
   }
 
   const [headers, ...dataRows] = rows;
-  console.log(rows);
+  
   // const newheader = headers.map((headers) => headers.toUpperCase());
   const newheader = headers.map((header) => {
     // Convert to uppercase only if header is not null
@@ -99,36 +121,38 @@ console.log(req.files)
       return header; // Return null as is
     }
   });
-  console.log(newheader);
+
 
   const columnIndex = {
-    name: newheader.indexOf("STUDENT NAME"),
-    fatherName: newheader.indexOf("FATHER'S NAME"),
-    motherName: newheader.indexOf("MOTHER'S NAME"),
-    class: newheader.indexOf("CLASS"),
-    section: newheader.indexOf("SECTION"),
-    contact: newheader.indexOf("CONTACT NO."),
-    address: newheader.indexOf("ADDRESS"),
-    dob: newheader.indexOf("DATE OF BIRTH"),
-    admissionNo: newheader.indexOf("ADMISSION NO."),
-    rollNo: newheader.indexOf("ROLL NO."),
-    studentId: newheader.indexOf("STUDENT ID"),
-    adharNo: newheader.indexOf("ADHAR NO."),
-    routeNo: newheader.indexOf("ROUTE NO./TRANSPORT"),
-    address: newheader.indexOf("ADDRESS"),
-    riddionColor: newheader.indexOf("RIBBION COLOUR"),
-    photoName: newheader.indexOf("PHOTO NO."),
-
+    name: newheader.indexOf(cleanedMappings?.StudentName || ""),
+    fatherName: newheader.indexOf(cleanedMappings?.FathersName || ""),
+    motherName: newheader.indexOf(cleanedMappings?.MothersName || ""),
+    class: newheader.indexOf(cleanedMappings?.Class || ""),
+    section: newheader.indexOf(cleanedMappings?.Section || ""),
+    contact: newheader.indexOf(cleanedMappings?.ContactNo || ""),
+    address: newheader.indexOf(cleanedMappings?.Address || ""),
+    dob: newheader.indexOf(cleanedMappings?.DateofBirth || ""),
+    admissionNo: newheader.indexOf(cleanedMappings?.AdmissionNo || ""),
+    rollNo: newheader.indexOf(cleanedMappings?.RollNo || ""),
+    studentId: newheader.indexOf(cleanedMappings?.StudentID || ""),
+    adharNo: newheader.indexOf(cleanedMappings?.AadharNo || ""),
+    routeNo: newheader.indexOf(cleanedMappings?.RouteNo || ""),
+    ribbonColor: newheader.indexOf(cleanedMappings?.RibbonColour || ""),
+    photoName: newheader.indexOf(cleanedMappings?.PhotoNo || ""),
+  
     // New Fields
-    houseName: newheader.indexOf("HOUSE NAME"),
-    validUpTo: newheader.indexOf("VALID UP TO"),
-    course: newheader.indexOf("COURSE"),
-    batch: newheader.indexOf("BATCH"),
-    idNo: newheader.indexOf("ID NO."),
-    regNo: newheader.indexOf("REG. NO."),
-    extraField1: newheader.indexOf("EXTRA FIELD-1"),
-    extraField2: newheader.indexOf("EXTRA FIELD-2"),
+    houseName: newheader.indexOf(cleanedMappings?.HouseName || ""),
+    validUpTo: newheader.indexOf(cleanedMappings?.ValidUpTo || ""),
+    course: newheader.indexOf(cleanedMappings?.Course || ""),
+    batch: newheader.indexOf(cleanedMappings?.Batch || ""),
+    idNo: newheader.indexOf(cleanedMappings?.IDNo || ""),
+    regNo: newheader.indexOf(cleanedMappings?.RegNo || ""),
+    extraField1: newheader.indexOf(cleanedMappings?.ExtraField1 || ""),
+    extraField2: newheader.indexOf(cleanedMappings?.ExtraField2 || ""),
   };
+  
+console.log(columnIndex)
+
 
   if (!columnIndex.name == -1) {
     return next(new errorHandler("Name is Required"));

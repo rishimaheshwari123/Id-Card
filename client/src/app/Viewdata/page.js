@@ -21,8 +21,7 @@ import {
   FaShareAlt,
 } from "react-icons/fa";
 
-import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
-
+import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 import Pagination from "@/component/Pagination";
 import Link from "next/link";
@@ -855,11 +854,10 @@ const Viewdata = () => {
         });
       }
 
-
       if (currRole == "staff") {
         const response = await axios.post(
           `/user/staff/change-status/readyto/${currSchool}?`,
-          { staffIds:[studentId] },
+          { staffIds: [studentId] },
           config()
         );
         fatchStaff();
@@ -870,8 +868,6 @@ const Viewdata = () => {
           icon: "success",
         });
       }
-      
-      
     } catch (error) {
       console.error("Error updating status:", error);
 
@@ -1225,18 +1221,13 @@ const Viewdata = () => {
                   </div>
                   {/* Render student card resembling ID card */}
                   <h2 className="text-lg font-medium text-gray-700 text-center py-2">
-  {student?.parentChanges ? (
-    <>
-      <FaCheckCircle className="text-green-500 inline mr-2" />
-      Updates By Parent
-    </>
-  ) : (
-    <>
-      <FaTimesCircle className="text-red-500 inline mr-2" />
-      Unverified By Parent
-    </>
-  )}
-</h2>
+                    {student?.parentChanges && (
+                      <>
+                        <FaCheckCircle className="text-green-500 inline mr-2" />
+                        Updates By Parent
+                      </>
+                    )}
+                  </h2>
                   <h2 className="text-lg font-medium text-gray-700 text-center py-2">
                     {student?.name}
                   </h2>
@@ -1421,18 +1412,13 @@ const Viewdata = () => {
                     />
                   </div>
                   <h2 className="text-lg font-medium text-gray-700 text-center py-2">
-  {staff?.shareUpdate ? (
-    <>
-      <FaCheckCircle className="text-green-500 inline mr-2" />
-      Verified
-    </>
-  ) : (
-    <>
-      <FaTimesCircle className="text-red-500 inline mr-2" />
-      Unverified 
-    </>
-  )}
-</h2>
+                    {staff?.shareUpdate && (
+                      <>
+                        <FaCheckCircle className="text-green-500 inline mr-2" />
+                        Verified
+                      </>
+                    )}
+                  </h2>
                   <h2 className="text-lg font-medium text-gray-700 text-center py-2">
                     {staff?.name}
                   </h2>

@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import Image from "next/image";
 import ImageUploaderWithCrop from "@/component/ImageUpload";
 import { useDispatch } from "react-redux";
+import { editStaff } from "@/redux/actions/userAction";
 
 function Page({params}) {
   const searchParams = useSearchParams(); // Get query parameters

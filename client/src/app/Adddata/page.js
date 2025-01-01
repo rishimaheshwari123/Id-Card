@@ -66,8 +66,6 @@ const Adddata = () => {
 
   const [regNo, setRegNo] = useState("");
 
- 
-
   useEffect(() => {
     if (!user) {
       redirect("/");
@@ -79,11 +77,9 @@ const Adddata = () => {
     }
   }, [user]);
 
-
-
   const handleSchoolSelect = (e) => {
     // console.log("school change ni")
-    if(e.target.value === "") return 
+    if (e.target.value === "") return;
     const school = schools?.find((school) => school._id == e.target.value);
     console.log(school);
     console.log(school?.requiredFields);
@@ -143,7 +139,6 @@ const Adddata = () => {
     console.log(response);
 
     if (response == "successfully Register") {
-      
       toast.success(response, {
         position: "top-right",
         autoClose: 5000,
@@ -153,7 +148,7 @@ const Adddata = () => {
         draggable: true,
         progress: undefined,
       });
-      setSelectedImage(null)
+      setSelectedImage(null);
       // Clear all form values after dispatching the form
       setHusbandName("");
       setName("");
@@ -188,7 +183,7 @@ const Adddata = () => {
       setUid("");
       setbeltNo("");
       setstaffID("");
-    
+
       setLicenceNo("");
       setIdNo("");
       setHouse("");
@@ -256,7 +251,7 @@ const Adddata = () => {
 
     // Dispatch action to add staff with formData
     const response = await dispatch(addStaff(formData, currSchool._id));
-    console.log(response)
+    console.log(response);
     if (response == "Successfully Registered") {
       toast.success(response, {
         position: "top-right",
@@ -267,7 +262,7 @@ const Adddata = () => {
         draggable: true,
         progress: undefined,
       });
-      setSelectedImage(null)
+      setSelectedImage(null);
 
       setHusbandName("");
       setName("");
@@ -335,11 +330,9 @@ const Adddata = () => {
       <Nav />
       <section className="bg-white dark:bg-gray-900 py-10">
         <div className="container flex flex-col items-center justify-center  px-6 mx-auto">
-          <div className="flex items-center justify-center mt-6">
-           
-          </div>
+          <div className="flex items-center justify-center mt-6"></div>
           {!loginSchool && schools?.length !== 0 && (
-            <form className="mt-6 w-full max-w-md" >
+            <form className="mt-6 w-full max-w-md">
               <div className="mb-4">
                 <label
                   htmlFor="school"
@@ -369,43 +362,43 @@ const Adddata = () => {
             </h4>
           )}
           <form className="mt-3 w-full max-w-md">
-  <div className="mb-4 w-full flex justify-center items-center gap-4">
-    <label
-      htmlFor="Role"
-      className="block text-md text-center font-medium text-gray-700"
-    >
-      Select Role
-    </label>
-    <div className="mt-1 flex space-x-4">
-      <button
-        type="button"
-        onClick={() => setCurrRole('student')}
-        className={`${
-          currRole === 'student'
-            ? 'bg-blue-500 text-white'
-            : 'bg-gray-200 text-gray-700'
-        } px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-      >
-        Student
-      </button>
-      <button
-        type="button"
-        onClick={() => setCurrRole('staff')}
-        className={`${
-          currRole === 'staff'
-            ? 'bg-blue-500 text-white'
-            : 'bg-gray-200 text-gray-700'
-        } px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-      >
-        Staff
-      </button>
-    </div>
-  </div>
-</form>
+            <div className="mb-4 w-full flex justify-center items-center gap-4">
+              <label
+                htmlFor="Role"
+                className="block text-md text-center font-medium text-gray-700"
+              >
+                Select Role
+              </label>
+              <div className="mt-1 flex space-x-4">
+                <button
+                  type="button"
+                  onClick={() => setCurrRole("student")}
+                  className={`${
+                    currRole === "student"
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  } px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                >
+                  Student
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrRole("staff")}
+                  className={`${
+                    currRole === "staff"
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  } px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                >
+                  Staff
+                </button>
+              </div>
+            </div>
+          </form>
 
           {currRole === "student" && (
             <div className="w-[320px]">
-              <form action="mt-3 w-[320px] " >
+              <form action="mt-3 w-[320px] ">
                 <h3 className="text-center text-xl py-3 border-b-2 mb-4 border-indigo-500">
                   Add Student
                 </h3>
@@ -745,7 +738,11 @@ const Adddata = () => {
                   />
                 </label> */}
 
-<ImageUpload setImageData={setImageData}  setSelectedImage={setSelectedImage} selectedImage={selectedImage} />
+                <ImageUpload
+                  setImageData={setImageData}
+                  setSelectedImage={setSelectedImage}
+                  selectedImage={selectedImage}
+                />
                 {/* Repeat above pattern for other fields */}
                 {/* Add input fields for other student schema fields */}
                 {/* Add a submit button */}
@@ -762,7 +759,7 @@ const Adddata = () => {
         </div>
         {currRole === "staff" && (
           <div className="w-[320px] m-auto ">
-            <form action="mt-3 w-[320px]" >
+            <form action="mt-3 w-[320px]">
               <h3 className="text-center text-xl py-3 border-b-2 mb-4 border-indigo-500">
                 Add Staff
               </h3>
@@ -1134,8 +1131,11 @@ const Adddata = () => {
                 />
               </label> */}
 
-
-<ImageUpload setImageData={setImageData} setSelectedImage={setSelectedImage} selectedImage={selectedImage} />
+              <ImageUpload
+                setImageData={setImageData}
+                setSelectedImage={setSelectedImage}
+                selectedImage={selectedImage}
+              />
 
               <button
                 type="submit"
