@@ -17,15 +17,18 @@ const Addexcel = () => {
   const { schools } = useSelector((state) => state.user);
   const [currSchool, setCurrSchool] = useState("");
   let [currRole, setCurrRole] = useState("");
-   const dispatch = useDispatch();
+  const dispatch = useDispatch();
   let currentExcel = {};
   const [selectedPhotos, setSelectedPhotos] = useState([]);
   const [headings, setHeadings] = useState([]); // State to store Excel headings
 
   const [fileName, setFileName] = useState(""); // State to store file name
 
-  const[schoolData,setSchoolData] = useState(null)
+  const [schoolData, setSchoolData] = useState(null);
   const [mapping, setMapping] = useState({});
+  const [extraFieldsMapping, setExtraFieldsMapping] = useState({});
+
+
 
   const handleRoleSelect = (e) => {
     setCurrRole(e.target.value);
@@ -33,7 +36,7 @@ const Addexcel = () => {
 
   const handleSchoolSelect = (e) => {
     setCurrSchool(e.target.value);
-    console.log(e.target.value)
+    console.log(e.target.value);
     const schoolId = e.target.value;
     if (schoolId) {
       // Fetch school data by schoolId from backend
@@ -41,13 +44,12 @@ const Addexcel = () => {
         .get(`user/getschool/${schoolId}`)
         .then((response) => {
           setSchoolData(response.data.data); // Update the state with fetched data
-          console.log(response.data.data)
+          console.log(response.data.data);
         })
         .catch((err) => {
           console.log("Error fetching school data"); // Handle error if request fails
         });
     }
-
   };
 
   const handleExcelFileSelect = (e) => {
@@ -60,16 +62,16 @@ const Addexcel = () => {
 
     const reader = new FileReader();
 
-      reader.onload = (event) => {
-        const data = new Uint8Array(event.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Extract rows as an array
-        setHeadings(jsonData[0]); // First row contains headings
-        console.log(jsonData[0])
-      };
-      reader.readAsArrayBuffer(file);
+    reader.onload = (event) => {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Extract rows as an array
+      setHeadings(jsonData[0]); // First row contains headings
+      console.log(jsonData[0]);
+    };
+    reader.readAsArrayBuffer(file);
 
     // Your file handling logic here
   };
@@ -84,7 +86,7 @@ const Addexcel = () => {
     const customField = {
       PhotoNo: mapping["PhotoNo."] || "", // Use the mapping for "PhotoNo."
     };
-  
+
     // Generate dynamic fields based on the required fields and the mapping
     const mappedData = schoolData?.requiredFields.reduce((acc, field) => {
       // Only add the field if there's a heading available in the mapping
@@ -95,7 +97,7 @@ const Addexcel = () => {
       }
       return acc;
     }, {});
-  
+
     // Combine custom fields with the dynamic field mappings
     const finalMappedData = { ...customField, ...mappedData };
     console.log(finalMappedData);
@@ -108,7 +110,9 @@ const Addexcel = () => {
 
       // Check conditions for 'student' and 'staff'
       if (fileName && currRole === "student") {
-        response = await dispatch(aadExcel(fileName, currSchool,finalMappedData));
+        response = await dispatch(
+          aadExcel(fileName, currSchool, finalMappedData,extraFieldsMapping)
+        );
       } else if (fileName && currRole === "staff") {
         response = await dispatch(aadExcelstaff(fileName, currSchool));
       } else {
@@ -152,7 +156,6 @@ const Addexcel = () => {
   const handleSubmitnowfuntiion = async (event) => {
     event.preventDefault();
 
-    
     // Show loading alert
     Swal.fire({
       title: "Uploading photos...",
@@ -233,49 +236,45 @@ const Addexcel = () => {
     }
   };
 
-
-  const handleInputChange = (field, value) => {
-    if (!field) {
-      console.error("Invalid field provided for input change.");
-      return;
+  const handleInputChange = (fieldName, value, isExtraField = false) => {
+    if (isExtraField) {
+      setExtraFieldsMapping((prevState) => ({
+        ...prevState,
+        [fieldName]: value,
+      }));
+    } else {
+      setMapping((prevState) => ({
+        ...prevState,
+        [fieldName]: value,
+      }));
     }
-  
-    setMapping((prev) => ({
-      ...prev,
-      [field]: value
-    }));
-  
-    console.log(`Field "${field}" updated to value: "${value}"`);
   };
-  
-  
 
   const handleSubmit = (e) => {
     e.preventDefault();
-  
+
     // Include custom PhotoNo. in the mapped data
     const customField = {
       field: "PhotoNo.",
       heading: mapping["PhotoNo."] || "", // Use the mapping for PhotoNo.
-      value: mapping["PhotoNo."] || "" // Set value (if needed, adjust logic)
+      value: mapping["PhotoNo."] || "", // Set value (if needed, adjust logic)
     };
-  
+
     // Map required fields dynamically
     const mappedData = schoolData?.requiredFields?.map((field) => ({
       field,
       heading: mapping[field] || "", // Map heading based on user selection
-      value: mapping[field] || "" // Add value (if needed)
+      value: mapping[field] || "", // Add value (if needed)
     }));
-  
+
     // Combine custom field with dynamic fields
     const finalMappedData = [customField, ...mappedData];
-  
+
     console.log("Form Submission Data:", finalMappedData);
-  
+
     // Submit this data to your backend or API
   };
-  
-  
+
   return (
     <>
       <Nav />
@@ -340,7 +339,7 @@ const Addexcel = () => {
             </div>
           </form>
           {currRole && currSchool && (
-            <form className="mt-6 w-full max-w-md" >
+            <form className="mt-6 w-full max-w-md">
               <label
                 htmlFor="excelFile"
                 className="flex items-center px-3 py-3 mx-auto mt-6 text-center border-2 border-dashed rounded-lg cursor-pointer"
@@ -375,60 +374,88 @@ const Addexcel = () => {
                   onChange={handleExcelFileSelect}
                 />
               </label>
-
+             
+             
+             
               <div className="flex justify-center p-5">
-  {headings.length > 0 && currRole == 'student' &&  (
-    <div className="w-full max-w-2xl bg-gray-100 p-6 rounded-lg shadow-md">
-      {/* Custom Field for PhotoNo. */}
-      <div className="mb-4">
-        <label htmlFor="photoNo" className="block text-lg font-medium mb-2">PhotoNo.:</label>
-        <select
-          id="photoNo"
-          name="PhotoNo"
-          onChange={(e) => handleInputChange("PhotoNo.", e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Select a heading</option>
-          {headings.map((head, idx) => (
-            <option key={idx} value={head}>
-              {head}
-            </option>
+      {headings.length > 0 && (
+        <div className="w-full max-w-2xl bg-gray-100 p-6 rounded-lg shadow-md">
+          {/* Dynamically Render Required Fields */}
+          <label htmlFor="photoNo" className="block text-lg font-medium mb-2">PhotoNo.:</label>
+<select
+  id="photoNo"
+  name="PhotoNo"
+  onChange={(e) => handleInputChange("PhotoNo.", e.target.value)}
+  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+>
+   <option value="">Select a heading</option>
+                {headings.map((head, idx) => (
+                  <option key={idx} value={head}>
+                    {head}
+                  </option>
+                ))}
+</select>
+          {schoolData?.requiredFields?.map((field, index) => (
+            <div className="mb-4" key={index}>
+              <label htmlFor={field} className="block text-lg font-medium mb-2">
+                {field}:
+              </label>
+              <select
+                id={field}
+                name={field}
+                onChange={(e) => handleInputChange(field, e.target.value)}
+                value={mapping[field] || ''}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select a heading</option>
+                {headings.map((head, idx) => (
+                  <option key={idx} value={head}>
+                    {head}
+                  </option>
+                ))}
+              </select>
+            </div>
           ))}
-        </select>
-      </div>
 
-      {/* Dynamically Rendered Fields */}
-      {schoolData?.requiredFields?.map((field, index) => (
-        <div className="mb-4" key={index}>
-          <label htmlFor={field} className="block text-lg font-medium mb-2">{field}:</label>
-          <select
-            id={field}
-            name={field}
-            onChange={(e) => handleInputChange(field, e.target.value)}
-            value={mapping[field] || ""}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Select a heading</option>
-            {headings.map((head, idx) => (
-              <option key={idx} value={head}>
-                {head}
-              </option>
-            ))}
-          </select>
+          {/* Dynamically Render Extra Fields */}
+          {schoolData?.extraFields?.map((extraField, index) => (
+            <div className="mb-4" key={index}>
+              <label
+                htmlFor={extraField.name}
+                className="block text-lg font-medium mb-2"
+              >
+                {extraField.name}:
+              </label>
+              <select
+                id={extraField.name}
+                name={extraField.name}
+                onChange={(e) =>
+                  handleInputChange(extraField.name, e.target.value, true)
+                }
+                value={extraFieldsMapping[extraField.name] || ''}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select a heading</option>
+                {headings.map((head, idx) => (
+                  <option key={idx} value={head}>
+                    {head}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ))}
         </div>
-      ))}
+      )}
     </div>
-  )}
-</div>
-
 
 
 
               {fileName !== "" && (
                 <div className="mt-6">
-                  <button 
-                  onClick={handleSubmitExcel}
-                  className="w-full px-6 py-3 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50">
+                  <button
+                    onClick={handleSubmitExcel}
+                    className="w-full px-6 py-3 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+                  >
                     Add Excel
                   </button>
                 </div>

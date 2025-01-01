@@ -564,7 +564,7 @@ export const deletUser = (user) => async (dispatch) => {
   }
 };
 
-export const aadExcel = (fileData, schooId,dataHeading) => async (dispatch) => {
+export const aadExcel = (fileData, schooId,dataHeading,extraFieldsMapping) => async (dispatch) => {
   try {
     // Show loading alert
     Swal.fire({
@@ -584,6 +584,9 @@ export const aadExcel = (fileData, schooId,dataHeading) => async (dispatch) => {
     
     if (dataHeading) {
       formData.append("data", JSON.stringify(dataHeading)); // Convert to JSON string
+    }
+    if (extraFieldsMapping) {
+      formData.append("extra", JSON.stringify(extraFieldsMapping)); // Convert to JSON string
     }
 
     const response = await axios.post(

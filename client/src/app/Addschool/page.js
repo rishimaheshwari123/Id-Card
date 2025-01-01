@@ -21,6 +21,12 @@ const AddSchool = () => {
   const [requiredFields, setRequiredFields] = useState(["Student Name"]);
   const [requiredFieldsStaff, setrequiredFieldsStaff] = useState(["Name"]);
 
+  // State to store the existing extra fields (name only)
+  const [extraFields, setExtraFields] = useState([]);
+
+  // State to manage new field input (name only)
+  const [newFieldName, setNewFieldName] = useState("");
+
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -60,6 +66,7 @@ const AddSchool = () => {
       confirmPassword,
       requiredFields,
       requiredFieldsStaff,
+      extraFields,
     };
     console.log(data);
     // Add your form submission logic here
@@ -75,7 +82,7 @@ const AddSchool = () => {
         draggable: true,
         progress: undefined,
       });
-      router.push("/");
+      // router.push("/");
     } else {
       toast.error(response, {
         position: "top-right",
@@ -87,6 +94,21 @@ const AddSchool = () => {
         progress: undefined,
       });
     }
+  };
+
+  const handleAddField = (e) => {
+    e.preventDefault();
+    if (newFieldName) {
+      // Add new field at the beginning of the array (above existing fields)
+      setExtraFields([{ name: newFieldName }, ...extraFields]);
+      setNewFieldName(""); // Clear input field after adding
+    }
+  };
+
+  // Handle removing a field
+  const handleRemoveField = (index) => {
+    const updatedFields = extraFields.filter((_, i) => i !== index);
+    setExtraFields(updatedFields);
   };
 
   return (
@@ -553,6 +575,56 @@ const AddSchool = () => {
                 />
                 <span className="text-gray-600">Extra Field-2</span>
               </label>
+
+              <div className="p-4 bg-gray-100 rounded-lg shadow-md">
+                <div className="flex items-center mb-4">
+                  <input
+                    type="text"
+                    placeholder="Field Name"
+                    value={newFieldName}
+                    onChange={(e) => {
+                      e.preventDefault();
+                      setNewFieldName(e.target.value);
+                    }}
+                    className="p-2 border rounded-l-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button
+                    onClick={handleAddField}
+                    className="p-2 bg-blue-500 text-white rounded-r-lg ml-2 hover:bg-blue-600 focus:outline-none"
+                  >
+                    Add New Field
+                  </button>
+                </div>
+
+                <h3 className="text-xl font-semibold mb-4">
+                  Newly Added Fields
+                </h3>
+                <div className="space-y-2">
+                  {extraFields.length > 0 ? (
+                    extraFields.map((field, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm hover:shadow-md"
+                      >
+                        <p className="text-gray-800">{field.name}</p>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleRemoveField(index);
+                          }}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500">No fields added yet.</p>
+                  )}
+                </div>
+              </div>
+
+              
             </div>
 
             <h2 className="mt-5 font-semibold text-xl">
@@ -885,4 +957,3 @@ const AddSchool = () => {
 };
 
 export default AddSchool;
-``;

@@ -61,6 +61,11 @@ const studentModel = mongoose.Schema(
     regNo: String,
     extraField1: String,
     extraField2: String,
+    extraFields: {
+      type: Map,
+      of: String,  // You can use `String`, `Mixed`, or any other type based on your needs
+      default: {},
+    },
     school: { type: mongoose.Schema.Types.ObjectId, ref: "school" },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
     status: {

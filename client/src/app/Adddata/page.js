@@ -65,6 +65,7 @@ const Adddata = () => {
   const [course, setCourse] = useState("");
 
   const [regNo, setRegNo] = useState("");
+  const [extraFields, setExtraFields] = useState({});
 
   useEffect(() => {
     if (!user) {
@@ -125,6 +126,7 @@ const Adddata = () => {
     if (regNo) formData.regNo = regNo;
     if (extraField1) formData.extraField1 = extraField1;
     if (extraField2) formData.extraField2 = extraField2;
+    if (extraFields) formData.extraFields = extraFields;
 
     if (imageData.publicId) formData.publicId = imageData.publicId;
     if (imageData.url) formData.url = imageData.url;
@@ -325,6 +327,16 @@ const Adddata = () => {
     // Clear all form values after dispatching the form
   };
 
+
+
+
+const handleExtraFieldChange = (e, fieldName) => {
+  setExtraFields({
+    ...extraFields,
+    [fieldName]: e.target.value,
+  });
+};
+
   return (
     <>
       <Nav />
@@ -404,6 +416,8 @@ const Adddata = () => {
                 </h3>
 
                 <div className="mb-4 w-[320px]">
+
+              
                   <input
                     type="text"
                     id="name"
@@ -698,54 +712,30 @@ const Adddata = () => {
                   </div>
                 )}
 
-                {/* {currSchool?.requiredFields?.includes("Mode of Transport") && (
-                  <div className="mb-4">
-                    <input
-                      type="text"
-                      id="modeOfTransport"
-                      value={modeOfTransport}
-                      placeholder="Mode Of Transport"
-                      onChange={(e) => setmodeOfTransport(e.target.value)}
-                      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    />
-                  </div>
-                )} */}
-                {/* <label
-                  htmlFor="dropzone-file"
-                  className="flex items-center px-3 py-3 mx-auto mt-6 text-center border-2 border-dashed rounded-lg cursor-pointer"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-6 h-6 text-gray-300"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                    />
-                  </svg>
-                  <h2 className="mx-3 text-gray-400">Student Profile Photos</h2>
-                  <input
-                    id="dropzone-file"
-                    type="file"
-                    className=""
-                    multiple
-                    onChange={handlePhotoFileSelect}
-                  />
-                </label> */}
+
+                {
+  currSchool?.extraFields?.map((field, index) => (
+    <div key={index} className="mb-4">
+      <input
+        type="text"
+        id={field.name}
+        value={extraFields?.[field.name] || ''}
+        placeholder={field.name}
+        onChange={(e) => handleExtraFieldChange(e, field.name)}
+        className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+      />
+    </div>
+  ))
+}
+
+    
 
                 <ImageUpload
                   setImageData={setImageData}
                   setSelectedImage={setSelectedImage}
                   selectedImage={selectedImage}
                 />
-                {/* Repeat above pattern for other fields */}
-                {/* Add input fields for other student schema fields */}
-                {/* Add a submit button */}
+               
                 <button
                   type="submit"
                   onClick={handleFormSubmit}

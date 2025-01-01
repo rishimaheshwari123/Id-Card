@@ -51,6 +51,8 @@ const EditStudent = ({ params }) => {
   const [extraField2, setExtraField2] = useState("");
   const [selectedImage, setSelectedImage] = useState(null); // Base64 image data
 
+  const [extraFields, setExtraFields] = useState({});
+
   const [imageData, setImageData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
 
   const router = useRouter();
@@ -95,6 +97,8 @@ const EditStudent = ({ params }) => {
         setRibbionColour(temuser?.ribbionColour);
         setRouteNo(temuser?.routeNo);
         setHouseName(temuser?.houseName);
+        setExtraFields(temuser?.extraFields);
+
         setImageData({
           publicId: temuser?.avatar?.publicId,
           url: temuser?.avatar?.url,
@@ -130,8 +134,7 @@ const EditStudent = ({ params }) => {
     factchstudent();
   }, [user]);
 
-
-   const handleFormSubmit = async (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     console.log("submit");
     Swal.fire({
@@ -144,7 +147,7 @@ const EditStudent = ({ params }) => {
     });
     const formData = { name };
     formData.avatar = imageData;
-  
+
     if (fatherName) formData.fatherName = fatherName;
     if (motherName) formData.motherName = motherName;
     if (dob) formData.dob = dob;
@@ -170,27 +173,26 @@ const EditStudent = ({ params }) => {
     if (regNo) formData.regNo = regNo;
     if (extraField1) formData.extraField1 = extraField1;
     if (extraField2) formData.extraField2 = extraField2;
-  
+    if (extraFields) formData.extraFields = extraFields;
+
     console.log(formData);
     console.log(ID);
     console.log(StudentlId, "param");
-  
+
     // Show loading alert
-   
-  
+
     // Dispatch action to add student with formData
     const response = await dispatch(editStudent(formData, ID));
     console.log(response);
-  
+
     if (response === "Student updated successfully") {
       setSelectedImage(null);
-  
+
       // Show success alert with two buttons
       Swal.fire({
         icon: "success",
         title: "Student Updated Successfully",
-        
-      })
+      });
       router.push("/Viewdata");
     } else {
       // Show error alert
@@ -205,11 +207,25 @@ const EditStudent = ({ params }) => {
       });
     }
   };
-  
 
+  useEffect(() => {
+    if (currSchool?.extraFields) {
+      const initialFields = {};
+      currSchool.extraFields.forEach((field) => {
+        initialFields[field.name] = field.value || ""; // Set initial value if available
+      });
+      setExtraFields(initialFields);
+    }
+  }, [currSchool]);
 
+  // Handle change in any extra field
+  const handleExtraFieldChange = (e, fieldName) => {
+    setExtraFields((prevState) => ({
+      ...prevState,
+      [fieldName]: e.target.value,
+    }));
+  };
 
-  
   return (
     <>
       <Nav />
@@ -219,6 +235,7 @@ const EditStudent = ({ params }) => {
             <h3 className="text-center text-xl py-3 border-b-2 mb-4 border-indigo-500">
               Edit Student
             </h3>
+
             <div className="w-full flex justify-center items-center flex-col">
               <Image
                 src={imageData.url}
@@ -227,9 +244,11 @@ const EditStudent = ({ params }) => {
                 width={550}
                 alt="logo"
               />
-                        <ImageUploaderWithCrop setImageData={setImageData}  setSelectedImage={setSelectedImage} selectedImage={selectedImage} />
-
-              
+              <ImageUploaderWithCrop
+                setImageData={setImageData}
+                setSelectedImage={setSelectedImage}
+                selectedImage={selectedImage}
+              />
             </div>
             <div className="mb-4 w-[320px]">
               <label
@@ -413,41 +432,41 @@ const EditStudent = ({ params }) => {
             )}
 
             {currSchool?.requiredFields?.includes("Session") && (
-                  <div className="mb-4">
-                  <label
+              <div className="mb-4">
+                <label
                   htmlFor="admissionNo"
                   className="block text-sm font-medium text-gray-700"
                 >
-            Session
+                  Session
                 </label>
-                    <input
-                      type="text"
-                      id="session"
-                      value={session}
-                      placeholder="Session"
-                      onChange={(e) => setSession(e.target.value)}
-                      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    />
-                  </div>
-                )}
-                {currSchool?.requiredFields?.includes("Student ID") && (
-                  <div className="mb-4">
-                  <label
+                <input
+                  type="text"
+                  id="session"
+                  value={session}
+                  placeholder="Session"
+                  onChange={(e) => setSession(e.target.value)}
+                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+            )}
+            {currSchool?.requiredFields?.includes("Student ID") && (
+              <div className="mb-4">
+                <label
                   htmlFor="admissionNo"
                   className="block text-sm font-medium text-gray-700"
                 >
-        Student ID
+                  Student ID
                 </label>
-                    <input
-                      type="text"
-                      id="session"
-                      value={studentID}
-                      placeholder="Student ID"
-                      onChange={(e) => setStudentID(e.target.value)}
-                      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    />
-                  </div>
-                )}
+                <input
+                  type="text"
+                  id="session"
+                  value={studentID}
+                  placeholder="Student ID"
+                  onChange={(e) => setStudentID(e.target.value)}
+                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+            )}
             {currSchool?.requiredFields?.includes("Aadhar No.") && (
               <div className="mb-4">
                 <label
@@ -668,6 +687,18 @@ const EditStudent = ({ params }) => {
               </div>
             )}
 
+            {currSchool?.extraFields?.map((field, index) => (
+              <div key={index} className="mb-4">
+                <input
+                  type="text"
+                  id={field.name}
+                  value={extraFields?.[field.name] || ""} // Use existing value or empty string
+                  placeholder={field.name}
+                  onChange={(e) => handleExtraFieldChange(e, field.name)}
+                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+            ))}
             <div className="w-full flex justify-center items-center">
               <button
                 type="submit"

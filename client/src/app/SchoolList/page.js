@@ -1,6 +1,6 @@
 // Import necessary dependencies
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import Nav from "../components/Nav";
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
@@ -13,9 +13,10 @@ const SchoolList = () => {
   const dispatch = useDispatch();
 
   const currdeletSchool = (id) => {
-    dispatch(deletSchool(id))
-  }
+    dispatch(deletSchool(id));
+  };
 
+  
   return (
     <div className="bg-gray-100 min-h-screen">
       <Nav />
@@ -62,6 +63,16 @@ const SchoolList = () => {
                       {field}
                     </p>
                   ))}
+
+                  {school?.extraFields?.map((field, index) => (
+                    <p
+                      key={index}
+                      className="bg-gray-200 text-gray-800 px-2 py-1 rounded-md text-sm mr-2 mb-2 inline-block"
+                    >
+                      {field.name}{" "}
+                      {/* Accessing the 'name' field of each item */}
+                    </p>
+                  ))}
                 </div>
               )}
 
@@ -83,10 +94,16 @@ const SchoolList = () => {
                 View Details
               </button> */}
               <div className="flex gap-2  ">
-                <Link href={`/SchoolList/${school._id}`} className="bg-blue-500 text-xs text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600">
+                <Link
+                  href={`/SchoolList/${school._id}`}
+                  className="bg-blue-500 text-xs text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+                >
                   Edit School
                 </Link>
-                <button className="bg-red-500 text-xs text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600" onClick={() => currdeletSchool(school._id)}>
+                <button
+                  className="bg-red-500 text-xs text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+                  onClick={() => currdeletSchool(school._id)}
+                >
                   Delete School
                 </button>
               </div>

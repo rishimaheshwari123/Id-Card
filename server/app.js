@@ -71,16 +71,15 @@ app.get("/", (req, res) => {
 
 const errorHandler = require("./utils/errorHandler");
 
-app.post("/upload-excel/:id", upload, isAuthenticated, async (req, res) => {
+app.post("/upload-excel/:id", upload, isAuthenticated, async (req, res, next) => {
   const file = req.files[0];
   const mappings = JSON.parse(req.body.data); // Mapping data sent from frontend
+  const extraMapping = JSON.parse(req.body.extra); // Mapping data for extra fields sent from frontend
 
   const cleanMapping = (data) => {
     const cleanedData = {};
     for (let key in data) {
-      // Remove spaces from keys
-      const cleanedKey = key.replace(/[\s.'-]+/g, ''); // Remove all spaces, dashes, periods, and single quotes
-
+      const cleanedKey = key.replace(/[\s.'-]+/g, ''); // Remove spaces and special characters
       cleanedData[cleanedKey] = data[key];
     }
     return cleanedData;
@@ -88,41 +87,24 @@ app.post("/upload-excel/:id", upload, isAuthenticated, async (req, res) => {
 
   // Clean the received mapping data
   const cleanedMappings = cleanMapping(mappings);
-
-  // Now you can access cleaned keys without spaces
-  console.log(cleanedMappings); // Example for "Student Name" with no spaces
-
-  
-
-
+  console.log("Extra Mapping Data: ", extraMapping);
 
   if (!file) {
     return res.status(400).send("No file uploaded.");
   }
-  const files = req.files[0].path;
 
   const schoolID = req.params.id;
   const school = await School.findById(schoolID);
 
   const rows = await readXlsxFile(req.files[0].buffer);
-
   if (rows.length < 2) {
     return res.status(400).send("Excel file does not contain data.");
   }
 
   const [headers, ...dataRows] = rows;
-  
-  // const newheader = headers.map((headers) => headers.toUpperCase());
-  const newheader = headers.map((header) => {
-    // Convert to uppercase only if header is not null
-    if (header !== null) {
-      return header.toUpperCase();
-    } else {
-      return header; // Return null as is
-    }
-  });
+  const newheader = headers.map((header) => (header !== null ? header.toUpperCase() : header));
 
-
+  // Static column indexes mapping
   const columnIndex = {
     name: newheader.indexOf(cleanedMappings?.StudentName || ""),
     fatherName: newheader.indexOf(cleanedMappings?.FathersName || ""),
@@ -150,31 +132,32 @@ app.post("/upload-excel/:id", upload, isAuthenticated, async (req, res) => {
     extraField1: newheader.indexOf(cleanedMappings?.ExtraField1 || ""),
     extraField2: newheader.indexOf(cleanedMappings?.ExtraField2 || ""),
   };
-  
-console.log(columnIndex)
 
+  // Dynamically handle extra fields from extraMapping
+  const extraFields = {}; // Initialize extraFields object to hold the extra fields
 
-  if (!columnIndex.name == -1) {
+  for (const [key, value] of Object.entries(extraMapping)) {
+    columnIndex[key] = newheader.findIndex(item => item.trim().toLowerCase() === value.trim().toLowerCase());
+    if (columnIndex[key] !== -1) {
+      extraFields[key] = value;
+    } else {
+      extraFields[key] = null; // If the column is not found, set null or any default value
+      console.log(`Key '${key}' not found in newheader`);
+    }
+  }
+
+  console.log("newheader: ", newheader);
+  console.log("Mapped Extra Fields: ", extraFields);
+
+  if (columnIndex.name === -1) {
     return next(new errorHandler("Name is Required"));
-  }
-
-  if (columnIndex.dob === -1) {
-    columnIndex.dob = newheader.indexOf("DOB");
-  }
-  if (columnIndex.contact === -1) {
-    columnIndex.contact = newheader.indexOf("CONTACT NO");
-  }
-  if (columnIndex.admissionNo === -1) {
-    columnIndex.admissionNo = newheader.indexOf("ADMISSION NO");
-  }
-  if (columnIndex.routeNo === -1) {
-    columnIndex.routeNo = newheader.indexOf("ROLL NO");
   }
 
   // Map each row to student data object
   const studentData = await Promise.all(
-    dataRows.map(async (row) => ({
-      name: row[columnIndex.name],
+    dataRows.map(async (row) => {
+      const student = {
+        name: row[columnIndex.name],
       fatherName: row[columnIndex.fatherName],
       motherName: row[columnIndex.motherName],
       class: row[columnIndex.class],
@@ -199,18 +182,53 @@ console.log(columnIndex)
       school: schoolID,
       user: req.id,
       photoNameUnuiq: await getNextSequenceValue("studentName"),
-    }))
+        extraFields: new Map(), // Initialize extraFields as a Map
+      };
+
+      // Add dynamic extra fields to extraFields map from the row data
+      for (const extraKey of Object.keys(extraFields)) {
+        const cleanedExtraKey = extraKey.trim().toLowerCase(); // Make extraKey lowercase
+        const columnIndexForExtraField = newheader.findIndex(header => header.trim().toLowerCase() === cleanedExtraKey); // Make header lowercase
+        console.log(`Checking column for ${extraKey}: columnIndex = ${columnIndexForExtraField}`);
+        if (columnIndexForExtraField !== -1) {
+          student.extraFields.set(extraKey, row[columnIndexForExtraField]);
+        } else {
+          console.log(`Column for ${extraKey} not found, setting default value`);
+          student.extraFields.set(extraKey, 'Field Not Found');
+        }
+      }
+      
+      
+      
+
+      return student;
+    })
   );
 
-  console.log(studentData);
+  console.log("Final Student Data: ", studentData);
 
-  const insertedStudents = await Student.insertMany(studentData);
-  res.status(200).json({
-    success: true,
-    message: `${insertedStudents.length} students inserted successfully.`,
-    data: insertedStudents,
-  });
+  try {
+    // Insert the student data into the database
+    const insertedStudents = await Student.insertMany(studentData);
+    res.status(200).json({
+      success: true,
+      message: `${insertedStudents.length} students inserted successfully.`,
+      data: insertedStudents,
+    });
+  } catch (err) {
+    return next(err); // Handle any database errors
+  }
 });
+
+
+
+
+
+
+
+
+
+
 
 app.post(
   "/upload-excel/staff/:id",
@@ -243,7 +261,7 @@ app.post(
         return header; // Return null as is
       }
     });
-    console.log(newheader);
+    console.log("newheader",newheader);
 
     const columnIndex = {
       name: newheader.indexOf("NAME"),

@@ -63,6 +63,14 @@ const schoolModel = mongoose.Schema(
     user: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
     requiredFields: [],
     requiredFieldsStaff: [],
+    extraFields: [
+      {
+        name: {
+          type: String,
+        },
+       
+      },
+    ],
   },
   { timestamps: true }
 );

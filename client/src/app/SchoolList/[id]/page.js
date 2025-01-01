@@ -19,6 +19,12 @@ const EditSchool = ({ params }) => {
   const [requiredFieldsStaff, setrequiredFieldsStaff] = useState(["name"]);
   const [currSchool, setcurrschool] = useState();
 
+  // State to store the existing extra fields (name only)
+  const [extraFields, setExtraFields] = useState([]);
+
+  // State to manage new field input (name only)
+  const [newFieldName, setNewFieldName] = useState("");
+
   const router = useRouter();
   const dispatch = useDispatch();
   const schoolId = params ? params.id : null; // Assuming you have a route
@@ -40,19 +46,10 @@ const EditSchool = ({ params }) => {
         setCode(school?.showPassword);
         setRequiredFields(school?.requiredFields);
         setrequiredFieldsStaff(school?.requiredFieldsStaff);
+        setExtraFields(school?.extraFields);
       }
     }
   }, [schools]);
-
-  // if (currSchool) {
-  //   setName(currSchool.name);
-  //   setEmail(currSchool.email);
-  //   setContact(currSchool.contact);
-  //   address(currSchool.address);
-  //   setCode(currSchool.code);
-  //   setRequiredFields(currSchool.requiredFields);
-  //   setrequiredFieldsStaff(currSchool.requiredFieldsStaff);
-  // }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,7 +59,7 @@ const EditSchool = ({ params }) => {
       email,
       contact,
       address,
-  
+      extraFields,
       requiredFields,
       requiredFieldsStaff,
     };
@@ -114,12 +111,27 @@ const EditSchool = ({ params }) => {
     }
   };
 
+  const handleAddField = (e) => {
+    e.preventDefault();
+    if (newFieldName) {
+      // Add new field at the beginning of the array (above existing fields)
+      setExtraFields([{ name: newFieldName }, ...extraFields]);
+      setNewFieldName(""); // Clear input field after adding
+    }
+  };
+
+  // Handle removing a field
+  const handleRemoveField = (index) => {
+    const updatedFields = extraFields.filter((_, i) => i !== index);
+    setExtraFields(updatedFields);
+  };
+
   return (
     <>
       <Nav />
       <section className="bg-white dark:bg-gray-900 py-10">
         <div className="container flex items-center justify-center min-h-screen px-6 mx-auto">
-          <form className="w-full max-w-md" onSubmit={handleSubmit}>
+          <form className="w-full max-w-md">
             <div className="flex items-center justify-center mt-6">
               <a
                 href="#"
@@ -271,7 +283,7 @@ const EditSchool = ({ params }) => {
                 <input
                   type="checkbox"
                   id="fatherName"
-                  name="Father&apos;s Name"
+                  name="Father's Name"
                   checked={requiredFields.includes("Father's Name")}
                   onChange={handleChange}
                 />
@@ -284,7 +296,7 @@ const EditSchool = ({ params }) => {
                 <input
                   type="checkbox"
                   id="motherName"
-                  name="Mother&apos;s Name"
+                  name="Mother's Name"
                   checked={requiredFields.includes("Mother's Name")}
                   onChange={handleChange}
                 />
@@ -423,37 +435,43 @@ const EditSchool = ({ params }) => {
                 <span className="text-gray-600">Mode of Transport</span>
               </label> */}
               {/* Add more checkboxes for additional fields here */}
-              <label htmlFor="houseName" className="flex items-center space-x-2">
-    <input
-      type="checkbox"
-      id="houseName"
-      name="House Name"
-      checked={requiredFields.includes("House Name")}
-      onChange={handleChange}
-    />
-    <span className="text-gray-600">House Name</span>
-  </label>
-  <label htmlFor="validUpTo" className="flex items-center space-x-2">
-    <input
-      type="checkbox"
-      id="validUpTo"
-      name="Valid Up To"
-      checked={requiredFields.includes("Valid Up To")}
-      onChange={handleChange}
-    />
-    <span className="text-gray-600">Valid Up To</span>
-  </label>
-  <label htmlFor="course" className="flex items-center space-x-2">
-    <input
-      type="checkbox"
-      id="course"
-      name="Course"
-      checked={requiredFields.includes("Course")}
-      onChange={handleChange}
-    />
-    <span className="text-gray-600">Course</span>
-  </label>
-  <label
+              <label
+                htmlFor="houseName"
+                className="flex items-center space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  id="houseName"
+                  name="House Name"
+                  checked={requiredFields.includes("House Name")}
+                  onChange={handleChange}
+                />
+                <span className="text-gray-600">House Name</span>
+              </label>
+              <label
+                htmlFor="validUpTo"
+                className="flex items-center space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  id="validUpTo"
+                  name="Valid Up To"
+                  checked={requiredFields.includes("Valid Up To")}
+                  onChange={handleChange}
+                />
+                <span className="text-gray-600">Valid Up To</span>
+              </label>
+              <label htmlFor="course" className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="course"
+                  name="Course"
+                  checked={requiredFields.includes("Course")}
+                  onChange={handleChange}
+                />
+                <span className="text-gray-600">Course</span>
+              </label>
+              <label
                 htmlFor="bloodGroup"
                 className="flex items-center space-x-2"
               >
@@ -466,56 +484,110 @@ const EditSchool = ({ params }) => {
                 />
                 <span className="text-gray-600">Blood Group</span>
               </label>
-  <label htmlFor="batch" className="flex items-center space-x-2">
-    <input
-      type="checkbox"
-      id="batch"
-      name="Batch"
-      checked={requiredFields.includes("Batch")}
-      onChange={handleChange}
-    />
-    <span className="text-gray-600">Batch</span>
-  </label>
-  <label htmlFor="idNo" className="flex items-center space-x-2">
-    <input
-      type="checkbox"
-      id="idNo"
-      name="ID No."
-      checked={requiredFields.includes("ID No.")}
-      onChange={handleChange}
-    />
-    <span className="text-gray-600">ID No.</span>
-  </label>
-  <label htmlFor="regNo" className="flex items-center space-x-2">
-    <input
-      type="checkbox"
-      id="regNo"
-      name="Reg. No."
-      checked={requiredFields.includes("Reg. No.")}
-      onChange={handleChange}
-    />
-    <span className="text-gray-600">Reg. No.</span>
-  </label>
-  <label htmlFor="extraField1" className="flex items-center space-x-2">
-    <input
-      type="checkbox"
-      id="extraField1"
-      name="Extra Field-1"
-      checked={requiredFields.includes("Extra Field-1")}
-      onChange={handleChange}
-    />
-    <span className="text-gray-600">Extra Field-1</span>
-  </label>
-  <label htmlFor="extraField2" className="flex items-center space-x-2">
-    <input
-      type="checkbox"
-      id="extraField2"
-      name="Extra Field-2"
-      checked={requiredFields.includes("Extra Field-2")}
-      onChange={handleChange}
-    />
-    <span className="text-gray-600">Extra Field-2</span>
-  </label>
+              <label htmlFor="batch" className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="batch"
+                  name="Batch"
+                  checked={requiredFields.includes("Batch")}
+                  onChange={handleChange}
+                />
+                <span className="text-gray-600">Batch</span>
+              </label>
+              <label htmlFor="idNo" className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="idNo"
+                  name="ID No."
+                  checked={requiredFields.includes("ID No.")}
+                  onChange={handleChange}
+                />
+                <span className="text-gray-600">ID No.</span>
+              </label>
+              <label htmlFor="regNo" className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="regNo"
+                  name="Reg. No."
+                  checked={requiredFields.includes("Reg. No.")}
+                  onChange={handleChange}
+                />
+                <span className="text-gray-600">Reg. No.</span>
+              </label>
+              <label
+                htmlFor="extraField1"
+                className="flex items-center space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  id="extraField1"
+                  name="Extra Field-1"
+                  checked={requiredFields.includes("Extra Field-1")}
+                  onChange={handleChange}
+                />
+                <span className="text-gray-600">Extra Field-1</span>
+              </label>
+              <label
+                htmlFor="extraField2"
+                className="flex items-center space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  id="extraField2"
+                  name="Extra Field-2"
+                  checked={requiredFields.includes("Extra Field-2")}
+                  onChange={handleChange}
+                />
+                <span className="text-gray-600">Extra Field-2</span>
+              </label>
+
+              <div className="p-6 bg-white rounded-lg shadow-md max-w-md mx-auto">
+                <div className="flex items-center mb-4">
+                  <input
+                    type="text"
+                    placeholder="Field Name"
+                    value={newFieldName}
+                    onChange={(e) => {
+                      e.preventDefault();
+                      setNewFieldName(e.target.value);
+                    }}
+                    className="p-3 border border-gray-300 rounded-l-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button
+                    onClick={handleAddField}
+                    className="p-3 bg-blue-500 text-white rounded-r-lg ml-2 hover:bg-blue-600 focus:outline-none"
+                  >
+                    Add New Field
+                  </button>
+                </div>
+
+                <h3 className="text-xl font-semibold mb-4 text-gray-800">
+                  Newly Added Fields
+                </h3>
+                <div className="space-y-3">
+                  {extraFields.length > 0 ? (
+                    extraFields.map((field, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm hover:shadow-md"
+                      >
+                        <p className="text-gray-700">{field.name}</p>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleRemoveField(index);
+                          }}
+                          className="text-red-500 hover:text-red-700 focus:outline-none"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500">No fields added yet.</p>
+                  )}
+                </div>
+              </div>
             </div>
 
             <h2 className="mt-5 font-semibold text-xl">
@@ -826,7 +898,10 @@ const EditSchool = ({ params }) => {
                 <span className="text-gray-600">Extra Field 2</span>
               </label>
             </div>
-            <button className="w-full px-6 py-3 mt-6 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50">
+            <button
+              onClick={handleSubmit}
+              className="w-full px-6 py-3 mt-6 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50"
+            >
               Update School
             </button>
           </form>
