@@ -378,7 +378,7 @@ const Addexcel = () => {
              
              
               <div className="flex justify-center p-5">
-      {headings.length > 0 && (
+      {headings.length > 0 && currRole == "student" && (
         <div className="w-full max-w-2xl bg-gray-100 p-6 rounded-lg shadow-md">
           {/* Dynamically Render Required Fields */}
           <label htmlFor="photoNo" className="block text-lg font-medium mb-2">PhotoNo.:</label>

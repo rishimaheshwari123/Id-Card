@@ -102,7 +102,7 @@ app.post("/upload-excel/:id", upload, isAuthenticated, async (req, res, next) =>
   }
 
   const [headers, ...dataRows] = rows;
-  const newheader = headers.map((header) => (header !== null ? header.toUpperCase() : header));
+  const newheader = headers.map((header) => (header !== null ? header : header));
 
   // Static column indexes mapping
   const columnIndex = {
@@ -119,18 +119,7 @@ app.post("/upload-excel/:id", upload, isAuthenticated, async (req, res, next) =>
     studentId: newheader.indexOf(cleanedMappings?.StudentID || ""),
     adharNo: newheader.indexOf(cleanedMappings?.AadharNo || ""),
     routeNo: newheader.indexOf(cleanedMappings?.RouteNo || ""),
-    ribbonColor: newheader.indexOf(cleanedMappings?.RibbonColour || ""),
     photoName: newheader.indexOf(cleanedMappings?.PhotoNo || ""),
-  
-    // New Fields
-    houseName: newheader.indexOf(cleanedMappings?.HouseName || ""),
-    validUpTo: newheader.indexOf(cleanedMappings?.ValidUpTo || ""),
-    course: newheader.indexOf(cleanedMappings?.Course || ""),
-    batch: newheader.indexOf(cleanedMappings?.Batch || ""),
-    idNo: newheader.indexOf(cleanedMappings?.IDNo || ""),
-    regNo: newheader.indexOf(cleanedMappings?.RegNo || ""),
-    extraField1: newheader.indexOf(cleanedMappings?.ExtraField1 || ""),
-    extraField2: newheader.indexOf(cleanedMappings?.ExtraField2 || ""),
   };
 
   // Dynamically handle extra fields from extraMapping
@@ -146,7 +135,7 @@ app.post("/upload-excel/:id", upload, isAuthenticated, async (req, res, next) =>
     }
   }
 
-  console.log("newheader: ", newheader);
+  console.log("newheader: ", extraFields);
   console.log("Mapped Extra Fields: ", extraFields);
 
   if (columnIndex.name === -1) {
@@ -158,46 +147,36 @@ app.post("/upload-excel/:id", upload, isAuthenticated, async (req, res, next) =>
     dataRows.map(async (row) => {
       const student = {
         name: row[columnIndex.name],
-      fatherName: row[columnIndex.fatherName],
-      motherName: row[columnIndex.motherName],
-      class: row[columnIndex.class],
-      section: row[columnIndex.section],
-      contact: row[columnIndex.contact],
-      address: row[columnIndex.address],
-      dob: row[columnIndex.dob],
-      admissionNo: row[columnIndex.admissionNo],
-      rollNo: row[columnIndex.rollNo],
-      studentID: row[columnIndex.studentId],
-      aadharNo: row[columnIndex.adharNo],
-      routeNo: row[columnIndex.routeNo],
-      photoName: row[columnIndex.photoName],
-      houseName: row[columnIndex.houseName], // New field
-      validUpTo: row[columnIndex.validUpTo], // New field
-      course: row[columnIndex.course], // New field
-      batch: row[columnIndex.batch], // New field
-      idNo: row[columnIndex.idNo], // New field
-      regNo: row[columnIndex.regNo], // New field
-      extraField1: row[columnIndex.extraField1], // New field
-      extraField2: row[columnIndex.extraField2], // New field
-      school: schoolID,
-      user: req.id,
-      photoNameUnuiq: await getNextSequenceValue("studentName"),
+        fatherName: row[columnIndex.fatherName],
+        motherName: row[columnIndex.motherName],
+        class: row[columnIndex.class],
+        section: row[columnIndex.section],
+        contact: row[columnIndex.contact],
+        address: row[columnIndex.address],
+        dob: row[columnIndex.dob],
+        admissionNo: row[columnIndex.admissionNo],
+        rollNo: row[columnIndex.rollNo],
+        studentID: row[columnIndex.studentId],
+        aadharNo: row[columnIndex.adharNo],
+        routeNo: row[columnIndex.routeNo],
+        photoName: row[columnIndex.photoName],
+        school: schoolID,
+        user: req.id,
+        photoNameUnuiq: await getNextSequenceValue("studentName"),
         extraFields: new Map(), // Initialize extraFields as a Map
       };
 
       // Add dynamic extra fields to extraFields map from the row data
       for (const extraKey of Object.keys(extraFields)) {
-        const cleanedExtraKey = extraKey.trim().toLowerCase(); // Make extraKey lowercase
-        const columnIndexForExtraField = newheader.findIndex(header => header.trim().toLowerCase() === cleanedExtraKey); // Make header lowercase
+        const columnIndexForExtraField = newheader.indexOf(extraKey);
         console.log(`Checking column for ${extraKey}: columnIndex = ${columnIndexForExtraField}`);
         if (columnIndexForExtraField !== -1) {
           student.extraFields.set(extraKey, row[columnIndexForExtraField]);
         } else {
           console.log(`Column for ${extraKey} not found, setting default value`);
-          student.extraFields.set(extraKey, 'Field Not Found');
+          student.extraFields.set(extraKey, 'Field Not Found'); // Use 'Field Not Found' or another placeholder
         }
       }
-      
       
       
 

@@ -1548,12 +1548,31 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
 exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
   const schoolId = req.params.id; // School ID from request params
   const status = req.query.status; // State from query parameters
+  const staffType = req.query.staffType; // Search term from query parameters
 
   let queryObj = { school: schoolId };
+
+  const StaffData = await School.findById(schoolId);
+  const staffTypes = StaffData.requiredFieldsStaff.includes("Staff Type")
+  ? await Staff.distinct("staffType", queryObj)
+  : [];
+
+
   if (status) {
     queryObj.status = status; // Assuming your student schema has a 'state' field
   }
+  function escapeRegex(value) {
+    return value.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+  }
 
+  if (staffType) {
+    if (staffType === "no-staff" || staffType === "") {
+      queryObj.staffType = null; // Logic to filter for "Without Class Name"
+    } else {
+      const escapedClassName = escapeRegex(staffType); // Escape special characters
+      queryObj.staffType = { $regex: `^${escapedClassName}$`, $options: "i" }; // Exact match with regex
+    }
+  }
   // Find all staff in the given school using the school ID
   let staff = await Staff.find(queryObj);
   // console.log(staff);
@@ -1580,6 +1599,7 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
     role: "Staff",
     message: "Students found for the provided school ID",
     staff: staffWithRole,
+    staffTypes
   });
 });
 
