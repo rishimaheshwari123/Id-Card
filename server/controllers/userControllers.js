@@ -2968,6 +2968,9 @@ exports.ExcelData = catchAsyncErron(async (req, res, next) => {
 
     // Define worksheet columns dynamically
     worksheet.columns = staticColumns;
+    const headerRow = worksheet.getRow(1);
+    headerRow.font = { bold: true, color: { argb: 'FFFFFF' } }; // White text
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '4CAF50' } }; // Green background
 
     // Add data rows for each student
     users.forEach((user,index) => {
