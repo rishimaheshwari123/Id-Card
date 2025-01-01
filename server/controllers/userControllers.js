@@ -2936,6 +2936,9 @@ exports.ExcelData = catchAsyncErron(async (req, res, next) => {
 
     // School's extraFields (assumed to be part of the school schema)
     const schoolExtraFields = school.extraFields || [];
+const requiredFields = school.requiredFields || []; 
+console.log(requiredFields)
+
 
     // Fetch all users (students) from the database
     const users = await Student.find({ school: schoolId, status: status });
@@ -2945,37 +2948,35 @@ exports.ExcelData = catchAsyncErron(async (req, res, next) => {
     const worksheet = workbook.addWorksheet("Users");
 
     // Static columns for required fields
-    const staticColumns = [
+    const staticColumnsAll = [
       { header: "SR NO.", key: "srno", width: 15 },
       { header: "PHOTO NO.", key: "photoName", width: 15 },
       { header: "STUDENT NAME", key: "name", width: 20 },
-      { header: "FATHER'S NAME", key: "fatherName", width: 20 },
-      { header: "MOTHER'S NAME", key: "motherName", width: 20 },
-      { header: "DATE OF BIRTH", key: "dob", width: 15 },
-      { header: "CONTACT NO.", key: "contact", width: 15 },
-      // { header: "Email", key: "email", width: 20 },
-      { header: "ADDRESS", key: "address", width: 30 },
-      { header: "ROLL NO.", key: "rollNo", width: 30 },
-      { header: "CLASS", key: "class", width: 30 },
-      { header: "Session", key: "session", width: 30 },
-      { header: "Section", key: "section", width: 30 },
-      { header: "ADMISSION NO.", key: "admissionNo", width: 30 },
-      // { header: "Bus No", key: "busNo", width: 30 },
-      { header: "BloodGroup", key: "bloodGroup", width: 30 },
-      { header: "STUDENT ID", key: "studentID", width: 30 },
-      { header: "ADHAR NO.", key: "aadharNo", width: 30 },
-      { header: "RIBBION COLOUR", key: "ribbionColour", width: 30 },
-      { header: "ROUTE NO./TRANSPORT", key: "routeNo", width: 30 },
-
-      { header: "HOUSE NAME", key: "houseName", width: 30 }, // New column
-      { header: "VALID UP TO", key: "validUpTo", width: 30 }, // New column
-      { header: "COURSE", key: "course", width: 30 }, // New column
-      { header: "BATCH", key: "batch", width: 30 }, // New column
-      { header: "ID NO.", key: "idNo", width: 30 }, // New column
-      { header: "REG. NO.", key: "regNo", width: 30 }, // New column
-      { header: "EXTRA FIELD-1", key: "extraField1", width: 30 }, // New column
-      { header: "EXTRA FIELD-2", key: "extraField2", width: 30 }, // New column
+      requiredFields.includes("Father's Name") && { header: "FATHER'S NAME", key: "fatherName", width: 20 },
+      requiredFields.includes("Mother's Name") && { header: "MOTHER'S NAME", key: "motherName", width: 20 },
+      requiredFields.includes("Date of Birth") && { header: "DATE OF BIRTH", key: "dob", width: 15 },
+      requiredFields.includes("Contact No.") && { header: "CONTACT NO.", key: "contact", width: 15 },
+      requiredFields.includes("Address") && { header: "ADDRESS", key: "address", width: 30 },
+      requiredFields.includes("Roll No.") && { header: "ROLL NO.", key: "rollNo", width: 30 },
+      requiredFields.includes("Class") && { header: "CLASS", key: "class", width: 30 },
+      requiredFields.includes("Session") && { header: "SESSION", key: "session", width: 30 },
+      requiredFields.includes("Section") && { header: "SECTION", key: "section", width: 30 },
+      requiredFields.includes("Admission No.") && { header: "ADMISSION NO.", key: "admissionNo", width: 30 },
+      requiredFields.includes("Blood Group") && { header: "BLOOD GROUP", key: "bloodGroup", width: 30 },
+      requiredFields.includes("Student ID") && { header: "STUDENT ID", key: "studentID", width: 30 },
+      requiredFields.includes("Aadhar No.") && { header: "AADHAR NO.", key: "aadharNo", width: 30 },
+      requiredFields.includes("Ribbon Colour") && { header: "RIBBON COLOUR", key: "ribbionColour", width: 30 },
+      requiredFields.includes("Route No.") && { header: "ROUTE NO./TRANSPORT", key: "routeNo", width: 30 },
+      requiredFields.includes("House Name") && { header: "HOUSE NAME", key: "houseName", width: 30 },
+      requiredFields.includes("Valid Up To") && { header: "VALID UP TO", key: "validUpTo", width: 30 },
+      requiredFields.includes("Course") && { header: "COURSE", key: "course", width: 30 },
+      requiredFields.includes("Batch") && { header: "BATCH", key: "batch", width: 30 },
+      requiredFields.includes("ID No.") && { header: "ID NO.", key: "idNo", width: 30 },
+      requiredFields.includes("Reg. No.") && { header: "REG. NO.", key: "regNo", width: 30 },
+      requiredFields.includes("Extra Field-1") && { header: "EXTRA FIELD-1", key: "extraField1", width: 30 },
+      requiredFields.includes("Extra Field-2") && { header: "EXTRA FIELD-2", key: "extraField2", width: 30 }, 
     ];
+    const staticColumns = staticColumnsAll.filter(Boolean);
 
     // Add dynamic school extra fields to columns
     schoolExtraFields.forEach((field, index) => {
