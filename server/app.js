@@ -75,7 +75,7 @@ app.post("/upload-excel/:id", upload, isAuthenticated, async (req, res, next) =>
   const file = req.files[0];
   const mappings = JSON.parse(req.body.data); // Mapping data sent from frontend
   const extraMapping = JSON.parse(req.body.extra); // Mapping data for extra fields sent from frontend
-
+console.log(extraMapping)
   const cleanMapping = (data) => {
     const cleanedData = {};
     for (let key in data) {
@@ -124,19 +124,27 @@ app.post("/upload-excel/:id", upload, isAuthenticated, async (req, res, next) =>
 
   // Dynamically handle extra fields from extraMapping
   const extraFields = {}; // Initialize extraFields object to hold the extra fields
-
   for (const [key, value] of Object.entries(extraMapping)) {
-    columnIndex[key] = newheader.findIndex(item => item.trim().toLowerCase() === value.trim().toLowerCase());
+    const normalizedValue = value.trim().toLowerCase();
+  
+    columnIndex[key] = newheader.findIndex(
+      (item) => item.trim().toLowerCase() === normalizedValue
+    );
+  
     if (columnIndex[key] !== -1) {
       extraFields[key] = value;
     } else {
-      extraFields[key] = null; // If the column is not found, set null or any default value
+      extraFields[key] = null;
       console.log(`Key '${key}' not found in newheader`);
     }
   }
+  
+  console.log("Final Mapped Extra Fields: ", extraFields);
 
-  console.log("newheader: ", extraFields);
-  console.log("Mapped Extra Fields: ", extraFields);
+  
+  console.log("Normalized newheader: ", newheader.map(item => item.trim().toLowerCase()));
+console.log("Normalized extraMapping values: ", Object.values(extraMapping).map(value => value.trim().toLowerCase()));
+
 
   if (columnIndex.name === -1) {
     return next(new errorHandler("Name is Required"));
@@ -166,17 +174,30 @@ app.post("/upload-excel/:id", upload, isAuthenticated, async (req, res, next) =>
         extraFields: new Map(), // Initialize extraFields as a Map
       };
 
-      // Add dynamic extra fields to extraFields map from the row data
-      for (const extraKey of Object.keys(extraFields)) {
-        const columnIndexForExtraField = newheader.indexOf(extraKey);
-        console.log(`Checking column for ${extraKey}: columnIndex = ${columnIndexForExtraField}`);
-        if (columnIndexForExtraField !== -1) {
-          student.extraFields.set(extraKey, row[columnIndexForExtraField]);
-        } else {
-          console.log(`Column for ${extraKey} not found, setting default value`);
-          student.extraFields.set(extraKey, 'Field Not Found'); // Use 'Field Not Found' or another placeholder
-        }
-      }
+
+ // Normalize the newheader for comparison
+const normalizedNewHeader = newheader.map((item) => item.trim().toLowerCase());
+
+// Iterate over extraFields
+for (const [extraKey, mappedValue] of Object.entries(extraFields)) {
+  // Normalize the mapped value
+  const normalizedMappedValue = mappedValue.trim().toLowerCase();
+
+  // Find the column index in the normalized newheader
+  const columnIndexForExtraField = normalizedNewHeader.indexOf(normalizedMappedValue);
+
+  console.log(`Checking column for ${extraKey}: columnIndex = ${columnIndexForExtraField}`);
+  
+  if (columnIndexForExtraField !== -1) {
+    // If found, set the value in student.extraFields
+    student.extraFields.set(extraKey, row[columnIndexForExtraField]);
+  } else {
+    // If not found, set a placeholder value
+    console.log(`Column for ${extraKey} not found, setting default value`);
+    student.extraFields.set(extraKey, "Field Not Found"); // Placeholder for missing fields
+  }
+}
+
       
       
 
@@ -184,8 +205,9 @@ app.post("/upload-excel/:id", upload, isAuthenticated, async (req, res, next) =>
     })
   );
 
-  console.log("Final Student Data: ", studentData);
+  // console.log("Final Student Data: ", studentData);
 
+  
   try {
     // Insert the student data into the database
     const insertedStudents = await Student.insertMany(studentData);
