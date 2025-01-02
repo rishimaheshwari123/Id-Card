@@ -1384,7 +1384,7 @@ e.preventDefault()
           ))}
         </ul>
       ) : (
-        <p>No extra fields tr7tr7tr7available</p>
+        <p>No extra fields available</p>
       )}
 
 
