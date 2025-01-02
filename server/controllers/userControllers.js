@@ -682,8 +682,9 @@ exports.ChangeActive = catchAsyncErron(async (req, res, next) => {
 exports.addStudent = catchAsyncErron(async (req, res, next) => {
   const id = req.id;
   let file = null;
-  console.log(req.body);
+  console.log(req.body.extraFields);
 
+  
   const user = await User.findById(id);
   if (user) {
     const schoolID = req.params.id;
@@ -1436,9 +1437,8 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
     let queryObj = { school: schoolId };
     const SchoolData = await School.findById(schoolId);
 
-    const uniqueStudents = SchoolData.requiredFields.includes("Class")
-      ? await Student.distinct("class", queryObj)
-      : []; // Replace "studentID" with the field you consider unique
+    const uniqueStudents =  await Student.distinct("class", queryObj)
+       // Replace "studentID" with the field you consider unique
     const uniqueSection = SchoolData.requiredFields.includes("Section")
       ? await Student.distinct("section", queryObj)
       : []; // Replace "studentID" with the field you consider unique

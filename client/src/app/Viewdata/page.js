@@ -321,6 +321,7 @@ const Viewdata = () => {
           totalPages: response.data.pagination.totalPages,
         });
         setStudentData(response?.data?.students || []);
+        console.log(response?.data)
         setClassname(response?.data?.uniqueStudents || []);
         setSections(response?.data?.uniqueSection || []);
         setUnqiueCourse(response?.data?.uniqueCourse || []);
@@ -517,14 +518,7 @@ const Viewdata = () => {
         });
       }
 
-      const response2 = await axios.post(
-        `/user/students/${currSchool}?status=${status}`,
-        null,
-        config()
-      );
-      setstudents(response2?.data?.students);
-      console.log(response2?.data?.students);
-      setStudentData(response2?.data?.students);
+      handleFormSubmit()
     } catch (error) {
       // Handle error
       Swal.fire({
@@ -564,13 +558,7 @@ const Viewdata = () => {
         });
       }
 
-      const response2 = await axios.post(
-        `/user/staffs/${currSchool}?status=${status}`,
-        null,
-        config()
-      );
-      setstaffs(response2?.data?.staff);
-      setStaffData(response2?.data?.staff);
+      handleFormSubmit()
     } catch (error) {
       // Handle error
       Swal.fire({
@@ -707,7 +695,8 @@ const Viewdata = () => {
     setIsAllSelected(!isAllSelected); // Toggle the state
   };
 
-  const deletHandler = async () => {
+  const deletHandler = async (e) => {
+e.preventDefault()
     if (currRole == "student") {
       // Check if the studentIds array is empty
       if (studentIds.length === 0) {
@@ -1246,7 +1235,7 @@ const Viewdata = () => {
                   )}
                   {status === "Panding" && (
                     <button
-                      onClick={() => deleteStudent(student._id)}
+                      onClick={(e) => {e.preventDefault(); deleteStudent(student._id)}}
                       className="absolute top-2 left-5 p-2 z-10 items-center bg-red-600 text-white  rounded-full hover:bg-red-700"
                     >
                       <FaTrashAlt />
