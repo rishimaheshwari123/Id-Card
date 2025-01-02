@@ -1520,9 +1520,11 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
     const studentsWithRole = students.map((student) => {
       return {
         ...student.toObject(),
+        extraFields: Object.fromEntries(student.extraFields), // Convert Map to Object
         role: "student",
       };
     });
+    console.log(studentsWithRole)
 
     // Respond with the list of students and pagination info
     res.status(200).json({
@@ -1544,6 +1546,8 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 });
+
+
 
 exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
   const schoolId = req.params.id; // School ID from request params

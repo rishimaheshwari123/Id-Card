@@ -315,6 +315,7 @@ const Viewdata = () => {
       // Update state based on role
       if (isStudent) {
         setstudents(response?.data?.students || []);
+        console.log(response?.data?.students)
         setPagination({
           ...pagination,
           totalStudents: response.data.pagination.totalStudents,
@@ -1262,7 +1263,7 @@ e.preventDefault()
                       </>
                     )}
                   </h2>
-                  <h2 className="text-lg font-medium text-gray-700 text-center py-2">
+                  <h2 className="text-lg font-semibold text-gray-700 text-center py-2">
                     {student?.name}
                   </h2>
                   {student?.fatherName && (
@@ -1371,7 +1372,22 @@ e.preventDefault()
                     <p className="text-gray-700">
                       Extra Field-2: {student?.extraField2}
                     </p>
-                  )}
+                  )}  
+              
+              
+                  {Object.entries(student.extraFields || {}).length > 0 ? (
+        <ul>
+          {Object.entries(student.extraFields).map(([key, value]) => (
+            <li key={key} className="flex gap-2"> 
+              <p>{key}:</p> {value}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No extra fields tr7tr7tr7available</p>
+      )}
+
+
 
                   <div className="w-full  flex justify-center items-center mt-2">
                     {status === "Panding" && (
