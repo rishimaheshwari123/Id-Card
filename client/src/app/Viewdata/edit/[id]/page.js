@@ -208,15 +208,15 @@ const EditStudent = ({ params }) => {
     }
   };
 
-  useEffect(() => {
-    if (currSchool?.extraFields) {
-      const initialFields = {};
-      currSchool.extraFields.forEach((field) => {
-        initialFields[field.name] = field.value || ""; // Set initial value if available
-      });
-      setExtraFields(initialFields);
-    }
-  }, [currSchool]);
+  // useEffect(() => {
+  //   if (currSchool?.extraFields) {
+  //     const initialFields = {};
+  //     currSchool.extraFields.forEach((field) => {
+  //       initialFields[field.name] = field.value || ""; // Set initial value if available
+  //     });
+  //     setExtraFields(initialFields);
+  //   }
+  // }, [currSchool]);
 
   // Handle change in any extra field
   const handleExtraFieldChange = (e, fieldName) => {
@@ -687,12 +687,18 @@ const EditStudent = ({ params }) => {
               </div>
             )}
 
-            {currSchool?.extraFields?.map((field, index) => (
+            {currSchool?.extraFields?.length > 0 && currSchool?.extraFields?.map((field, index) => (
               <div key={index} className="mb-4">
+              <label
+                  htmlFor="extraField2"
+                  className="block text-sm font-medium text-gray-700"
+                >
+             {field.name}
+                </label>
                 <input
                   type="text"
                   id={field.name}
-                  value={extraFields?.[field.name] || ""} // Use existing value or empty string
+                  value={extraFields?.[field.name]} // Use existing value or empty string
                   placeholder={field.name}
                   onChange={(e) => handleExtraFieldChange(e, field.name)}
                   className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
