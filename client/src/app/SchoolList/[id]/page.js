@@ -19,11 +19,12 @@ const EditSchool = ({ params }) => {
   const [requiredFieldsStaff, setrequiredFieldsStaff] = useState(["name"]);
   const [currSchool, setcurrschool] = useState();
 
-  // State to store the existing extra fields (name only)
+  // Student For adddition
   const [extraFields, setExtraFields] = useState([]);
-
-  // State to manage new field input (name only)
   const [newFieldName, setNewFieldName] = useState("");
+  // Staff For adddition
+  const [extraFieldsStaff, setExtraFieldsStaff] = useState([]);
+  const [newFieldNameStaff, setNewFieldNameStaff] = useState("");
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -47,6 +48,7 @@ const EditSchool = ({ params }) => {
         setRequiredFields(school?.requiredFields);
         setrequiredFieldsStaff(school?.requiredFieldsStaff);
         setExtraFields(school?.extraFields);
+        setExtraFieldsStaff(school?.extraFieldsStaff);
       }
     }
   }, [schools]);
@@ -60,6 +62,7 @@ const EditSchool = ({ params }) => {
       contact,
       address,
       extraFields,
+      extraFieldsStaff,
       requiredFields,
       requiredFieldsStaff,
     };
@@ -126,6 +129,24 @@ const EditSchool = ({ params }) => {
     setExtraFields(updatedFields);
   };
 
+
+
+    // /staff
+
+    const handleAddFieldStaff = (e) => {
+      e.preventDefault();
+      if (newFieldNameStaff) {
+        // Add new field at the beginning of the array (above existing fields)
+        setExtraFieldsStaff([{ name: newFieldNameStaff }, ...extraFieldsStaff]);
+        setNewFieldNameStaff(""); // Clear input field after adding
+      }
+    };
+  
+    // Handle removing a field
+    const handleRemoveFieldStaff = (index) => {
+      const updatedFields = extraFields.filter((_, i) => i !== index);
+      setExtraFieldsStaff(updatedFields);
+    };
   return (
     <>
       <Nav />
@@ -897,6 +918,54 @@ const EditSchool = ({ params }) => {
                 />
                 <span className="text-gray-600">Extra Field 2</span>
               </label>
+
+              <div className="p-4 bg-gray-100 rounded-lg shadow-md">
+                <div className="flex items-center mb-4">
+                  <input
+                    type="text"
+                    placeholder="Field Name"
+                    value={newFieldNameStaff}
+                    onChange={(e) => {
+                      e.preventDefault();
+                      setNewFieldNameStaff(e.target.value);
+                    }}
+                    className="p-2 border rounded-l-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button
+                    onClick={handleAddFieldStaff}
+                    className="p-2 bg-blue-500 text-white rounded-r-lg ml-2 hover:bg-blue-600 focus:outline-none"
+                  >
+                    Add New Field
+                  </button>
+                </div>
+
+                <h3 className="text-xl font-semibold mb-4">
+                  Newly Added Fields For Staff
+                </h3>
+                <div className="space-y-2">
+                  {extraFieldsStaff.length > 0 ? (
+                    extraFieldsStaff.map((field, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm hover:shadow-md"
+                      >
+                        <p className="text-gray-800">{field.name}</p>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleRemoveFieldStaff(index);
+                          }}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500">No fields added yet.</p>
+                  )}
+                </div>
+              </div>
             </div>
             <button
               onClick={handleSubmit}

@@ -87,6 +87,15 @@ const SchoolList = () => {
                       {field}
                     </p>
                   ))}
+                  {school?.extraFieldsStaff?.map((field, index) => (
+                    <p
+                      key={index}
+                      className="bg-gray-200 text-gray-800 px-2 py-1 rounded-md text-sm mr-2 mb-2 inline-block"
+                    >
+                      {field.name}{" "}
+                      {/* Accessing the 'name' field of each item */}
+                    </p>
+                  ))}
                 </div>
               )}
 

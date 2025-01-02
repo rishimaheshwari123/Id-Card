@@ -25,10 +25,12 @@ const Addexcel = () => {
   const [fileName, setFileName] = useState(""); // State to store file name
 
   const [schoolData, setSchoolData] = useState(null);
+ //student
   const [mapping, setMapping] = useState({});
   const [extraFieldsMapping, setExtraFieldsMapping] = useState({});
-
-
+ //Staff
+  const [mappingStaff, setMappingStaff] = useState({});
+  const [extraFieldsMappingStaff, setExtraFieldsMappingStaff] = useState({});
 
   const handleRoleSelect = (e) => {
     setCurrRole(e.target.value);
@@ -83,6 +85,7 @@ const Addexcel = () => {
 
     // Show loading toast with a specific toastId
     const toastId = toast.loading("Uploading...", { toastId: "uploadToast" });
+   
     const customField = {
       PhotoNo: mapping["PhotoNo."] || "", // Use the mapping for "PhotoNo."
     };
@@ -102,6 +105,28 @@ const Addexcel = () => {
     const finalMappedData = { ...customField, ...mappedData };
     console.log(finalMappedData);
 
+
+
+    const customFieldStaff = {
+      PhotoNo: mapping["PhotoNo."] || "", // Use the mapping for "PhotoNo."
+    };
+
+    // Generate dynamic fields based on the required fields and the mapping
+    const mappedDataStaff = schoolData?.requiredFieldsStaff.reduce((acc, field) => {
+      // Only add the field if there's a heading available in the mapping
+      if (mappingStaff[field]) {
+        acc[field] = mappingStaff[field]; // Set the key as the field name, and value as the mapped heading
+      } else {
+        acc[field] = ""; // Default empty if no mapping found
+      }
+      return acc;
+    }, {});
+
+    // Combine custom fields with the dynamic field mappings
+    const finalMappedDataStaff = { ...customFieldStaff, ...mappedDataStaff };
+    console.log(finalMappedDataStaff);
+
+
     try {
       console.log(fileName);
       console.log(currRole);
@@ -111,10 +136,10 @@ const Addexcel = () => {
       // Check conditions for 'student' and 'staff'
       if (fileName && currRole === "student") {
         response = await dispatch(
-          aadExcel(fileName, currSchool, finalMappedData,extraFieldsMapping)
+          aadExcel(fileName, currSchool, finalMappedData, extraFieldsMapping)
         );
       } else if (fileName && currRole === "staff") {
-        response = await dispatch(aadExcelstaff(fileName, currSchool));
+        response = await dispatch(aadExcelstaff(fileName, currSchool,finalMappedDataStaff,extraFieldsMappingStaff));
       } else {
         // If no file or school is selected, show an error toast and stop the loading toast
         toast.update(toastId, {
@@ -236,6 +261,19 @@ const Addexcel = () => {
     }
   };
 
+  const handleInputChangeStaff = (fieldName, value, isExtraField = false) => {
+    if (isExtraField) {
+      setExtraFieldsMappingStaff((prevState) => ({
+        ...prevState,
+        [fieldName]: value,
+      }));
+    } else {
+      setMappingStaff((prevState) => ({
+        ...prevState,
+        [fieldName]: value,
+      }));
+    }
+  };
   const handleInputChange = (fieldName, value, isExtraField = false) => {
     if (isExtraField) {
       setExtraFieldsMapping((prevState) => ({
@@ -248,31 +286,6 @@ const Addexcel = () => {
         [fieldName]: value,
       }));
     }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Include custom PhotoNo. in the mapped data
-    const customField = {
-      field: "PhotoNo.",
-      heading: mapping["PhotoNo."] || "", // Use the mapping for PhotoNo.
-      value: mapping["PhotoNo."] || "", // Set value (if needed, adjust logic)
-    };
-
-    // Map required fields dynamically
-    const mappedData = schoolData?.requiredFields?.map((field) => ({
-      field,
-      heading: mapping[field] || "", // Map heading based on user selection
-      value: mapping[field] || "", // Add value (if needed)
-    }));
-
-    // Combine custom field with dynamic fields
-    const finalMappedData = [customField, ...mappedData];
-
-    console.log("Form Submission Data:", finalMappedData);
-
-    // Submit this data to your backend or API
   };
 
   return (
@@ -374,81 +387,178 @@ const Addexcel = () => {
                   onChange={handleExcelFileSelect}
                 />
               </label>
-             
-             
-             
+
               <div className="flex justify-center p-5">
-      {headings.length > 0 && currRole == "student" && (
-        <div className="w-full max-w-2xl bg-gray-100 p-6 rounded-lg shadow-md">
-          {/* Dynamically Render Required Fields */}
-          <label htmlFor="photoNo" className="block text-lg font-medium mb-2">PhotoNo.:</label>
-<select
-  id="photoNo"
-  name="PhotoNo"
-  onChange={(e) => handleInputChange("PhotoNo.", e.target.value)}
-  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
->
-   <option value="">Select a heading</option>
-                {headings.map((head, idx) => (
-                  <option key={idx} value={head}>
-                    {head}
-                  </option>
-                ))}
-</select>
-          {schoolData?.requiredFields?.map((field, index) => (
-            <div className="mb-4" key={index}>
-              <label htmlFor={field} className="block text-lg font-medium mb-2">
-                {field}:
-              </label>
-              <select
-                id={field}
-                name={field}
-                onChange={(e) => handleInputChange(field, e.target.value)}
-                value={mapping[field] || ''}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select a heading</option>
-                {headings.map((head, idx) => (
-                  <option key={idx} value={head}>
-                    {head}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ))}
+                {headings.length > 0 && currRole == "student" && (
+                  <div className="w-full max-w-2xl bg-gray-100 p-6 rounded-lg shadow-md">
+                    {/* Dynamically Render Required Fields */}
+                    <label
+                      htmlFor="photoNo"
+                      className="block text-lg font-medium mb-2"
+                    >
+                      PhotoNo.:
+                    </label>
+                    <select
+                      id="photoNo"
+                      name="PhotoNo"
+                      onChange={(e) =>
+                        handleInputChange("PhotoNo.", e.target.value)
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select a heading</option>
+                      {headings.map((head, idx) => (
+                        <option key={idx} value={head}>
+                          {head}
+                        </option>
+                      ))}
+                    </select>
+                    {schoolData?.requiredFields?.map((field, index) => (
+                      <div className="mb-4" key={index}>
+                        <label
+                          htmlFor={field}
+                          className="block text-lg font-medium mb-2"
+                        >
+                          {field}:
+                        </label>
+                        <select
+                          id={field}
+                          name={field}
+                          onChange={(e) =>
+                            handleInputChange(field, e.target.value)
+                          }
+                          value={mapping[field] || ""}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">Select a heading</option>
+                          {headings.map((head, idx) => (
+                            <option key={idx} value={head}>
+                              {head}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ))}
 
-          {/* Dynamically Render Extra Fields */}
-          {schoolData?.extraFields?.map((extraField, index) => (
-            <div className="mb-4" key={index}>
-              <label
-                htmlFor={extraField.name}
-                className="block text-lg font-medium mb-2"
-              >
-                {extraField.name}:
-              </label>
-              <select
-                id={extraField.name}
-                name={extraField.name}
-                onChange={(e) =>
-                  handleInputChange(extraField.name, e.target.value, true)
-                }
-                value={extraFieldsMapping[extraField.name] || ''}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select a heading</option>
-                {headings.map((head, idx) => (
-                  <option key={idx} value={head}>
-                    {head}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+                    {/* Dynamically Render Extra Fields */}
+                    {schoolData?.extraFields?.map((extraField, index) => (
+                      <div className="mb-4" key={index}>
+                        <label
+                          htmlFor={extraField.name}
+                          className="block text-lg font-medium mb-2"
+                        >
+                          {extraField.name}:
+                        </label>
+                        <select
+                          id={extraField.name}
+                          name={extraField.name}
+                          onChange={(e) =>
+                            handleInputChange(
+                              extraField.name,
+                              e.target.value,
+                              true
+                            )
+                          }
+                          value={extraFieldsMapping[extraField.name] || ""}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">Select a heading</option>
+                          {headings.map((head, idx) => (
+                            <option key={idx} value={head}>
+                              {head}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
+                {headings.length > 0 && currRole == "staff" && (
+                  <div className="w-full max-w-2xl bg-gray-100 p-6 rounded-lg shadow-md">
+                    {/* Dynamically Render Required Fields */}
+                    <label
+                      htmlFor="photoNo"
+                      className="block text-lg font-medium mb-2"
+                    >
+                      PhotoNo.:
+                    </label>
+                    <select
+                      id="photoNo"
+                      name="PhotoNo"
+                      onChange={(e) =>
+                        handleInputChangeStaff("PhotoNo.", e.target.value)
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Select a heading</option>
+                      {headings.map((head, idx) => (
+                        <option key={idx} value={head}>
+                          {head}
+                        </option>
+                      ))}
+                    </select>
+                    {schoolData?.requiredFieldsStaff?.map((field, index) => (
+                      <div className="mb-4" key={index}>
+                        <label
+                          htmlFor={field}
+                          className="block text-lg font-medium mb-2"
+                        >
+                          {field}:
+                        </label>
+                        <select
+                          id={field}
+                          name={field}
+                          onChange={(e) =>
+                            handleInputChangeStaff(field, e.target.value)
+                          }
+                          value={mappingStaff[field] || ""}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">Select a heading</option>
+                          {headings.map((head, idx) => (
+                            <option key={idx} value={head}>
+                              {head}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ))}
 
+                    {/* Dynamically Render Extra Fields */}
+                    {schoolData?.extraFieldsStaff?.map((extraField, index) => (
+                      <div className="mb-4" key={index}>
+                        <label
+                          htmlFor={extraField.name}
+                          className="block text-lg font-medium mb-2"
+                        >
+                          {extraField.name}:
+                        </label>
+                        <select
+                          id={extraField.name}
+                          name={extraField.name}
+                          onChange={(e) =>
+                            handleInputChangeStaff(
+                              extraField.name,
+                              e.target.value,
+                              true
+                            )
+                          }
+                          value={extraFieldsMappingStaff[extraField.name] || ""}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">Select a heading</option>
+                          {headings.map((head, idx) => (
+                            <option key={idx} value={head}>
+                              {head}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {fileName !== "" && (
                 <div className="mt-6">

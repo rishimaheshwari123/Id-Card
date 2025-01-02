@@ -56,6 +56,8 @@ const Editsatff = ({ params }) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const StudentlId = params ? params?.id : null; // Assuming you have a route
+  
+  const [extraFieldsStaff, setExtraFieldsStaff] = useState({});
 
   // Assuming you have stored the school data in your Redux store
   const { user, schools, error } = useSelector((state) => state.user);
@@ -73,6 +75,7 @@ const Editsatff = ({ params }) => {
       };
       const response = await axios.get(`/user/staff/${staffId}`, config());
       const staffData = response.data.staff;
+      console.log(staffData)
       if (staffData) {
         setName(staffData?.name);
         setFatherName(staffData?.fatherName);
@@ -107,6 +110,8 @@ const Editsatff = ({ params }) => {
         setAadharCardNo(staffData?.adharNo); // New field
         setExtraField1(staffData?.extraField1); // New field
         setExtraField2(staffData?.extraField2); // New field
+        setExtraFieldsStaff(staffData?.extraFieldsStaff);
+
       }
       if (user?.role == "school") {
         setcurrschool(user?.school);
@@ -165,6 +170,8 @@ const Editsatff = ({ params }) => {
       if (aadharCardNo) formData.adharNo = aadharCardNo.trim();
       if (extraField1) formData.extraField1 = extraField1.trim();
       if (extraField2) formData.extraField2 = extraField2.trim();
+    if (extraFieldsStaff) formData.extraFieldsStaff = extraFieldsStaff;
+
       console.log(formData);
       console.log(id);
   
@@ -208,75 +215,15 @@ const Editsatff = ({ params }) => {
     }
   };
 
-  const handlePhotoFileSelect = async (event) => {
-    event.preventDefault();
 
-    const file = event.target.files[0];
-    console.log(file);
 
-    if (!file) {
-      alert("Please select an image first!");
-      return;
-    }
 
-    // Show SweetAlert2 loading indicator
-    const loadingAlert = Swal.fire({
-      title: "Uploading...",
-      text: "Please wait while your image is being uploaded.",
-      didOpen: () => {
-        Swal.showLoading(); // Show the loading spinner
-      },
-      allowOutsideClick: false, // Prevent closing the popup outside
-      willClose: () => {
-        Swal.hideLoading(); // Hide loading when alert closes
-      },
-    });
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const response = await axios.post(
-        "https://api.cardpro.co.in/image/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      console.log(response?.data?.thumbnailImage);
-
-      if (response.data.success) {
-        const { public_id, url } = response.data.thumbnailImage; // Assuming the response contains these fields
-        setImageData({ publicId: public_id, url: url });
-
-        // Close the loading alert and show success message
-        loadingAlert.close();
-        Swal.fire({
-          title: "Success!",
-          text: "Image uploaded successfully!",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
-      }
-    } catch (error) {
-      console.error(error);
-
-      // Close the loading alert and show error message
-      loadingAlert.close();
-      Swal.fire({
-        title: "Error!",
-        text: "Something went wrong, please try again.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-    }
+  const handleExtraFieldChange = (e, fieldName) => {
+    setExtraFieldsStaff((prevState) => ({
+      ...prevState,
+      [fieldName]: e.target.value,
+    }));
   };
-
-
-  
   return (
     <>
       <Nav />
@@ -786,6 +733,25 @@ const Editsatff = ({ params }) => {
                 />
               </div>
             )}
+
+            {currSchool?.extraFieldsStaff?.length > 0 && currSchool?.extraFieldsStaff?.map((field, index) => (
+              <div key={index} className="mb-4">
+              <label
+                  htmlFor="extraField2"
+                  className="block text-sm font-medium text-gray-700"
+                >
+             {field.name}
+                </label>
+                <input
+                  type="text"
+                  id={field.name}
+                  value={extraFieldsStaff?.[field.name]} // Use existing value or empty string
+                  placeholder={field.name}
+                  onChange={(e) => handleExtraFieldChange(e, field.name)}
+                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+            ))}
 
             {/* Add a submit button */}
             <button

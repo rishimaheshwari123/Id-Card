@@ -633,7 +633,7 @@ export const aadExcel = (fileData, schooId,dataHeading,extraFieldsMapping) => as
   }
 };
 
-export const aadExcelstaff = (fileData, schooId) => async (dispatch) => {
+export const aadExcelstaff = (fileData, schooId,dataHeading,extraFieldsMappingStaff) => async (dispatch) => {
   try {
     // Show loading alert
     Swal.fire({
@@ -652,7 +652,12 @@ export const aadExcelstaff = (fileData, schooId) => async (dispatch) => {
     const formData = new FormData();
     formData.append("file", fileData);
     console.log(formData);
-
+    if (dataHeading) {
+      formData.append("data", JSON.stringify(dataHeading)); // Convert to JSON string
+    }
+    if (extraFieldsMappingStaff) {
+      formData.append("extra", JSON.stringify(extraFieldsMappingStaff)); // Convert to JSON string
+    }
     const response = await axios.post(
       `/upload-excel/staff/${schooId}`,
       formData,

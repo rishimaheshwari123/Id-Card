@@ -482,8 +482,13 @@ exports.addSchool = catchAsyncErron(async (req, res, next) => {
       requiredFields,
       requiredFieldsStaff,
       extraFields,
+      extraFieldsStaff
     } = req.body;
 
+
+    console.log(extraFieldsStaff)
+
+    
     if (!name) return next(new errorHandler("School name is Required"));
     if (!email) return next(new errorHandler("Email is Required"));
     if (!contact) return next(new errorHandler("Contact is Required"));
@@ -521,6 +526,16 @@ exports.addSchool = catchAsyncErron(async (req, res, next) => {
       }
     }
 
+    if (extraFieldsStaff && typeof extraFieldsStaff === "string") {
+      try {
+        extraFieldsStaff = JSON.parse(extraFieldsStaff);
+      } catch (error) {
+        extraFieldsStaff = extraFieldsStaff
+          .split(",")
+          .map((field) => field.trim().replace(/^"|"$/g, ""));
+      }
+    }
+
     // Create the school object with required fields and extra fields
     const currSchool = await School.create({
       name,
@@ -529,7 +544,8 @@ exports.addSchool = catchAsyncErron(async (req, res, next) => {
       password,
       requiredFields,
       requiredFieldsStaff,
-      extraFields, // Add extraFields here
+      extraFields, 
+      extraFieldsStaff
     });
 
     console.log(currSchool);
@@ -682,7 +698,7 @@ exports.ChangeActive = catchAsyncErron(async (req, res, next) => {
 exports.addStudent = catchAsyncErron(async (req, res, next) => {
   const id = req.id;
   let file = null;
-  console.log(req.body.extraFields);
+ 
 
   
   const user = await User.findById(id);
@@ -842,7 +858,9 @@ exports.addStudent = catchAsyncErron(async (req, res, next) => {
     if (req.body.fatherName) {
       currStudent.fatherName = req.body.fatherName;
     }
-
+    if (req.body.extraFields) {
+      currStudent.extraFields = req.body.extraFields;
+    }
     if (req.body.motherName) {
       currStudent.motherName = req.body.motherName;
     }
@@ -1003,7 +1021,7 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
     const id = req.id;
     let file = null;
 
-    console.log(req.body);
+    console.log(req.body.extraFieldsStaff);
 
     const user = await User.findById(id);
 
@@ -1023,7 +1041,9 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
       if (req.body.fatherName) {
         currStaff.fatherName = req.body.fatherName;
       }
-
+      if (req.body.extraFieldsStaff) {
+        currStaff.extraFieldsStaff = req.body.extraFieldsStaff;
+      }
       if (req.body.husbandName) {
         currStaff.husbandName = req.body.husbandName;
       }
@@ -1102,6 +1122,8 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
         currStaff.extraField2 = req.body.extraField2;
       }
 
+console.log(currStaff)
+      
       const staff = await Staff.create(currStaff);
 
       staff.school = currSchool._id;
@@ -1142,6 +1164,11 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
       if (req.body.fatherName) {
         currStaff.fatherName = req.body.fatherName;
       }
+
+      if (req.body.extraFieldsStaff) {
+        currStaff.extraFieldsStaff = req.body.extraFieldsStaff;
+      }
+
 
       if (req.body.husbandName) {
         currStaff.husbandName = req.body.husbandName;
@@ -1404,6 +1431,7 @@ exports.allSchool = catchAsyncErron(async (req, res, next) => {
       requiredFields: school.requiredFields,
       requiredFieldsStaff: school.requiredFieldsStaff,
       extraFields: school?.extraFields,
+      extraFieldsStaff: school?.extraFieldsStaff,
       createdAt: school.createdAt,
       showPassword: school.showPassword ? school.showPassword : "No Availble",
       // Add other school properties as needed.
@@ -1593,6 +1621,8 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
   const staffWithRole = staff.map((student) => {
     return {
       ...student.toObject(),
+      extraFieldsStaff: Object.fromEntries(student.extraFieldsStaff), // Convert Map to Object
+
       role: "staff",
     };
   });

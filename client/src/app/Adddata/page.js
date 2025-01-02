@@ -66,6 +66,7 @@ const Adddata = () => {
 
   const [regNo, setRegNo] = useState("");
   const [extraFields, setExtraFields] = useState({});
+  const [extraFieldsStaff, setExtraFieldsStaff] = useState({});
 
   useEffect(() => {
     if (!user) {
@@ -245,6 +246,8 @@ const Adddata = () => {
     if (idNo) formData.idNo = idNo;
     if (extraField1) formData.extraField1 = extraField1;
     if (extraField2) formData.extraField2 = extraField2;
+    if (extraFieldsStaff) formData.extraFieldsStaff = extraFieldsStaff;
+
     // Add other staff fields here
     if (imageData.publicId) formData.publicId = imageData.publicId;
     if (imageData.url) formData.url = imageData.url;
@@ -327,15 +330,18 @@ const Adddata = () => {
     // Clear all form values after dispatching the form
   };
 
-
-
-
-const handleExtraFieldChange = (e, fieldName) => {
-  setExtraFields({
-    ...extraFields,
-    [fieldName]: e.target.value,
-  });
-};
+  const handleExtraFieldChange = (e, fieldName) => {
+    setExtraFields({
+      ...extraFields,
+      [fieldName]: e.target.value,
+    });
+  };
+  const handleExtraFieldChangeStaff = (e, fieldName) => {
+    setExtraFieldsStaff({
+      ...extraFieldsStaff,
+      [fieldName]: e.target.value,
+    });
+  };
 
   return (
     <>
@@ -416,8 +422,6 @@ const handleExtraFieldChange = (e, fieldName) => {
                 </h3>
 
                 <div className="mb-4 w-[320px]">
-
-              
                   <input
                     type="text"
                     id="name"
@@ -712,30 +716,25 @@ const handleExtraFieldChange = (e, fieldName) => {
                   </div>
                 )}
 
-
-                {
-  currSchool?.extraFields?.map((field, index) => (
-    <div key={index} className="mb-4">
-      <input
-        type="text"
-        id={field.name}
-        value={extraFields?.[field.name] || ''}
-        placeholder={field.name}
-        onChange={(e) => handleExtraFieldChange(e, field.name)}
-        className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-      />
-    </div>
-  ))
-}
-
-    
+                {currSchool?.extraFields?.map((field, index) => (
+                  <div key={index} className="mb-4">
+                    <input
+                      type="text"
+                      id={field.name}
+                      value={extraFields?.[field.name] || ""}
+                      placeholder={field.name}
+                      onChange={(e) => handleExtraFieldChange(e, field.name)}
+                      className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                ))}
 
                 <ImageUpload
                   setImageData={setImageData}
                   setSelectedImage={setSelectedImage}
                   selectedImage={selectedImage}
                 />
-               
+
                 <button
                   type="submit"
                   onClick={handleFormSubmit}
@@ -1120,7 +1119,18 @@ const handleExtraFieldChange = (e, fieldName) => {
                   onChange={handlePhotoFileSelect}
                 />
               </label> */}
-
+              {currSchool?.extraFieldsStaff?.map((field, index) => (
+                <div key={index} className="mb-4">
+                  <input
+                    type="text"
+                    id={field.name}
+                    value={extraFieldsStaff?.[field.name] || ""}
+                    placeholder={field.name}
+                    onChange={(e) => handleExtraFieldChangeStaff(e, field.name)}
+                    className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+              ))}
               <ImageUpload
                 setImageData={setImageData}
                 setSelectedImage={setSelectedImage}

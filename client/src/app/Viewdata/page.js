@@ -63,8 +63,7 @@ const Viewdata = () => {
 
   // Staff Type for
   const [unqiueStaff, setUnqiueStaff] = useState([]);
-  const [staffValueSearch, setValueStaff] = useState('');
-
+  const [staffValueSearch, setValueStaff] = useState("");
 
   const [studentData, setStudentData] = useState([]);
   const [staffData, setStaffData] = useState([]);
@@ -213,7 +212,7 @@ const Viewdata = () => {
     classNameValue,
     sectionValueSearch,
     courseValueSearch,
-    staffValueSearch
+    staffValueSearch,
   ]);
 
   const handleSchoolSelect = (e) => {
@@ -315,21 +314,22 @@ const Viewdata = () => {
       // Update state based on role
       if (isStudent) {
         setstudents(response?.data?.students || []);
-        console.log(response?.data?.students)
         setPagination({
           ...pagination,
           totalStudents: response.data.pagination.totalStudents,
           totalPages: response.data.pagination.totalPages,
         });
         setStudentData(response?.data?.students || []);
-        console.log(response?.data)
+        console.log(response?.data);
         setClassname(response?.data?.uniqueStudents || []);
         setSections(response?.data?.uniqueSection || []);
         setUnqiueCourse(response?.data?.uniqueCourse || []);
       } else {
         setstaffs(response?.data?.staff || []);
+        console.log(response?.data?.staff);
+
         setStaffData(response?.data?.staff || []);
-        console.log(response?.data?.staffTypes)
+        console.log(response?.data?.staffTypes);
         setUnqiueStaff(response?.data?.staffTypes || []);
       }
       setsubmited(true); // Mark form as submitted
@@ -519,7 +519,7 @@ const Viewdata = () => {
         });
       }
 
-      handleFormSubmit()
+      handleFormSubmit();
     } catch (error) {
       // Handle error
       Swal.fire({
@@ -559,7 +559,7 @@ const Viewdata = () => {
         });
       }
 
-      handleFormSubmit()
+      handleFormSubmit();
     } catch (error) {
       // Handle error
       Swal.fire({
@@ -697,7 +697,7 @@ const Viewdata = () => {
   };
 
   const deletHandler = async (e) => {
-e.preventDefault()
+    e.preventDefault();
     if (currRole == "student") {
       // Check if the studentIds array is empty
       if (studentIds.length === 0) {
@@ -1164,11 +1164,8 @@ e.preventDefault()
                       </div>
                     )}
 
-
-
-
-                    {currRole === "staff" &&
-                      unqiueStaff &&
+                  {currRole === "staff" &&
+                    unqiueStaff &&
                     unqiueStaff.length > 0 && (
                       <div className="flex items-center gap-4">
                         {/* Dropdown */}
@@ -1199,8 +1196,6 @@ e.preventDefault()
                       </div>
                     )}
                 </div>
-
-
               </div>
             </div>
           </div>
@@ -1236,7 +1231,10 @@ e.preventDefault()
                   )}
                   {status === "Panding" && (
                     <button
-                      onClick={(e) => {e.preventDefault(); deleteStudent(student._id)}}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        deleteStudent(student._id);
+                      }}
                       className="absolute top-2 left-5 p-2 z-10 items-center bg-red-600 text-white  rounded-full hover:bg-red-700"
                     >
                       <FaTrashAlt />
@@ -1372,22 +1370,21 @@ e.preventDefault()
                     <p className="text-gray-700">
                       Extra Field-2: {student?.extraField2}
                     </p>
-                  )}  
-              
-              
+                  )}
+
                   {Object.entries(student.extraFields || {}).length > 0 ? (
-        <ul>
-          {Object.entries(student.extraFields).map(([key, value]) => (
-            <li key={key} className="flex gap-2"> 
-              <p>{key}:</p> {value}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No extra fields available</p>
-      )}
-
-
+                    <ul>
+                      {Object.entries(student.extraFields).map(
+                        ([key, value]) => (
+                          <li key={key} className="flex gap-2">
+                            <p>{key}:</p> {value}
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  ) : (
+                    <p>No extra fields available</p>
+                  )}
 
                   <div className="w-full  flex justify-center items-center mt-2">
                     {status === "Panding" && (
@@ -1588,6 +1585,20 @@ e.preventDefault()
                     <p className="text-gray-700">
                       Extra Field 2: {staff?.extraField2}
                     </p>
+                  )}
+
+                  {Object.entries(staff.extraFieldsStaff || {}).length > 0 ? (
+                    <ul>
+                      {Object.entries(staff.extraFieldsStaff).map(
+                        ([key, value]) => (
+                          <li key={key} className="flex gap-2">
+                            <p>{key}:</p> {value}
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  ) : (
+                    <p>No extra fields available</p>
                   )}
                   {/* Add more staff details as required */}
                   <div className="w-full flex justify-center items-center mt-2">

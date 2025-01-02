@@ -705,6 +705,8 @@ const EditStudent = ({ params }) => {
                 />
               </div>
             ))}
+
+            
             <div className="w-full flex justify-center items-center">
               <button
                 type="submit"

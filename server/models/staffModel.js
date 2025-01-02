@@ -60,6 +60,11 @@ const staffModel = mongoose.Schema(
     panCardNo: String,
     extraField1: String,
     extraField2: String,
+    extraFieldsStaff: {
+      type: Map,
+      of: String,  // You can use `String`, `Mixed`, or any other type based on your needs
+      default: {},
+    },
     school: { type: mongoose.Schema.Types.ObjectId, ref: "school" },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
     status: {

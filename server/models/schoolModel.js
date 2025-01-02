@@ -71,6 +71,14 @@ const schoolModel = mongoose.Schema(
        
       },
     ],
+    extraFieldsStaff: [
+      {
+        name: {
+          type: String,
+        },
+       
+      },
+    ],
   },
   { timestamps: true }
 );
