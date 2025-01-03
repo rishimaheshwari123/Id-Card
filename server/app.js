@@ -55,8 +55,6 @@ app.use(
   })
 );
 
-
-
 const readXlsxFile = require("read-excel-file/node");
 const Student = require("./models/studentModel.js");
 const School = require("./models/schoolModel.js");
@@ -71,182 +69,180 @@ app.get("/", (req, res) => {
 
 const errorHandler = require("./utils/errorHandler");
 
-app.post("/upload-excel/:id", upload, isAuthenticated, async (req, res, next) => {
-  const file = req.files[0];
-  const mappings = JSON.parse(req.body.data); // Mapping data sent from frontend
-  const extraMapping = JSON.parse(req.body.extra); // Mapping data for extra fields sent from frontend
-console.log(extraMapping)
-  const cleanMapping = (data) => {
-    const cleanedData = {};
-    for (let key in data) {
-      const cleanedKey = key.replace(/[\s.'-]+/g, ''); // Remove spaces and special characters
-      cleanedData[cleanedKey] = data[key];
+app.post(
+  "/upload-excel/:id",
+  upload,
+  isAuthenticated,
+  async (req, res, next) => {
+    const file = req.files[0];
+    const mappings = JSON.parse(req.body.data); // Mapping data sent from frontend
+    const extraMapping = JSON.parse(req.body.extra); // Mapping data for extra fields sent from frontend
+    console.log(extraMapping);
+    const cleanMapping = (data) => {
+      const cleanedData = {};
+      for (let key in data) {
+        const cleanedKey = key.replace(/[\s.'-]+/g, ""); // Remove spaces and special characters
+        cleanedData[cleanedKey] = data[key];
+      }
+      return cleanedData;
+    };
+
+    // Clean the received mapping data
+    const cleanedMappings = cleanMapping(mappings);
+    console.log("Extra Mapping Data: ", cleanedMappings);
+
+    if (!file) {
+      return res.status(400).send("No file uploaded.");
     }
-    return cleanedData;
-  };
 
-  // Clean the received mapping data
-  const cleanedMappings = cleanMapping(mappings);
-  console.log("Extra Mapping Data: ", cleanedMappings);
+    const schoolID = req.params.id;
+    const school = await School.findById(schoolID);
 
+    const rows = await readXlsxFile(req.files[0].buffer);
+    if (rows.length < 2) {
+      return res.status(400).send("Excel file does not contain data.");
+    }
 
-  
-  if (!file) {
-    return res.status(400).send("No file uploaded.");
-  }
-
-  const schoolID = req.params.id;
-  const school = await School.findById(schoolID);
-
-  const rows = await readXlsxFile(req.files[0].buffer);
-  if (rows.length < 2) {
-    return res.status(400).send("Excel file does not contain data.");
-  }
-
-  const [headers, ...dataRows] = rows;
-  const newheader = headers.map((header) => (header !== null ? header : header));
-
-  // Static column indexes mapping
-  const columnIndex = {
-    name: newheader.indexOf(cleanedMappings?.StudentName || ""),
-    fatherName: newheader.indexOf(cleanedMappings?.FathersName || ""),
-    motherName: newheader.indexOf(cleanedMappings?.MothersName || ""),
-    class: newheader.indexOf(cleanedMappings?.Class || ""),
-    section: newheader.indexOf(cleanedMappings?.Section || ""),
-    contact: newheader.indexOf(cleanedMappings?.ContactNo || ""),
-    address: newheader.indexOf(cleanedMappings?.Address || ""),
-    dob: newheader.indexOf(cleanedMappings?.DateofBirth || ""),
-    admissionNo: newheader.indexOf(cleanedMappings?.AdmissionNo || ""),
-    rollNo: newheader.indexOf(cleanedMappings?.RollNo || ""),
-    studentId: newheader.indexOf(cleanedMappings?.StudentID || ""),
-    adharNo: newheader.indexOf(cleanedMappings?.AadharNo || ""),
-    routeNo: newheader.indexOf(cleanedMappings?.RouteNo || ""),
-    photoName: newheader.indexOf(cleanedMappings?.PhotoNo || ""),
-
-    houseName: newheader.indexOf(cleanedMappings?.HouseName || ""),
-    validUpTo: newheader.indexOf(cleanedMappings?.ValidUpTo || ""),
-    course: newheader.indexOf(cleanedMappings?.Course || ""),
-    batch: newheader.indexOf(cleanedMappings?.Batch || ""),
-    idNo: newheader.indexOf(cleanedMappings?.IDNo || ""),
-    regNo: newheader.indexOf(cleanedMappings?.RegNo || ""),
-    extraField1: newheader.indexOf(cleanedMappings?.ExtraField1 || ""),
-    extraField2: newheader.indexOf(cleanedMappings?.ExtraField2 || ""),
-  };
-
-  // Dynamically handle extra fields from extraMapping
-  const extraFields = {}; // Initialize extraFields object to hold the extra fields
-  for (const [key, value] of Object.entries(extraMapping)) {
-    const normalizedValue = value.trim().toLowerCase();
-  
-    columnIndex[key] = newheader.findIndex(
-      (item) => item.trim().toLowerCase() === normalizedValue
+    const [headers, ...dataRows] = rows;
+    const newheader = headers.map((header) =>
+      header !== null ? header : header
     );
-  
-    if (columnIndex[key] !== -1) {
-      extraFields[key] = value;
-    } else {
-      extraFields[key] = null;
-      console.log(`Key '${key}' not found in newheader`);
+
+    // Static column indexes mapping
+    const columnIndex = {
+      name: newheader.indexOf(cleanedMappings?.StudentName || ""),
+      fatherName: newheader.indexOf(cleanedMappings?.FathersName || ""),
+      motherName: newheader.indexOf(cleanedMappings?.MothersName || ""),
+      class: newheader.indexOf(cleanedMappings?.Class || ""),
+      section: newheader.indexOf(cleanedMappings?.Section || ""),
+      contact: newheader.indexOf(cleanedMappings?.ContactNo || ""),
+      address: newheader.indexOf(cleanedMappings?.Address || ""),
+      dob: newheader.indexOf(cleanedMappings?.DateofBirth || ""),
+      admissionNo: newheader.indexOf(cleanedMappings?.AdmissionNo || ""),
+      rollNo: newheader.indexOf(cleanedMappings?.RollNo || ""),
+      studentId: newheader.indexOf(cleanedMappings?.StudentID || ""),
+      adharNo: newheader.indexOf(cleanedMappings?.AadharNo || ""),
+      routeNo: newheader.indexOf(cleanedMappings?.RouteNo || ""),
+      photoName: newheader.indexOf(cleanedMappings?.PhotoNo || ""),
+
+      houseName: newheader.indexOf(cleanedMappings?.HouseName || ""),
+      validUpTo: newheader.indexOf(cleanedMappings?.ValidUpTo || ""),
+      course: newheader.indexOf(cleanedMappings?.Course || ""),
+      batch: newheader.indexOf(cleanedMappings?.Batch || ""),
+      idNo: newheader.indexOf(cleanedMappings?.IDNo || ""),
+      regNo: newheader.indexOf(cleanedMappings?.RegNo || ""),
+      extraField1: newheader.indexOf(cleanedMappings?.ExtraField1 || ""),
+      extraField2: newheader.indexOf(cleanedMappings?.ExtraField2 || ""),
+    };
+
+    // Dynamically handle extra fields from extraMapping
+    const extraFields = {}; // Initialize extraFields object to hold the extra fields
+    for (const [key, value] of Object.entries(extraMapping)) {
+      const normalizedValue = value.trim().toLowerCase();
+
+      columnIndex[key] = newheader.findIndex(
+        (item) => item.trim().toLowerCase() === normalizedValue
+      );
+
+      if (columnIndex[key] !== -1) {
+        extraFields[key] = value;
+      } else {
+        extraFields[key] = null;
+        console.log(`Key '${key}' not found in newheader`);
+      }
+    }
+
+    console.log("Final Mapped Extra Fields: ", extraFields);
+
+    console.log(
+      "Normalized newheader: ",
+      newheader.map((item) => item.trim().toLowerCase())
+    );
+    console.log(
+      "Normalized extraMapping values: ",
+      Object.values(extraMapping).map((value) => value.trim().toLowerCase())
+    );
+
+    if (columnIndex.name === -1) {
+      return next(new errorHandler("Name is Required"));
+    }
+
+
+    const cleanKey = (key) => key.replace(/\./g, "_");  // Only replace periods with underscores
+
+    // Map each row to student data object
+    const studentData = await Promise.all(
+      dataRows.map(async (row) => {
+        const student = {
+          name: row[columnIndex.name],
+          fatherName: row[columnIndex.fatherName],
+          motherName: row[columnIndex.motherName],
+          class: row[columnIndex.class],
+          section: row[columnIndex.section],
+          contact: row[columnIndex.contact],
+          address: row[columnIndex.address],
+          dob: row[columnIndex.dob],
+          admissionNo: row[columnIndex.admissionNo],
+          rollNo: row[columnIndex.rollNo],
+          studentID: row[columnIndex.studentId],
+          aadharNo: row[columnIndex.adharNo],
+          routeNo: row[columnIndex.routeNo],
+          photoName: row[columnIndex.photoName],
+          houseName: row[columnIndex.houseName], // New field
+          validUpTo: row[columnIndex.validUpTo], // New field
+          course: row[columnIndex.course], // New field
+          batch: row[columnIndex.batch], // New field
+          idNo: row[columnIndex.idNo], // New field
+          regNo: row[columnIndex.regNo], // New field
+          extraField1: row[columnIndex.extraField1], // New field
+          extraField2: row[columnIndex.extraField2], // New field
+          school: schoolID,
+          user: req.id,
+          photoNameUnuiq: await getNextSequenceValue("studentName"),
+          extraFields: new Map(), // Initialize extraFields as a Map
+        };
+
+        // Normalize the newheader for comparison
+        const normalizedNewHeader = newheader.map((item) =>
+          item.trim().toLowerCase()
+        );
+
+        for (const [extraKey, mappedValue] of Object.entries(extraFields)) {
+          const normalizedMappedValue = mappedValue.trim().toLowerCase();
+          const columnIndexForExtraField = normalizedNewHeader.indexOf(
+            normalizedMappedValue
+          );
+        
+          if (columnIndexForExtraField !== -1) {
+            const sanitizedKey = cleanKey(extraKey);
+            student.extraFields.set(sanitizedKey, row[columnIndexForExtraField]);
+          } else {
+            const sanitizedKey = cleanKey(extraKey);
+            student.extraFields.set(sanitizedKey, "Field Not Found");
+          }
+        }
+
+        return student;
+      })
+    );
+
+    console.log("Final Student Data: ", studentData);
+
+
+    try {
+      // Insert the student data into the database
+      const insertedStudents = await Student.insertMany(studentData);
+      res.status(200).json({
+        success: true,
+        message: `${insertedStudents.length} students inserted successfully.`,
+        data: insertedStudents,
+      });
+    } catch (err) {
+      console.log(err)
+      return next(err); // Handle any database errors
     }
   }
-  
-  console.log("Final Mapped Extra Fields: ", extraFields);
-
-  
-  console.log("Normalized newheader: ", newheader.map(item => item.trim().toLowerCase()));
-console.log("Normalized extraMapping values: ", Object.values(extraMapping).map(value => value.trim().toLowerCase()));
-
-
-  if (columnIndex.name === -1) {
-    return next(new errorHandler("Name is Required"));
-  }
-
-  // Map each row to student data object
-  const studentData = await Promise.all(
-    dataRows.map(async (row) => {
-      const student = {
-        name: row[columnIndex.name],
-        fatherName: row[columnIndex.fatherName],
-        motherName: row[columnIndex.motherName],
-        class: row[columnIndex.class],
-        section: row[columnIndex.section],
-        contact: row[columnIndex.contact],
-        address: row[columnIndex.address],
-        dob: row[columnIndex.dob],
-        admissionNo: row[columnIndex.admissionNo],
-        rollNo: row[columnIndex.rollNo],
-        studentID: row[columnIndex.studentId],
-        aadharNo: row[columnIndex.adharNo],
-        routeNo: row[columnIndex.routeNo],
-        photoName: row[columnIndex.photoName],
-        houseName: row[columnIndex.houseName], // New field
-        validUpTo: row[columnIndex.validUpTo], // New field
-        course: row[columnIndex.course], // New field
-        batch: row[columnIndex.batch], // New field
-        idNo: row[columnIndex.idNo], // New field
-        regNo: row[columnIndex.regNo], // New field
-        extraField1: row[columnIndex.extraField1], // New field
-        extraField2: row[columnIndex.extraField2], // New field
-        school: schoolID,
-        user: req.id,
-        photoNameUnuiq: await getNextSequenceValue("studentName"),
-        extraFields: new Map(), // Initialize extraFields as a Map
-      };
-
-
- // Normalize the newheader for comparison
-const normalizedNewHeader = newheader.map((item) => item.trim().toLowerCase());
-
-// Iterate over extraFields
-for (const [extraKey, mappedValue] of Object.entries(extraFields)) {
-  // Normalize the mapped value
-  const normalizedMappedValue = mappedValue.trim().toLowerCase();
-
-  // Find the column index in the normalized newheader
-  const columnIndexForExtraField = normalizedNewHeader.indexOf(normalizedMappedValue);
-
-  console.log(`Checking column for ${extraKey}: columnIndex = ${columnIndexForExtraField}`);
-  
-  if (columnIndexForExtraField !== -1) {
-    // If found, set the value in student.extraFields
-    student.extraFields.set(extraKey, row[columnIndexForExtraField]);
-  } else {
-    // If not found, set a placeholder value
-    console.log(`Column for ${extraKey} not found, setting default value`);
-    student.extraFields.set(extraKey, "Field Not Found"); // Placeholder for missing fields
-  }
-}
-
-      
-      
-
-      return student;
-    })
-  );
-
-  console.log("Final Student Data: ", studentData);
-
-  
-  try {
-    // Insert the student data into the database
-    const insertedStudents = await Student.insertMany(studentData);
-    res.status(200).json({
-      success: true,
-      message: `${insertedStudents.length} students inserted successfully.`,
-      data: insertedStudents,
-    });
-  } catch (err) {
-    return next(err); // Handle any database errors
-  }
-});
-
-
-
-
-
-
-
-
+);
 
 
 
@@ -263,17 +259,15 @@ app.post(
     const cleanMapping = (data) => {
       const cleanedData = {};
       for (let key in data) {
-        const cleanedKey = key.replace(/[\s.'-]+/g, ''); // Remove spaces and special characters
+        const cleanedKey = key.replace(/[\s.'-]+/g, ""); // Remove spaces and special characters
         cleanedData[cleanedKey] = data[key];
       }
       return cleanedData;
     };
-  
+
     // Clean the received mapping data
     const cleanedMappings = cleanMapping(mappings);
     console.log("Extra Mapping Data: ", extraMapping);
-
-    
 
     if (!file) {
       return res.status(400).send("No file uploaded.");
@@ -299,7 +293,7 @@ app.post(
         return header; // Return null as is
       }
     });
-    console.log("newheader",newheader);
+    console.log("newheader", newheader);
 
     const columnIndex = {
       name: newheader.indexOf(cleanedMappings.Name || ""),
@@ -331,17 +325,15 @@ app.post(
       extraField1: newheader.indexOf(cleanedMappings.ExtraField1 || ""),
       extraField2: newheader.indexOf(cleanedMappings.ExtraField2 || ""),
     };
-    
-
 
     const extraFields = {}; // Initialize extraFields object to hold the extra fields
     for (const [key, value] of Object.entries(extraMapping)) {
       const normalizedValue = value.trim().toLowerCase();
-    
+
       columnIndex[key] = newheader.findIndex(
         (item) => item.trim().toLowerCase() === normalizedValue
       );
-    
+
       if (columnIndex[key] !== -1) {
         extraFields[key] = value;
       } else {
@@ -349,15 +341,18 @@ app.post(
         console.log(`Key '${key}' not found in newheader`);
       }
     }
-    
-    console.log("Final Mapped Extra Fields: ", extraFields);
-  
-    
-    console.log("Normalized newheader: ", newheader.map(item => item.trim().toLowerCase()));
-  console.log("Normalized extraMapping values: ", Object.values(extraMapping).map(value => value.trim().toLowerCase()));
 
-  
-  
+    console.log("Final Mapped Extra Fields: ", extraFields);
+
+    console.log(
+      "Normalized newheader: ",
+      newheader.map((item) => item.trim().toLowerCase())
+    );
+    console.log(
+      "Normalized extraMapping values: ",
+      Object.values(extraMapping).map((value) => value.trim().toLowerCase())
+    );
+
     if (!columnIndex.name == -1) {
       return next(new errorHandler("Name is Required"));
     }
@@ -369,77 +364,82 @@ app.post(
       columnIndex.contact = newheader.indexOf("CONTACT NO");
     }
 
-
     // Map each row to student data object
 
-   const staffData = await Promise.all(
-  dataRows.map(async (row) => {
-    const staff ={
-      name: row[columnIndex.name],
-      fatherName: row[columnIndex.fatherName],
-      husbandName: row[columnIndex.husbandName],
-      qualification: row[columnIndex.qualification],
-      doj: row[columnIndex.doj],
-      contact: row[columnIndex.contact],
-      email: row[columnIndex.email],
-      address: row[columnIndex.address],
-      dob: row[columnIndex.dob],
-      staffID: row[columnIndex.staffID],
-      schoolName: row[columnIndex.schoolName],
-      dispatchNo: row[columnIndex.dispatchNo],
-      ihrmsNo: row[columnIndex.ihrmsNo],
-      designation: row[columnIndex.designation],
-      uid: row[columnIndex.uid],
-      udiseCode: row[columnIndex.udiseCode],
-      bloodGroup: row[columnIndex.bloodGroup],
-      dateOfissue: row[columnIndex.dateOfissue],
-      photoName: row[columnIndex.photoName],
-      school: schoolID,
-      user: req.id,
+    const staffData = await Promise.all(
+      dataRows.map(async (row) => {
+        const staff = {
+          name: row[columnIndex.name],
+          fatherName: row[columnIndex.fatherName],
+          husbandName: row[columnIndex.husbandName],
+          qualification: row[columnIndex.qualification],
+          doj: row[columnIndex.doj],
+          contact: row[columnIndex.contact],
+          email: row[columnIndex.email],
+          address: row[columnIndex.address],
+          dob: row[columnIndex.dob],
+          staffID: row[columnIndex.staffID],
+          schoolName: row[columnIndex.schoolName],
+          dispatchNo: row[columnIndex.dispatchNo],
+          ihrmsNo: row[columnIndex.ihrmsNo],
+          designation: row[columnIndex.designation],
+          uid: row[columnIndex.uid],
+          udiseCode: row[columnIndex.udiseCode],
+          bloodGroup: row[columnIndex.bloodGroup],
+          dateOfissue: row[columnIndex.dateOfissue],
+          photoName: row[columnIndex.photoName],
+          school: schoolID,
+          user: req.id,
 
-      staffType: row[columnIndex.staffType],
-      adharNo: row[columnIndex.adharNo],
-      beltNo: row[columnIndex.beltNo],
-      licenceNo: row[columnIndex.licenceNo],
-      idNo: row[columnIndex.idNo],
-      jobStatus: row[columnIndex.jobStatus],
-      panCardNo: row[columnIndex.panCardNo],
-      extraField1: row[columnIndex.extraField1],
-      extraField2: row[columnIndex.extraField2],
-      photoNameUnuiq:  await getNextSequenceValue("staffName"),
-      extraFieldsStaff: new Map(),
-    }
-  
-    
- // Normalize the newheader for comparison
-const normalizedNewHeader = newheader.map((item) => item.trim().toLowerCase());
+          staffType: row[columnIndex.staffType],
+          adharNo: row[columnIndex.adharNo],
+          beltNo: row[columnIndex.beltNo],
+          licenceNo: row[columnIndex.licenceNo],
+          idNo: row[columnIndex.idNo],
+          jobStatus: row[columnIndex.jobStatus],
+          panCardNo: row[columnIndex.panCardNo],
+          extraField1: row[columnIndex.extraField1],
+          extraField2: row[columnIndex.extraField2],
+          photoNameUnuiq: await getNextSequenceValue("staffName"),
+          extraFieldsStaff: new Map(),
+        };
 
-// Iterate over extraFields
-for (const [extraKey, mappedValue] of Object.entries(extraFields)) {
-  // Normalize the mapped value
-  const normalizedMappedValue = mappedValue.trim().toLowerCase();
+        // Normalize the newheader for comparison
+        const normalizedNewHeader = newheader.map((item) =>
+          item.trim().toLowerCase()
+        );
 
-  // Find the column index in the normalized newheader
-  const columnIndexForExtraField = normalizedNewHeader.indexOf(normalizedMappedValue);
+        // Iterate over extraFields
+        for (const [extraKey, mappedValue] of Object.entries(extraFields)) {
+          // Normalize the mapped value
+          const normalizedMappedValue = mappedValue.trim().toLowerCase();
 
-  console.log(`Checking column for ${extraKey}: columnIndex = ${columnIndexForExtraField}`);
-  
-  if (columnIndexForExtraField !== -1) {
-    // If found, set the value in student.extraFields
-    staff.extraFieldsStaff.set(extraKey, row[columnIndexForExtraField]);
-  } else {
-    // If not found, set a placeholder value
-    console.log(`Column for ${extraKey} not found, setting default value`);
-    staff.extraFieldsStaff.set(extraKey, "Field Not Found"); // Placeholder for missing fields
-  }
-}
-  return staff
-  })
-  );
+          // Find the column index in the normalized newheader
+          const columnIndexForExtraField = normalizedNewHeader.indexOf(
+            normalizedMappedValue
+          );
+
+          console.log(
+            `Checking column for ${extraKey}: columnIndex = ${columnIndexForExtraField}`
+          );
+
+          if (columnIndexForExtraField !== -1) {
+            // If found, set the value in student.extraFields
+            staff.extraFieldsStaff.set(extraKey, row[columnIndexForExtraField]);
+          } else {
+            // If not found, set a placeholder value
+            console.log(
+              `Column for ${extraKey} not found, setting default value`
+            );
+            staff.extraFieldsStaff.set(extraKey, "Field Not Found"); // Placeholder for missing fields
+          }
+        }
+        return staff;
+      })
+    );
 
     console.log(staffData);
 
-    
     const insertedStaff = await Staff.insertMany(staffData);
     res.status(200).json({
       success: true,
