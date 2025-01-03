@@ -1372,7 +1372,7 @@ const Viewdata = () => {
                     </p>
                   )}
 
-                  {Object.entries(student.extraFields || {}).length > 0 ? (
+                  {Object.entries(student.extraFields || {}).length > 0 && (
                     <ul>
                       {Object.entries(student.extraFields).map(
                         ([key, value]) => (
@@ -1382,9 +1382,7 @@ const Viewdata = () => {
                         )
                       )}
                     </ul>
-                  ) : (
-                    <p>No extra fields available</p>
-                  )}
+                  ) }
 
                   <div className="w-full  flex justify-center items-center mt-2">
                     {status === "Panding" && (
@@ -1587,7 +1585,7 @@ const Viewdata = () => {
                     </p>
                   )}
 
-                  {Object.entries(staff.extraFieldsStaff || {}).length > 0 ? (
+                  {Object.entries(staff.extraFieldsStaff || {}).length > 0 && (
                     <ul>
                       {Object.entries(staff.extraFieldsStaff).map(
                         ([key, value]) => (
@@ -1597,9 +1595,7 @@ const Viewdata = () => {
                         )
                       )}
                     </ul>
-                  ) : (
-                    <p>No extra fields available</p>
-                  )}
+                  ) }
                   {/* Add more staff details as required */}
                   <div className="w-full flex justify-center items-center mt-2">
                     {status === "Panding" && (

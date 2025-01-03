@@ -224,7 +224,7 @@ for (const [extraKey, mappedValue] of Object.entries(extraFields)) {
     })
   );
 
-  // console.log("Final Student Data: ", studentData);
+  console.log("Final Student Data: ", studentData);
 
   
   try {
