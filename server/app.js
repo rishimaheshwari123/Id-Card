@@ -365,6 +365,7 @@ app.post(
     }
 
     // Map each row to student data object
+    const cleanKey = (key) => key.replace(/\./g, "_");  // Only replace periods with underscores
 
     const staffData = await Promise.all(
       dataRows.map(async (row) => {
@@ -410,30 +411,61 @@ app.post(
         );
 
         // Iterate over extraFields
+        // for (const [extraKey, mappedValue] of Object.entries(extraFields)) {
+        //   // Normalize the mapped value
+        //   const normalizedMappedValue = mappedValue.trim().toLowerCase();
+
+        //   // Find the column index in the normalized newheader
+        //   const columnIndexForExtraField = normalizedNewHeader.indexOf(
+        //     normalizedMappedValue
+        //   );
+
+        //   console.log(
+        //     `Checking column for ${extraKey}: columnIndex = ${columnIndexForExtraField}`
+        //   );
+
+        //   if (columnIndexForExtraField !== -1) {
+        //     // If found, set the value in student.extraFields
+        //     staff.extraFieldsStaff.set(extraKey, row[columnIndexForExtraField]);
+        //   } else {
+        //     // If not found, set a placeholder value
+        //     console.log(
+        //       `Column for ${extraKey} not found, setting default value`
+        //     );
+        //     staff.extraFieldsStaff.set(extraKey, "Field Not Found"); // Placeholder for missing fields
+        //   }
+        // }
+
+
+
         for (const [extraKey, mappedValue] of Object.entries(extraFields)) {
           // Normalize the mapped value
           const normalizedMappedValue = mappedValue.trim().toLowerCase();
-
+        
           // Find the column index in the normalized newheader
           const columnIndexForExtraField = normalizedNewHeader.indexOf(
             normalizedMappedValue
           );
-
+        
           console.log(
             `Checking column for ${extraKey}: columnIndex = ${columnIndexForExtraField}`
           );
-
+        
+          // Apply cleanKey to sanitize the extraKey (replace periods with underscores)
+          const sanitizedKey = cleanKey(extraKey);
+        
           if (columnIndexForExtraField !== -1) {
-            // If found, set the value in student.extraFields
-            staff.extraFieldsStaff.set(extraKey, row[columnIndexForExtraField]);
+            // If found, set the value in staff.extraFieldsStaff
+            staff.extraFieldsStaff.set(sanitizedKey, row[columnIndexForExtraField]);
           } else {
             // If not found, set a placeholder value
             console.log(
               `Column for ${extraKey} not found, setting default value`
             );
-            staff.extraFieldsStaff.set(extraKey, "Field Not Found"); // Placeholder for missing fields
+            staff.extraFieldsStaff.set(sanitizedKey, "Field Not Found"); // Placeholder for missing fields
           }
         }
+        
         return staff;
       })
     );
