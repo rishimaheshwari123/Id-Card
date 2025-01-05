@@ -49,7 +49,7 @@ const Viewdata = () => {
     totalStudents: 0,
     totalPages: 0,
     currentPage: 1,
-    pageSize: 50,
+    pageSize:500,
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [className, setClassname] = useState([]);
@@ -674,27 +674,8 @@ const Viewdata = () => {
     }
   };
 
+
   const [isAllSelected, setIsAllSelected] = useState(false); // State to track selection
-
-  const selectAllStudents = () => {
-    if (isAllSelected) {
-      // Clear all selections
-      setStudentIds([]);
-      setStaffIds([]);
-    } else {
-      // Select all based on current role
-      if (currRole === "student") {
-        const allStudentIds = students.map((student) => student._id);
-        setStudentIds(allStudentIds);
-      }
-
-      if (currRole === "staff") {
-        const allStaffIds = staffs.map((staff) => staff._id);
-        setStaffIds(allStaffIds);
-      }
-    }
-    setIsAllSelected(!isAllSelected); // Toggle the state
-  };
 
   const deletHandler = async (e) => {
     e.preventDefault();
@@ -723,6 +704,10 @@ const Viewdata = () => {
           config()
         );
         fatchStudent();
+        setStudentIds([]);
+        setStaffIds([]);
+        setIsAllSelected(false)
+        selectAllStudents()
         // Show success alert after successful deletion
         Swal.fire("Success!", "Students deleted successfully.", "success");
       } catch (error) {
@@ -755,6 +740,8 @@ const Viewdata = () => {
           config()
         );
         fatchStaff();
+        setStudentIds([]);
+        setStaffIds([]);
         // Show success alert after successful deletion
         Swal.fire("Success!", "Staff deleted successfully.", "success");
       } catch (error) {
@@ -762,6 +749,27 @@ const Viewdata = () => {
       }
     }
   };
+  const selectAllStudents = () => {
+    if (isAllSelected) {
+      // Clear all selections
+      setStudentIds([]);
+      setStaffIds([]);
+    } else {
+      // Select all based on current role
+      if (currRole === "student") {
+        const allStudentIds = students.map((student) => student._id);
+        setStudentIds(allStudentIds);
+      }
+
+      if (currRole === "staff") {
+        const allStaffIds = staffs.map((staff) => staff._id);
+        setStaffIds(allStaffIds);
+      }
+    }
+    setIsAllSelected(!isAllSelected); // Toggle the state
+  };
+
+ 
 
   useEffect(() => {
     const savedSchool = localStorage.getItem("currSchool");
@@ -1382,7 +1390,7 @@ const Viewdata = () => {
                         )
                       )}
                     </ul>
-                  ) }
+                  )}
 
                   <div className="w-full  flex justify-center items-center mt-2">
                     {status === "Panding" && (
@@ -1595,7 +1603,7 @@ const Viewdata = () => {
                         )
                       )}
                     </ul>
-                  ) }
+                  )}
                   {/* Add more staff details as required */}
                   <div className="w-full flex justify-center items-center mt-2">
                     {status === "Panding" && (

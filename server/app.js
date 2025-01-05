@@ -14,7 +14,7 @@ connectDb.databaseConnect();
 
 // body parser
 app.use(express.json({ limit: "500mb" }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ limit: "500mb", extended: true }));
 const cookieParser = require("cookie-parser");
 
 // app.use((req, res, next) => {
@@ -96,7 +96,6 @@ app.post(
     }
 
     const schoolID = req.params.id;
-    const school = await School.findById(schoolID);
 
     const rows = await readXlsxFile(req.files[0].buffer);
     if (rows.length < 2) {
@@ -167,8 +166,7 @@ app.post(
       return next(new errorHandler("Name is Required"));
     }
 
-
-    const cleanKey = (key) => key.replace(/\./g, "_");  // Only replace periods with underscores
+    const cleanKey = (key) => key.replace(/\./g, "_"); // Only replace periods with underscores
 
     // Map each row to student data object
     const studentData = await Promise.all(
@@ -212,10 +210,13 @@ app.post(
           const columnIndexForExtraField = normalizedNewHeader.indexOf(
             normalizedMappedValue
           );
-        
+
           if (columnIndexForExtraField !== -1) {
             const sanitizedKey = cleanKey(extraKey);
-            student.extraFields.set(sanitizedKey, row[columnIndexForExtraField]);
+            student.extraFields.set(
+              sanitizedKey,
+              row[columnIndexForExtraField]
+            );
           } else {
             const sanitizedKey = cleanKey(extraKey);
             student.extraFields.set(sanitizedKey, "Field Not Found");
@@ -228,23 +229,91 @@ app.post(
 
     console.log("Final Student Data: ", studentData);
 
-
     try {
-      // Insert the student data into the database
-      const insertedStudents = await Student.insertMany(studentData);
-      res.status(200).json({
-        success: true,
-        message: `${insertedStudents.length} students inserted successfully.`,
-        data: insertedStudents,
-      });
+      // Fetch all existing students for the current school
+      const existingStudents = await Student.find({ school: schoolID });
+
+      // Normalize existing students for comparison
+      const normalizedExistingStudents = existingStudents.map((student) => ({
+        name: student.name?.trim().toLowerCase(),
+        fatherName: student.fatherName?.trim().toLowerCase(),
+        motherName: student.motherName?.trim().toLowerCase(),
+        class: student.class?.trim().toLowerCase(),
+        section: student.section?.trim().toLowerCase(),
+        contact: student.contact?.trim().toLowerCase(),
+        dob: student.dob?.trim().toLowerCase(),
+        admissionNo: student.admissionNo?.trim().toLowerCase(),
+        rollNo: student.rollNo?.trim().toLowerCase(),
+        aadharNo: student.aadharNo?.trim().toLowerCase(),
+      }));
+
+      const nonDuplicateStudents = [];
+      const duplicateEntries = [];
+
+      for (const student of studentData) {
+        const isDuplicate = normalizedExistingStudents.some(
+          (existingStudent) => {
+            return (
+              existingStudent.name === student.name?.trim().toLowerCase() &&
+              existingStudent.fatherName ===
+                student.fatherName?.trim().toLowerCase() &&
+              existingStudent.motherName ===
+                student.motherName?.trim().toLowerCase() &&
+              existingStudent.class === student.class?.trim().toLowerCase() &&
+              existingStudent.section ===
+                student.section?.trim().toLowerCase() &&
+              existingStudent.contact ===
+                student.contact?.trim().toLowerCase() &&
+              existingStudent.dob === student.dob?.trim().toLowerCase() &&
+              existingStudent.admissionNo ===
+                student.admissionNo?.trim().toLowerCase() &&
+              existingStudent.rollNo === student.rollNo?.trim().toLowerCase() &&
+              existingStudent.aadharNo ===
+                student.aadharNo?.trim().toLowerCase()
+            );
+          }
+        );
+
+        if (isDuplicate) {
+          duplicateEntries.push(student);
+        } else {
+          nonDuplicateStudents.push(student);
+        }
+      }
+
+      if (nonDuplicateStudents.length > 0) {
+        const insertedStudents = await Student.insertMany(nonDuplicateStudents);
+        res.status(200).json({
+          success: true,
+          message: `${insertedStudents.length} students inserted successfully.`,
+          duplicates: duplicateEntries,
+        });
+      } else {
+        res.status(200).json({
+          success: true,
+          message: "No new students were inserted. All entries are duplicates.",
+          duplicates: duplicateEntries,
+        });
+      }
     } catch (err) {
-      console.log(err)
+      console.log(err);
       return next(err); // Handle any database errors
     }
+
+    // try {
+    //   // Insert the student data into the database
+    //   const insertedStudents = await Student.insertMany(studentData);
+    //   res.status(200).json({
+    //     success: true,
+    //     message: `${insertedStudents.length} students inserted successfully.`,
+    //     data: insertedStudents,
+    //   });
+    // } catch (err) {
+    //   console.log(err)
+    //   return next(err); // Handle any database errors
+    // }
   }
 );
-
-
 
 app.post(
   "/upload-excel/staff/:id",
@@ -365,7 +434,7 @@ app.post(
     }
 
     // Map each row to student data object
-    const cleanKey = (key) => key.replace(/\./g, "_");  // Only replace periods with underscores
+    const cleanKey = (key) => key.replace(/\./g, "_"); // Only replace periods with underscores
 
     const staffData = await Promise.all(
       dataRows.map(async (row) => {
@@ -436,27 +505,28 @@ app.post(
         //   }
         // }
 
-
-
         for (const [extraKey, mappedValue] of Object.entries(extraFields)) {
           // Normalize the mapped value
           const normalizedMappedValue = mappedValue.trim().toLowerCase();
-        
+
           // Find the column index in the normalized newheader
           const columnIndexForExtraField = normalizedNewHeader.indexOf(
             normalizedMappedValue
           );
-        
+
           console.log(
             `Checking column for ${extraKey}: columnIndex = ${columnIndexForExtraField}`
           );
-        
+
           // Apply cleanKey to sanitize the extraKey (replace periods with underscores)
           const sanitizedKey = cleanKey(extraKey);
-        
+
           if (columnIndexForExtraField !== -1) {
             // If found, set the value in staff.extraFieldsStaff
-            staff.extraFieldsStaff.set(sanitizedKey, row[columnIndexForExtraField]);
+            staff.extraFieldsStaff.set(
+              sanitizedKey,
+              row[columnIndexForExtraField]
+            );
           } else {
             // If not found, set a placeholder value
             console.log(
@@ -465,7 +535,7 @@ app.post(
             staff.extraFieldsStaff.set(sanitizedKey, "Field Not Found"); // Placeholder for missing fields
           }
         }
-        
+
         return staff;
       })
     );

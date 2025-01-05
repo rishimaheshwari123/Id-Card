@@ -108,8 +108,9 @@ const Addexcel = () => {
 
 
     const customFieldStaff = {
-      PhotoNo: mapping["PhotoNo."] || "", // Use the mapping for "PhotoNo."
+      PhotoNo: mappingStaff["PhotoNo."] || "", // Use the mapping for "PhotoNo."
     };
+
 
     // Generate dynamic fields based on the required fields and the mapping
     const mappedDataStaff = schoolData?.requiredFieldsStaff.reduce((acc, field) => {
@@ -178,79 +179,158 @@ const Addexcel = () => {
     console.log([...selectedPhotos, ...files]);
   };
 
+  // const handleSubmitnowfuntiion = async (event) => {
+
+  //   event.preventDefault();
+
+  //   // Show loading alert
+  //   Swal.fire({
+  //     title: "Uploading photos...",
+  //     text: "Please wait while your photos are being uploaded.",
+  //     allowOutsideClick: false,
+  //     didOpen: () => {
+  //       Swal.showLoading();
+  //     },
+  //   });
+
+  //   const formData = new FormData();
+  //   console.log("Selected photos:", selectedPhotos); // Log selectedPhotos array
+  //   let message;
+  //   selectedPhotos.forEach((file, index) => {
+  //     // Append each file with a unique key based on its index
+  //     formData.append(`file`, file);
+  //   });
+
+  //   // Log FormData entries
+  //   for (const pair of formData.entries()) {
+  //     console.log(pair[0] + ", " + pair[1]);
+  //   }
+
+  //   try {
+  //     let response = "Successfully Uploaded";
+
+  //     if (currRole === "student") {
+  //       response = await axios.post(
+  //         `/user/student/avatars/${currSchool}`,
+  //         formData,
+  //         {
+  //           withCredentials: true,
+  //           headers: {
+  //             "Content-Type": "multipart/form-data",
+  //             authorization: `${localStorage.getItem("token")}`,
+  //           },
+  //         }
+  //       );
+  //       message = `Uploaded ${response.data.students.length} Photo`;
+  //     } else if (currRole === "staff") {
+  //       response = await axios.post(
+  //         `/user/staff/avatars/${currSchool}`,
+  //         formData,
+  //         {
+  //           withCredentials: true,
+  //           headers: {
+  //             "Content-Type": "multipart/form-data",
+  //             authorization: `${localStorage.getItem("token")}`,
+  //           },
+  //         }
+  //       );
+  //       message = `Uploaded ${response.data.staffs.length} Photo`;
+  //     }
+
+  //     console.log(response.data.staffs);
+
+  //     // Close loading alert and show success message
+  //     Swal.fire({
+  //       icon: "success",
+  //       title: "Upload Successful",
+  //       text: message,
+  //       timer: 5000,
+  //       timerProgressBar: true,
+  //     });
+
+  //     // setSelectedPhotos([]);
+  //   } catch (error) {
+  //     console.error("Error uploading photos:", error);
+
+  //     // Close loading alert and show error message
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Upload Failed",
+  //       text: "Failed to upload photos. Please try again.",
+  //       timer: 5000,
+  //       timerProgressBar: true,
+  //     });
+  //   }
+  // };
+
+
   const handleSubmitnowfuntiion = async (event) => {
     event.preventDefault();
-
-    // Show loading alert
+  
+    const processingTimePerPhoto = 2000; // 2 seconds per photo
+    const totalPhotos = selectedPhotos.length;
+    const totalProcessingTime = (totalPhotos * processingTimePerPhoto) / 1000; // in seconds
+  
+    // Inform the user about the estimated time
     Swal.fire({
       title: "Uploading photos...",
-      text: "Please wait while your photos are being uploaded.",
+      text: `Estimated time to complete: ${totalProcessingTime} seconds. Please wait.`,
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
       },
     });
-
+  
     const formData = new FormData();
-    console.log("Selected photos:", selectedPhotos); // Log selectedPhotos array
-    let message;
-    selectedPhotos.forEach((file, index) => {
-      // Append each file with a unique key based on its index
-      formData.append(`file`, file);
+    selectedPhotos.forEach((file) => {
+      formData.append("file", file);
     });
-
-    // Log FormData entries
-    for (const pair of formData.entries()) {
-      console.log(pair[0] + ", " + pair[1]);
-    }
-
+  
     try {
-      let response = "Successfully Uploaded";
-
-      if (currRole === "student") {
-        response = await axios.post(
-          `/user/student/avatars/${currSchool}`,
-          formData,
-          {
+      for (let index = 0; index < selectedPhotos.length; index++) {
+        const file = selectedPhotos[index];
+        const singleFormData = new FormData();
+        singleFormData.append("file", file);
+  
+        // Upload each photo one by one
+        if (currRole === "student") {
+          await axios.post(`/user/student/avatars/${currSchool}`, singleFormData, {
             withCredentials: true,
             headers: {
               "Content-Type": "multipart/form-data",
               authorization: `${localStorage.getItem("token")}`,
             },
-          }
-        );
-        message = `Uploaded ${response.data.students.length} Photo`;
-      } else if (currRole === "staff") {
-        response = await axios.post(
-          `/user/staff/avatars/${currSchool}`,
-          formData,
-          {
+          });
+        } else if (currRole === "staff") {
+          await axios.post(`/user/staff/avatars/${currSchool}`, singleFormData, {
             withCredentials: true,
             headers: {
               "Content-Type": "multipart/form-data",
               authorization: `${localStorage.getItem("token")}`,
             },
-          }
-        );
-        message = `Uploaded ${response.data.staffs.length} Photo`;
+          });
+        }
+  
+        // Simulate server processing delay
+        await new Promise((resolve) => setTimeout(resolve, processingTimePerPhoto));
+  
+        // Update Swal with remaining time
+        const remainingTime = ((totalPhotos - index - 1) * processingTimePerPhoto) / 1000; // in seconds
+        Swal.update({
+          text: `Processing photo ${index + 1} of ${totalPhotos}. Estimated time left: ${remainingTime} seconds.`,
+        });
       }
-
-      console.log(response.data.staffs);
-
-      // Close loading alert and show success message
+  
+      // All photos uploaded successfully
       Swal.fire({
         icon: "success",
         title: "Upload Successful",
-        text: message,
+        text: "All photos uploaded successfully.",
         timer: 5000,
         timerProgressBar: true,
       });
-
-      // setSelectedPhotos([]);
     } catch (error) {
       console.error("Error uploading photos:", error);
-
-      // Close loading alert and show error message
       Swal.fire({
         icon: "error",
         title: "Upload Failed",
@@ -260,8 +340,12 @@ const Addexcel = () => {
       });
     }
   };
-
+  
+  
+  
+  
   const handleInputChangeStaff = (fieldName, value, isExtraField = false) => {
+    console.log(fieldName,value)
     if (isExtraField) {
       setExtraFieldsMappingStaff((prevState) => ({
         ...prevState,

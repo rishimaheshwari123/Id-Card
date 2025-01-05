@@ -22,6 +22,8 @@ const bcrypt = require("bcrypt");
 const archiver = require("archiver");
 const axios = require("axios");
 
+
+
 // var nodeExcel = require('excel-export');
 // const generateTokens = require("../utils/generateTokens");
 // // const cloudinary = require("cloudinary").v2;
@@ -31,7 +33,7 @@ const axios = require("axios");
 const cloudinary = require("cloudinary");
 
 cloudinary.v2.config({
-  cloud_name: "dsvotvxhq",
+  cloud_name: "dubvmkr0l",
   api_key: process.env.CLOUDINARY_PUBLIC_KEY,
   api_secret: process.env.CLOUDINARY_SECRET_KEY,
 });
@@ -2428,35 +2430,44 @@ exports.StudentsAvatars = catchAsyncErron(async (req, res, next) => {
   try {
     const school = await School.findById(studentId);
     if (!school) {
-      return res.status(404).json({
+      res.write(`data: ${JSON.stringify({
         success: false,
         message: "School not found",
-      });
+      })}\n\n`);
+      return res.end();
     }
 
     const files = req.files;
-    const students = await Promise.all(
-      files.map(async (file) => {
-        const fileName = path.parse(file.originalname).name;
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const students = [];
 
-        const currStudent = await Student.findOne({
-          school: studentId,
-          photoName: fileName,
-        });
+    // Set headers for Server-Sent Events (SSE)
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
 
-        if (currStudent) {
-          if (currStudent.avatar.publicId !== "") {
-            try {
-              await cloudinary.v2.uploader.destroy(currStudent.avatar.publicId);
-              console.log("File deleted successfully");
-            } catch (error) {
-              console.error("Error deleting file from Cloudinary:", error);
-            }
+    for (const file of files) {
+      const fileName = path.parse(file.originalname).name;
+      const currStudent = await Student.findOne({
+        school: studentId,
+        photoName: fileName,
+      });
+      console.log(currStudent);
+
+      if (currStudent) {
+        if (currStudent.avatar.publicId !== "") {
+          try {
+            await cloudinary.v2.uploader.destroy(currStudent.avatar.publicId);
+            console.log("File deleted successfully");
+          } catch (error) {
+            console.error("Error deleting file from Cloudinary:", error);
           }
+        }
 
-          const fileUri = getDataUri(file);
+        const fileUri = getDataUri(file);
+
+        try {
           const myavatar = await cloudinary.v2.uploader.upload(fileUri.content);
-
           currStudent.avatar = {
             publicId: myavatar.public_id,
             url: myavatar.secure_url,
@@ -2464,21 +2475,50 @@ exports.StudentsAvatars = catchAsyncErron(async (req, res, next) => {
           currStudent.photoName = "";
           await currStudent.save();
 
-          return currStudent;
-        }
-      })
-    );
+          students.push(currStudent);
 
-    res.status(200).json({
-      success: true,
-      message: "Photos updated successfully",
-      students,
-    });
+          // Send processing status to the frontend
+          res.write(
+            `data: ${JSON.stringify({
+              success: true,
+              message: `Processing photo ${students.length} of ${files.length}`,
+              student: currStudent,
+            })}\n\n`
+          );
+        } catch (error) {
+          console.error("Error uploading file to Cloudinary:", error);
+        }
+
+        // Wait for 2 seconds before processing the next file
+        await delay(2000);
+      }
+    }
+
+    // Final response after all files are processed
+    res.write(
+      `data: ${JSON.stringify({
+        success: true,
+        message: "All photos updated successfully",
+        students,
+      })}\n\n`
+    );
+    res.end(); // Close the SSE connection
   } catch (error) {
     console.error("Error:", error);
-    return next(error); // Pass the error to the error handler middleware
+    res.write(
+      `data: ${JSON.stringify({
+        success: false,
+        message: "An error occurred while processing photos",
+        error: error.message,
+      })}\n\n`
+    );
+    res.end();
   }
 });
+
+
+
+
 
 exports.StaffAvatars = catchAsyncErron(async (req, res, next) => {
   const studentId = req.params.id;

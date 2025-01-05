@@ -2,14 +2,20 @@ import React from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi"; // Left and Right arrows
 
 const Pagination = ({ totalPages, currentPage, setPage }) => {
-  // Number of pages to show in each group
-  const pagesPerGroup = 5;
+  // Calculate the previous and next page numbers
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setPage(currentPage - 1);
+    }
+  };
 
-  // Calculate the start and end page for the current group
-  const currentGroupStart = Math.floor((currentPage - 1) / pagesPerGroup) * pagesPerGroup + 1;
-  const currentGroupEnd = Math.min(currentGroupStart + pagesPerGroup - 1, totalPages);
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setPage(currentPage + 1);
+    }
+  };
 
-  // Generate page buttons for the current group
+  // Generate page buttons for individual pages
   const renderPaginationButtons = () => {
     let buttons = [];
 
@@ -17,10 +23,10 @@ const Pagination = ({ totalPages, currentPage, setPage }) => {
     buttons.push(
       <button
         key="prev"
-        onClick={() => setPage(currentGroupStart - 1)}
-        disabled={currentGroupStart === 1}
+        onClick={goToPreviousPage}
+        disabled={currentPage === 1}
         className={`${
-          currentGroupStart === 1
+          currentPage === 1
             ? "bg-gray-300 cursor-not-allowed"
             : "bg-blue-500 text-white hover:bg-blue-400"
         } py-2 px-4 mx-1 rounded-full transition duration-300`}
@@ -29,8 +35,8 @@ const Pagination = ({ totalPages, currentPage, setPage }) => {
       </button>
     );
 
-    // Add page number buttons for the current group
-    for (let i = currentGroupStart; i <= currentGroupEnd; i++) {
+    // Add page number buttons
+    for (let i = 1; i <= totalPages; i++) {
       buttons.push(
         <button
           key={i}
@@ -50,10 +56,10 @@ const Pagination = ({ totalPages, currentPage, setPage }) => {
     buttons.push(
       <button
         key="next"
-        onClick={() => setPage(currentGroupEnd + 1)}
-        disabled={currentGroupEnd === totalPages}
+        onClick={goToNextPage}
+        disabled={currentPage === totalPages}
         className={`${
-          currentGroupEnd === totalPages
+          currentPage === totalPages
             ? "bg-gray-300 cursor-not-allowed"
             : "bg-blue-500 text-white hover:bg-blue-400"
         } py-2 px-4 mx-1 rounded-full transition duration-300`}
