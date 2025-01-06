@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation"; // Correct hook for query parameters
 import axios from "../../../../axiosconfig";
@@ -8,11 +8,10 @@ import ImageUploaderWithCrop from "@/component/ImageUpload";
 import { useDispatch } from "react-redux";
 import { editStaff } from "@/redux/actions/userAction";
 
-function Page({params}) {
+function Page({ params }) {
   const searchParams = useSearchParams(); // Get query parameters
   const [error, setError] = useState(null); // State to track errors
   const [currSchool, setcurrschool] = useState();
-
 
   const [name, setName] = useState("");
   const [fatherName, setFatherName] = useState("");
@@ -46,10 +45,10 @@ function Page({params}) {
   const [id, setID] = useState();
   const [imageData, setImageData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
   const [selectedImage, setSelectedImage] = useState(null); // Base64 image data
-
+  const [extraFieldsStaff, setExtraFieldsStaff] = useState({});
+  const [isPending, setIsPending] = useState(false);
 
   const dispatch = useDispatch();
-
 
   const schoolId = searchParams.get("schoolid"); // Access query param
 
@@ -114,8 +113,11 @@ function Page({params}) {
         setAadharCardNo(staffData?.adharNo); // New field
         setExtraField1(staffData?.extraField1); // New field
         setExtraField2(staffData?.extraField2); // New field
+        setExtraFieldsStaff(staffData?.extraFieldsStaff);
+        if (staffData?.status === "Panding") {
+          setIsPending(true);
+        }
       }
-   
     };
     factchstudent();
   }, []);
@@ -124,22 +126,22 @@ function Page({params}) {
     e.preventDefault();
     console.log("call");
     try {
-         // Show loading alert
-         Swal.fire({
-          title: "Please wait...",
-          text: "Updating staff data...",
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
+      // Show loading alert
+      Swal.fire({
+        title: "Please wait...",
+        text: "Updating staff data...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
 
-        const shareUpdate = "true"
-      const formData = {shareUpdate};
-  
+      const shareUpdate = "true";
+      const formData = { shareUpdate };
+
       // Add non-empty fields to formData
       formData.avatar = imageData;
-  
+
       if (name) formData.name = name.trim();
       if (fatherName) formData.fatherName = fatherName.trim();
       if (husbandName) formData.husbandName = husbandName.trim();
@@ -169,21 +171,17 @@ function Page({params}) {
       if (extraField2) formData.extraField2 = extraField2.trim();
       console.log(formData);
       console.log(id);
-  
-   
-  
+      if (extraFieldsStaff) formData.extraFieldsStaff = extraFieldsStaff;
+
       const response = await dispatch(editStaff(formData, id));
       if (response === "Staff updated successfully") {
         setSelectedImage(null);
-  
+
         // Show success alert with two buttons
         Swal.fire({
           icon: "success",
           title: "Staff Updated Successfully",
-         
-        })
-    
-
+        });
       } else {
         // Show error alert
         Swal.fire({
@@ -209,11 +207,28 @@ function Page({params}) {
       });
     }
   };
+  const handleExtraFieldChange = (e, fieldName) => {
+    setExtraFieldsStaff((prevState) => ({
+      ...prevState,
+      [fieldName]: e.target.value,
+    }));
+  };
 
-  return <div>
 
-
-<section className="bg-white dark:bg-gray-900 py-10 w-full flex justify-center items-center pt-16 ">
+  
+  if (!isPending) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-red-200 text-red-800 p-4 rounded-lg shadow-md">
+        <div className="text-lg font-semibold">
+          Your printing stage is currently not editable. Please Contact School .
+        </div>
+      </div>
+    );
+  }
+  
+  return (
+    <div>
+      <section className="bg-white dark:bg-gray-900 py-10 w-full flex justify-center items-center pt-16 ">
         <div className="w-[320px]">
           <form action="mt-3 w-[320px]" onSubmit={handleFormSubmit}>
             <h3 className="text-center text-xl py-3 border-b-2 mb-4 border-indigo-500">
@@ -719,7 +734,25 @@ function Page({params}) {
                 />
               </div>
             )}
-
+            {currSchool?.extraFieldsStaff?.length > 0 &&
+              currSchool?.extraFieldsStaff?.map((field, index) => (
+                <div key={index} className="mb-4">
+                  <label
+                    htmlFor="extraField2"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    {field.name}
+                  </label>
+                  <input
+                    type="text"
+                    id={field.name}
+                    value={extraFieldsStaff?.[field.name]} // Use existing value or empty string
+                    placeholder={field.name}
+                    onChange={(e) => handleExtraFieldChange(e, field.name)}
+                    className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+              ))}
             {/* Add a submit button */}
             <button
               type="submit"
@@ -730,7 +763,8 @@ function Page({params}) {
           </form>
         </div>
       </section>
-  </div>;
+    </div>
+  );
 }
 
 export default Page;

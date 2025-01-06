@@ -79,98 +79,124 @@ const Addexcel = () => {
   };
   const [isLoading, setIsLoading] = useState(false);
 
+ 
+
   const handleSubmitExcel = async (event) => {
-    event.preventDefault();
-    setIsLoading(true); // Set loading state to true when function is called
+  event.preventDefault();
+  setIsLoading(true); // Set loading state to true when function is called
 
-    // Show loading toast with a specific toastId
-    const toastId = toast.loading("Uploading...", { toastId: "uploadToast" });
-   
-    const customField = {
-      PhotoNo: mapping["PhotoNo."] || "", // Use the mapping for "PhotoNo."
-    };
+  // Show loading toast with a specific toastId
+  const toastId = toast.loading("Uploading...", { toastId: "uploadToast" });
+  
+  const customField = {
+    PhotoNo: mapping["PhotoNo."] || "", // Use the mapping for "PhotoNo."
+  };
 
-    // Generate dynamic fields based on the required fields and the mapping
-    const mappedData = schoolData?.requiredFields.reduce((acc, field) => {
-      // Only add the field if there's a heading available in the mapping
-      if (mapping[field]) {
-        acc[field] = mapping[field]; // Set the key as the field name, and value as the mapped heading
-      } else {
-        acc[field] = ""; // Default empty if no mapping found
-      }
-      return acc;
-    }, {});
+  // Generate dynamic fields based on the required fields and the mapping
+  const mappedData = schoolData?.requiredFields.reduce((acc, field) => {
+    // Only add the field if there's a heading available in the mapping
+    if (mapping[field]) {
+      acc[field] = mapping[field]; // Set the key as the field name, and value as the mapped heading
+    } else {
+      acc[field] = ""; // Default empty if no mapping found
+    }
+    return acc;
+  }, {});
 
-    // Combine custom fields with the dynamic field mappings
-    const finalMappedData = { ...customField, ...mappedData };
-    console.log(finalMappedData);
+  // Combine custom fields with the dynamic field mappings
+  const finalMappedData = { ...customField, ...mappedData };
+  console.log(finalMappedData);
 
-
-
-    const customFieldStaff = {
-      PhotoNo: mappingStaff["PhotoNo."] || "", // Use the mapping for "PhotoNo."
-    };
-
-
-    // Generate dynamic fields based on the required fields and the mapping
-    const mappedDataStaff = schoolData?.requiredFieldsStaff.reduce((acc, field) => {
-      // Only add the field if there's a heading available in the mapping
-      if (mappingStaff[field]) {
-        acc[field] = mappingStaff[field]; // Set the key as the field name, and value as the mapped heading
-      } else {
-        acc[field] = ""; // Default empty if no mapping found
-      }
-      return acc;
-    }, {});
-
-    // Combine custom fields with the dynamic field mappings
-    const finalMappedDataStaff = { ...customFieldStaff, ...mappedDataStaff };
-    console.log(finalMappedDataStaff);
-
-
-    try {
-      console.log(fileName);
-      console.log(currRole);
-
-      let response;
-
-      // Check conditions for 'student' and 'staff'
-      if (fileName && currRole === "student") {
-        response = await dispatch(
-          aadExcel(fileName, currSchool, finalMappedData, extraFieldsMapping)
-        );
-      } else if (fileName && currRole === "staff") {
-        response = await dispatch(aadExcelstaff(fileName, currSchool,finalMappedDataStaff,extraFieldsMappingStaff));
-      } else {
-        // If no file or school is selected, show an error toast and stop the loading toast
-        toast.update(toastId, {
-          render: "No File or School Selected",
-          type: "error",
-          isLoading: false,
-          autoClose: 5000,
-        });
-        return;
-      }
-
-      // Update the loading toast to a success toast once the response is received
+  // Validation for student fields
+  if (currRole === "student") {
+    if (!finalMappedData.PhotoNo || !finalMappedData["Student Name"]) {
       toast.update(toastId, {
-        render: response,
-        type: "success",
-        isLoading: false,
-        autoClose: 5000,
-      });
-    } catch (error) {
-      // If there's an error, update the loading toast to an error toast
-      toast.update(toastId, {
-        render: "Something went wrong!",
+        render: "PhotoNo and Student Name are compulsory for students!",
         type: "error",
         isLoading: false,
         autoClose: 5000,
       });
-    } finally {
-      setIsLoading(false); // Set loading state to false after operation
+      setIsLoading(false);
+      return;
     }
+  }
+
+  const customFieldStaff = {
+    PhotoNo: mappingStaff["PhotoNo."] || "", // Use the mapping for "PhotoNo."
   };
+
+  // Generate dynamic fields based on the required fields and the mapping for staff
+  const mappedDataStaff = schoolData?.requiredFieldsStaff.reduce((acc, field) => {
+    // Only add the field if there's a heading available in the mapping
+    if (mappingStaff[field]) {
+      acc[field] = mappingStaff[field]; // Set the key as the field name, and value as the mapped heading
+    } else {
+      acc[field] = ""; // Default empty if no mapping found
+    }
+    return acc;
+  }, {});
+
+  // Combine custom fields with the dynamic field mappings for staff
+  const finalMappedDataStaff = { ...customFieldStaff, ...mappedDataStaff };
+  console.log(finalMappedDataStaff);
+
+  // Validation for staff fields
+  if (currRole === "staff") {
+    if (!finalMappedDataStaff.PhotoNo || !finalMappedDataStaff.Name) {
+      toast.update(toastId, {
+        render: "PhotoNo and Name are compulsory for staff!",
+        type: "error",
+        isLoading: false,
+        autoClose: 5000,
+      });
+      setIsLoading(false);
+      return;
+    }
+  }
+
+  try {
+    console.log(fileName);
+    console.log(currRole);
+
+    let response;
+
+    // Check conditions for 'student' and 'staff'
+    if (fileName && currRole === "student") {
+      response = await dispatch(
+        aadExcel(fileName, currSchool, finalMappedData, extraFieldsMapping)
+      );
+    } else if (fileName && currRole === "staff") {
+      response = await dispatch(aadExcelstaff(fileName, currSchool, finalMappedDataStaff, extraFieldsMappingStaff));
+    } else {
+      // If no file or school is selected, show an error toast and stop the loading toast
+      toast.update(toastId, {
+        render: "No File or School Selected",
+        type: "error",
+        isLoading: false,
+        autoClose: 5000,
+      });
+      return;
+    }
+
+    // Update the loading toast to a success toast once the response is received
+    toast.update(toastId, {
+      render: response,
+      type: "success",
+      isLoading: false,
+      autoClose: 5000,
+    });
+  } catch (error) {
+    // If there's an error, update the loading toast to an error toast
+    toast.update(toastId, {
+      render: "Something went wrong!",
+      type: "error",
+      isLoading: false,
+      autoClose: 5000,
+    });
+  } finally {
+    setIsLoading(false); // Set loading state to false after operation
+  }
+};
 
   const handlePhotoFileSelect = (e) => {
     e.preventDefault();
@@ -264,6 +290,35 @@ const Addexcel = () => {
   // };
 
 
+
+  const fetchStudentAndStaffCount = async (schoolId) => {
+    try {
+      const [studentCountResponse, staffCountResponse] = await Promise.all([
+        axios.get(`/user/students/count/${schoolId}`),
+        axios.get(`/user/staff/count/${schoolId}`),
+      ]);
+  
+      if (studentCountResponse.data.success && staffCountResponse.data.success) {
+        return {
+          studentCount: studentCountResponse.data.studentCount,
+          staffCount: staffCountResponse.data.staffCount,
+        };
+      } else {
+        throw new Error("Failed to fetch counts");
+      }
+    } catch (error) {
+      console.error("Error fetching counts:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "An error occurred while fetching the counts. Please try again.",
+        timer: 5000,
+        timerProgressBar: true,
+      });
+      return null;
+    }
+  };
+  
   const handleSubmitnowfuntiion = async (event) => {
     event.preventDefault();
   
@@ -271,6 +326,34 @@ const Addexcel = () => {
     const totalPhotos = selectedPhotos.length;
     const totalProcessingTime = (totalPhotos * processingTimePerPhoto) / 1000; // in seconds
   
+    const counsAll = await fetchStudentAndStaffCount(currSchool);
+    console.log(counsAll);
+    
+    // Check for student role
+    if (currRole === "student" && counsAll.studentCount < totalPhotos) {
+      Swal.fire({
+        icon: "error",
+        title: "Upload Failed",
+        text: `Please Add Students First. Current Student Count is ${counsAll.studentCount}`,
+        timer: 5000,
+        timerProgressBar: true,
+      });
+      return;
+    }
+    
+    // Check for staff role
+    if (currRole === "staff" && counsAll.staffCount < totalPhotos) {
+      Swal.fire({
+        icon: "error",
+        title: "Upload Failed",
+        text: `Please Add Staff First. Current Staff Count is ${counsAll.staffCount}`,
+        timer: 5000,
+        timerProgressBar: true,
+      });
+      return;
+    }
+    
+
     // Inform the user about the estimated time
     Swal.fire({
       title: "Uploading photos...",

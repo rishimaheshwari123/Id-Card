@@ -1,5 +1,6 @@
 const express = require("express");
-
+const Student = require('../models/studentModel')
+const Staff = require('../models/staffModel')
 
 const { ExcelUpload, 
     userRegistration, 
@@ -172,5 +173,48 @@ router.get("/search/student/:id", isAuthenticated ,SerchStudent);
 router.get("/getschool/:id", getSchoolById);
 router.post("/student/:id", upload, getStudent);
 
-
+router.get('/students/count/:schoolId', async (req, res, next) => {
+    const schoolId = req.params.schoolId;
+  
+    try {
+      // Get the count of students for the given school ID
+      const studentCount = await Student.countDocuments({ school: schoolId });
+  
+      // Return the student count as a response
+      res.json({
+        success: true,
+        studentCount,
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching student count",
+        error: error.message,
+      });
+    }
+  })
+  
+  router.get('/staff/count/:schoolId', async (req, res, next) => {
+    const schoolId = req.params.schoolId;
+  
+    try {
+      // Get the count of staff for the given school ID
+      const staffCount = await Staff.countDocuments({ school: schoolId });
+  
+      // Return the staff count as a response
+      res.json({
+        success: true,
+        staffCount,
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching staff count",
+        error: error.message,
+      });
+    }
+  });
+  
 module.exports = router;

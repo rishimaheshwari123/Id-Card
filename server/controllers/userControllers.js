@@ -22,8 +22,6 @@ const bcrypt = require("bcrypt");
 const archiver = require("archiver");
 const axios = require("axios");
 
-
-
 // var nodeExcel = require('excel-export');
 // const generateTokens = require("../utils/generateTokens");
 // // const cloudinary = require("cloudinary").v2;
@@ -466,13 +464,38 @@ exports.userAvatar = catchAsyncErron(async (req, res, next) => {
   console.log(files);
 });
 
+const sanitizeFields = (fields) => {
+  if (Array.isArray(fields)) {
+    return fields.map((item) => {
+      if (item && typeof item === "object") {
+        // For each object, replace periods in the 'name' field
+        const sanitizedItem = { ...item };
+
+        // Sanitize the 'name' key specifically
+        if (sanitizedItem.name) {
+          sanitizedItem.name = sanitizedItem.name.replace(/\./g, "_"); // Replace periods with underscores
+        }
+
+        // If you want to sanitize other fields like '_id', you can add a similar logic here.
+        if (sanitizedItem._id) {
+          sanitizedItem._id = sanitizedItem._id.replace(/\./g, "_"); // Replace periods in _id if needed
+        }
+
+        return sanitizedItem;
+      }
+      return item;
+    });
+  }
+  return fields;
+};
+
 exports.addSchool = catchAsyncErron(async (req, res, next) => {
   try {
     console.log(req.body);
     const id = req.id;
     const file = req.files && req.files[0] ? req.files[0] : null;
-    console.log(file);
 
+    // Get user from DB
     const user = await User.findById(id);
     if (!user) return next(new errorHandler("User not found"));
 
@@ -484,61 +507,31 @@ exports.addSchool = catchAsyncErron(async (req, res, next) => {
       requiredFields,
       requiredFieldsStaff,
       extraFields,
-      extraFieldsStaff
+      extraFieldsStaff,
     } = req.body;
 
-
-    console.log(extraFieldsStaff)
-
-    
     if (!name) return next(new errorHandler("School name is Required"));
     if (!email) return next(new errorHandler("Email is Required"));
     if (!contact) return next(new errorHandler("Contact is Required"));
     if (!password) return next(new errorHandler("Password is Required"));
 
-    // Parse requiredFields if they are strings
+    // Sanitize requiredFields and extraFieldsStaff if they are in string format
     if (typeof requiredFields === "string") {
-      try {
-        requiredFields = JSON.parse(`[${requiredFields}]`);
-      } catch (error) {
-        requiredFields = requiredFields
-          .split(",")
-          .map((id) => id.trim().replace(/^"|"$/g, ""));
-      }
+      requiredFields = requiredFields.split(",").map((item) => item.trim());
     }
 
     if (typeof requiredFieldsStaff === "string") {
-      try {
-        requiredFieldsStaff = JSON.parse(`[${requiredFieldsStaff}]`);
-      } catch (error) {
-        requiredFieldsStaff = requiredFieldsStaff
-          .split(",")
-          .map((id) => id.trim().replace(/^"|"$/g, ""));
-      }
+      requiredFieldsStaff = requiredFieldsStaff
+        .split(",")
+        .map((item) => item.trim());
     }
 
-    // Parse extraFields if they are provided
-    if (extraFields && typeof extraFields === "string") {
-      try {
-        extraFields = JSON.parse(extraFields);
-      } catch (error) {
-        extraFields = extraFields
-          .split(",")
-          .map((field) => field.trim().replace(/^"|"$/g, ""));
-      }
-    }
+    // Apply sanitizeFields to extraFields and extraFieldsStaff
+    extraFields = sanitizeFields(extraFields);
+    extraFieldsStaff = sanitizeFields(extraFieldsStaff);
 
-    if (extraFieldsStaff && typeof extraFieldsStaff === "string") {
-      try {
-        extraFieldsStaff = JSON.parse(extraFieldsStaff);
-      } catch (error) {
-        extraFieldsStaff = extraFieldsStaff
-          .split(",")
-          .map((field) => field.trim().replace(/^"|"$/g, ""));
-      }
-    }
+    console.log(extraFieldsStaff);
 
-    // Create the school object with required fields and extra fields
     const currSchool = await School.create({
       name,
       email,
@@ -546,8 +539,8 @@ exports.addSchool = catchAsyncErron(async (req, res, next) => {
       password,
       requiredFields,
       requiredFieldsStaff,
-      extraFields, 
-      extraFieldsStaff
+      extraFields,
+      extraFieldsStaff,
     });
 
     console.log(currSchool);
@@ -589,16 +582,28 @@ exports.addSchool = catchAsyncErron(async (req, res, next) => {
   }
 });
 
+// Function to sanitize the 'name' field inside extraFields and extraFieldsStaff
+
 exports.editSchool = catchAsyncErron(async (req, res, next) => {
   const schoolId = req.params.id;
   console.log(req.params);
   console.log(req.body);
+
+  // Sanitize extraFields and extraFieldsStaff
+  if (req.body.extraFields) {
+    req.body.extraFields = sanitizeFields(req.body.extraFields);
+  }
+
+  if (req.body.extraFieldsStaff) {
+    req.body.extraFieldsStaff = sanitizeFields(req.body.extraFieldsStaff);
+  }
+
   const updatedSchool = await School.findByIdAndUpdate(schoolId, req.body, {
     new: true,
   });
   console.log(updatedSchool);
 
-  const file = null;
+  let file = null;
 
   if (req.files && req.files[0]) {
     file = req.files[0];
@@ -638,7 +643,6 @@ exports.editSchool = catchAsyncErron(async (req, res, next) => {
   }
 
   // Check if the school was found and updated successfully
-
   res.status(200).json({
     success: true,
     message: "School updated successfully",
@@ -700,9 +704,7 @@ exports.ChangeActive = catchAsyncErron(async (req, res, next) => {
 exports.addStudent = catchAsyncErron(async (req, res, next) => {
   const id = req.id;
   let file = null;
- 
 
-  
   const user = await User.findById(id);
   if (user) {
     const schoolID = req.params.id;
@@ -1124,8 +1126,8 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
         currStaff.extraField2 = req.body.extraField2;
       }
 
-console.log(currStaff)
-      
+      console.log(currStaff);
+
       const staff = await Staff.create(currStaff);
 
       staff.school = currSchool._id;
@@ -1170,7 +1172,6 @@ console.log(currStaff)
       if (req.body.extraFieldsStaff) {
         currStaff.extraFieldsStaff = req.body.extraFieldsStaff;
       }
-
 
       if (req.body.husbandName) {
         currStaff.husbandName = req.body.husbandName;
@@ -1278,7 +1279,7 @@ console.log(currStaff)
 
 exports.editStaff = catchAsyncErron(async (req, res, next) => {
   const staffId = req.params.id;
-  console.log(staffId);
+  console.log(req.body);
   const updates = req.body; // The updates from the request body.
 
   const updatedStudent = await Staff.findByIdAndUpdate(staffId, updates, {
@@ -1467,8 +1468,8 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
     let queryObj = { school: schoolId };
     const SchoolData = await School.findById(schoolId);
 
-    const uniqueStudents =  await Student.distinct("class", queryObj)
-       // Replace "studentID" with the field you consider unique
+    const uniqueStudents = await Student.distinct("class", queryObj);
+    // Replace "studentID" with the field you consider unique
     const uniqueSection = SchoolData.requiredFields.includes("Section")
       ? await Student.distinct("section", queryObj)
       : []; // Replace "studentID" with the field you consider unique
@@ -1554,7 +1555,7 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
         role: "student",
       };
     });
-    console.log(studentsWithRole)
+    console.log(studentsWithRole);
 
     // Respond with the list of students and pagination info
     res.status(200).json({
@@ -1577,8 +1578,6 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
   }
 });
 
-
-
 exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
   const schoolId = req.params.id; // School ID from request params
   const status = req.query.status; // State from query parameters
@@ -1588,9 +1587,8 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
 
   const StaffData = await School.findById(schoolId);
   const staffTypes = StaffData.requiredFieldsStaff.includes("Staff Type")
-  ? await Staff.distinct("staffType", queryObj)
-  : [];
-
+    ? await Staff.distinct("staffType", queryObj)
+    : [];
 
   if (status) {
     queryObj.status = status; // Assuming your student schema has a 'state' field
@@ -1635,7 +1633,7 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
     role: "Staff",
     message: "Students found for the provided school ID",
     staff: staffWithRole,
-    staffTypes
+    staffTypes,
   });
 });
 
@@ -2430,13 +2428,31 @@ exports.StudentsAvatars = catchAsyncErron(async (req, res, next) => {
   try {
     const school = await School.findById(studentId);
     if (!school) {
-      res.write(`data: ${JSON.stringify({
-        success: false,
-        message: "School not found",
-      })}\n\n`);
+      res.write(
+        `data: ${JSON.stringify({
+          success: false,
+          message: "School not found",
+        })}\n\n`
+      );
       return res.end();
     }
 
+
+  //     // Get the total number of students
+  //     const totalStudents = await Student.countDocuments({ school: studentId });
+  //     const totalPhotos = req.files.length;
+  // console.log(totalStudents)
+  //     // Check if the number of photos exceeds the number of students
+  //     if (totalStudents < totalPhotos) {
+  //       res.write(
+  //         `data: ${JSON.stringify({
+  //           success: false,
+  //           message: `There are only ${totalStudents} students. Please add students first to match the number of photos.`,
+  //         })}\n\n`
+  //       );
+  //       return res.end(); // Stop processing and return
+  //     }
+  
     const files = req.files;
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const students = [];
@@ -2515,10 +2531,6 @@ exports.StudentsAvatars = catchAsyncErron(async (req, res, next) => {
     res.end();
   }
 });
-
-
-
-
 
 exports.StaffAvatars = catchAsyncErron(async (req, res, next) => {
   const studentId = req.params.id;
@@ -3010,9 +3022,8 @@ exports.ExcelData = catchAsyncErron(async (req, res, next) => {
 
     // School's extraFields (assumed to be part of the school schema)
     const schoolExtraFields = school.extraFields || [];
-const requiredFields = school.requiredFields || []; 
-console.log(requiredFields)
-
+    const requiredFields = school.requiredFields || [];
+    console.log(requiredFields);
 
     // Fetch all users (students) from the database
     const users = await Student.find({ school: schoolId, status: status });
@@ -3026,29 +3037,121 @@ console.log(requiredFields)
       { header: "SR NO.", key: "srno", width: 15 },
       { header: "PHOTO NO.", key: "photoName", width: 15 },
       { header: "STUDENT NAME", key: "name", width: 20 },
-      requiredFields.includes("Father's Name") && { header: "FATHER'S NAME", key: "fatherName", width: 20 },
-      requiredFields.includes("Mother's Name") && { header: "MOTHER'S NAME", key: "motherName", width: 20 },
-      requiredFields.includes("Date of Birth") && { header: "DATE OF BIRTH", key: "dob", width: 15 },
-      requiredFields.includes("Contact No.") && { header: "CONTACT NO.", key: "contact", width: 15 },
-      requiredFields.includes("Address") && { header: "ADDRESS", key: "address", width: 30 },
-      requiredFields.includes("Roll No.") && { header: "ROLL NO.", key: "rollNo", width: 30 },
-      requiredFields.includes("Class") && { header: "CLASS", key: "class", width: 30 },
-      requiredFields.includes("Session") && { header: "SESSION", key: "session", width: 30 },
-      requiredFields.includes("Section") && { header: "SECTION", key: "section", width: 30 },
-      requiredFields.includes("Admission No.") && { header: "ADMISSION NO.", key: "admissionNo", width: 30 },
-      requiredFields.includes("Blood Group") && { header: "BLOOD GROUP", key: "bloodGroup", width: 30 },
-      requiredFields.includes("Student ID") && { header: "STUDENT ID", key: "studentID", width: 30 },
-      requiredFields.includes("Aadhar No.") && { header: "AADHAR NO.", key: "aadharNo", width: 30 },
-      requiredFields.includes("Ribbon Colour") && { header: "RIBBON COLOUR", key: "ribbionColour", width: 30 },
-      requiredFields.includes("Route No.") && { header: "ROUTE NO./TRANSPORT", key: "routeNo", width: 30 },
-      requiredFields.includes("House Name") && { header: "HOUSE NAME", key: "houseName", width: 30 },
-      requiredFields.includes("Valid Up To") && { header: "VALID UP TO", key: "validUpTo", width: 30 },
-      requiredFields.includes("Course") && { header: "COURSE", key: "course", width: 30 },
-      requiredFields.includes("Batch") && { header: "BATCH", key: "batch", width: 30 },
-      requiredFields.includes("ID No.") && { header: "ID NO.", key: "idNo", width: 30 },
-      requiredFields.includes("Reg. No.") && { header: "REG. NO.", key: "regNo", width: 30 },
-      requiredFields.includes("Extra Field-1") && { header: "EXTRA FIELD-1", key: "extraField1", width: 30 },
-      requiredFields.includes("Extra Field-2") && { header: "EXTRA FIELD-2", key: "extraField2", width: 30 }, 
+      requiredFields.includes("Father's Name") && {
+        header: "FATHER'S NAME",
+        key: "fatherName",
+        width: 20,
+      },
+      requiredFields.includes("Mother's Name") && {
+        header: "MOTHER'S NAME",
+        key: "motherName",
+        width: 20,
+      },
+      requiredFields.includes("Date of Birth") && {
+        header: "DATE OF BIRTH",
+        key: "dob",
+        width: 15,
+      },
+      requiredFields.includes("Contact No.") && {
+        header: "CONTACT NO.",
+        key: "contact",
+        width: 15,
+      },
+      requiredFields.includes("Address") && {
+        header: "ADDRESS",
+        key: "address",
+        width: 30,
+      },
+      requiredFields.includes("Roll No.") && {
+        header: "ROLL NO.",
+        key: "rollNo",
+        width: 30,
+      },
+      requiredFields.includes("Class") && {
+        header: "CLASS",
+        key: "class",
+        width: 30,
+      },
+      requiredFields.includes("Session") && {
+        header: "SESSION",
+        key: "session",
+        width: 30,
+      },
+      requiredFields.includes("Section") && {
+        header: "SECTION",
+        key: "section",
+        width: 30,
+      },
+      requiredFields.includes("Admission No.") && {
+        header: "ADMISSION NO.",
+        key: "admissionNo",
+        width: 30,
+      },
+      requiredFields.includes("Blood Group") && {
+        header: "BLOOD GROUP",
+        key: "bloodGroup",
+        width: 30,
+      },
+      requiredFields.includes("Student ID") && {
+        header: "STUDENT ID",
+        key: "studentID",
+        width: 30,
+      },
+      requiredFields.includes("Aadhar No.") && {
+        header: "AADHAR NO.",
+        key: "aadharNo",
+        width: 30,
+      },
+      requiredFields.includes("Ribbon Colour") && {
+        header: "RIBBON COLOUR",
+        key: "ribbionColour",
+        width: 30,
+      },
+      requiredFields.includes("Route No.") && {
+        header: "ROUTE NO./TRANSPORT",
+        key: "routeNo",
+        width: 30,
+      },
+      requiredFields.includes("House Name") && {
+        header: "HOUSE NAME",
+        key: "houseName",
+        width: 30,
+      },
+      requiredFields.includes("Valid Up To") && {
+        header: "VALID UP TO",
+        key: "validUpTo",
+        width: 30,
+      },
+      requiredFields.includes("Course") && {
+        header: "COURSE",
+        key: "course",
+        width: 30,
+      },
+      requiredFields.includes("Batch") && {
+        header: "BATCH",
+        key: "batch",
+        width: 30,
+      },
+      requiredFields.includes("ID No.") && {
+        header: "ID NO.",
+        key: "idNo",
+        width: 30,
+      },
+      requiredFields.includes("Reg. No.") && {
+        header: "REG. NO.",
+        key: "regNo",
+        width: 30,
+      },
+      requiredFields.includes("Extra Field-1") && {
+        header: "EXTRA FIELD-1",
+        key: "extraField1",
+        width: 30,
+      },
+      requiredFields.includes("Extra Field-2") && {
+        header: "EXTRA FIELD-2",
+        key: "extraField2",
+        width: 30,
+      },
     ];
     const staticColumns = staticColumnsAll.filter(Boolean);
 
@@ -3064,16 +3167,20 @@ console.log(requiredFields)
     // Define worksheet columns dynamically
     worksheet.columns = staticColumns;
     const headerRow = worksheet.getRow(1);
-    headerRow.font = { bold: true, color: { argb: 'FFFFFF' } }; // White text
-    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '4CAF50' } }; // Green background
+    headerRow.font = { bold: true, color: { argb: "FFFFFF" } }; // White text
+    headerRow.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "4CAF50" },
+    }; // Green background
 
     // Add data rows for each student
-    users.forEach((user,index) => {
+    users.forEach((user, index) => {
       // Extract the student's extraFields map and ensure we match it with the school fields
       const extraFields = user.extraFields || {};
 
       const row = {
-        srno: `${index +1}`, // Sequential PhotoName field
+        srno: `${index + 1}`, // Sequential PhotoName field
         photoName: user.photoNameUnuiq, // Sequential PhotoName field
         name: user.name,
         fatherName: user.fatherName,
@@ -3135,6 +3242,17 @@ exports.ExcelDataStaff = catchAsyncErron(async (req, res, next) => {
   const status = req.query.status;
 
   try {
+    // Fetch the school data to get the dynamic extra fields
+    const school = await School.findById(schoolId);
+    if (!school) {
+      return res.status(404).json({ message: "School not found" });
+    }
+
+    // School's extraFields (assumed to be part of the school schema)
+    const schoolExtraFields = school.extraFieldsStaff || [];
+    const requiredFieldsStaff = school.requiredFieldsStaff || []; // assuming this is an array of required fields
+    console.log(requiredFieldsStaff);
+
     // Fetch all staff members from the database
     const staffMembers = await Staff.find({ school: schoolId, status: status });
 
@@ -3142,72 +3260,193 @@ exports.ExcelDataStaff = catchAsyncErron(async (req, res, next) => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Staff");
 
-    worksheet.columns = [
+    // Static columns for required fields
+    const staticColumnsAll = [
       { header: "PHOTO NO.", key: "photoNameUnuiq", width: 20 },
       { header: "Name", key: "name", width: 20 },
-      { header: "Father Name", key: "fatherName", width: 20 },
-      { header: "Husband Name", key: "husbandName", width: 20 },
-      { header: "Date of Birth", key: "dob", width: 15 },
-      { header: "Contact", key: "contact", width: 15 },
-      { header: "ADHAR NO.", key: "adharNo", width: 15 },
-      { header: "Email", key: "email", width: 20 },
-      { header: "Address", key: "address", width: 30 },
-      { header: "Qualification", key: "qualification", width: 20 },
-      { header: "Designation", key: "designation", width: 20 },
-      { header: "Staff Type", key: "staffType", width: 15 },
-      { header: "Date of Joining", key: "doj", width: 15 },
-      // {header: "UID", key: "uid", width: 20},
-      { header: "Staff ID", key: "staffID", width: 15 },
-      { header: "UDISE Code", key: "udiseCode", width: 20 },
-      { header: "SCHOOL/INSTITUTE/OFFICE NAME", key: "schoolName", width: 30 },
-      { header: "Blood Group", key: "bloodGroup", width: 15 },
-      { header: "DISPATCH NO.", key: "dispatchNo", width: 15 },
-      { header: "DATE OF ISSUE", key: "dateOfIssue", width: 15 },
-      { header: "IHRMS No", key: "ihrmsNo", width: 15 },
-      { header: "Belt No", key: "beltNo", width: 15 },
-      // {header: "PHOTO NO.", key: "photoName", width: 20},
-
-      { header: "Licence No", key: "licenceNo", width: 20 }, // Added
-      { header: "ID No", key: "idNo", width: 20 }, // Added
-      { header: "Job Status", key: "jobStatus", width: 20 }, // Added
-      { header: "PAN Card No", key: "panCardNo", width: 20 }, // Added
-      { header: "Extra Field 1", key: "extraField1", width: 20 }, // Added
-      { header: "Extra Field 2", key: "extraField2", width: 20 }, // Added
+      requiredFieldsStaff.includes("Father's Name") && {
+        header: "FATHER'S NAME",
+        key: "fatherName",
+        width: 20,
+      },
+      requiredFieldsStaff.includes("Husband's Name") && {
+        header: "HUSBAND'S NAME",
+        key: "husbandName",
+        width: 20,
+      },
+      requiredFieldsStaff.includes("Date of Birth") && {
+        header: "DATE OF BIRTH",
+        key: "dob",
+        width: 15,
+      },
+      requiredFieldsStaff.includes("Contact No.") && {
+        header: "CONTACT NO.",
+        key: "contact",
+        width: 15,
+      },
+      requiredFieldsStaff.includes("E-mail") && {
+        header: "EMAIL",
+        key: "email",
+        width: 20,
+      },
+      requiredFieldsStaff.includes("Address") && {
+        header: "ADDRESS",
+        key: "address",
+        width: 30,
+      },
+      requiredFieldsStaff.includes("Qualification") && {
+        header: "QUALIFICATION",
+        key: "qualification",
+        width: 20,
+      },
+      requiredFieldsStaff.includes("Designation") && {
+        header: "DESIGNATION",
+        key: "designation",
+        width: 20,
+      },
+      requiredFieldsStaff.includes("Staff Type") && {
+        header: "STAFF TYPE",
+        key: "staffType",
+        width: 15,
+      },
+      requiredFieldsStaff.includes("Date of Joining") && {
+        header: "DATE OF JOINING",
+        key: "doj",
+        width: 15,
+      },
+      requiredFieldsStaff.includes("Staff ID") && {
+        header: "STAFF ID",
+        key: "staffID",
+        width: 15,
+      },
+      requiredFieldsStaff.includes("UDISE Code") && {
+        header: "UDISE CODE",
+        key: "udiseCode",
+        width: 20,
+      },
+      requiredFieldsStaff.includes("School Name") && {
+        header: "SCHOOL/INSTITUTE/OFFICE NAME",
+        key: "schoolName",
+        width: 30,
+      },
+      requiredFieldsStaff.includes("Blood Group") && {
+        header: "BLOOD GROUP",
+        key: "bloodGroup",
+        width: 15,
+      },
+      requiredFieldsStaff.includes("Dispatch No.") && {
+        header: "DISPATCH NO.",
+        key: "dispatchNo",
+        width: 15,
+      },
+      requiredFieldsStaff.includes("Date of Issue") && {
+        header: "DATE OF ISSUE",
+        key: "dateOfIssue",
+        width: 15,
+      },
+      requiredFieldsStaff.includes("IHRMS No.") && {
+        header: "IHRMS NO.",
+        key: "ihrmsNo",
+        width: 15,
+      },
+      requiredFieldsStaff.includes("Belt No.") && {
+        header: "BELT NO.",
+        key: "beltNo",
+        width: 15,
+      },
+      requiredFieldsStaff.includes("Licence No.") && {
+        header: "LICENCE NO.",
+        key: "licenceNo",
+        width: 20,
+      },
+      requiredFieldsStaff.includes("ID No.") && {
+        header: "ID NO.",
+        key: "idNo",
+        width: 20,
+      },
+      requiredFieldsStaff.includes("Job Status") && {
+        header: "JOB STATUS",
+        key: "jobStatus",
+        width: 20,
+      },
+      requiredFieldsStaff.includes("PAN Card No.") && {
+        header: "PAN CARD NO.",
+        key: "panCardNo",
+        width: 20,
+      },
+      requiredFieldsStaff.includes("Extra Field 1") && {
+        header: "EXTRA FIELD 1",
+        key: "extraField1",
+        width: 20,
+      },
+      requiredFieldsStaff.includes("Extra Field 2") && {
+        header: "EXTRA FIELD 2",
+        key: "extraField2",
+        width: 20,
+      },
     ];
 
-    // Populate worksheet with staff data
-    staffMembers.forEach((staff) => {
-      worksheet.addRow({
+    const staticColumns = staticColumnsAll.filter(Boolean);
+
+    // Add dynamic school extra fields to columns
+    schoolExtraFields.forEach((field, index) => {
+      staticColumns.push({
+        header: field.name || `EXTRA FIELD-${index + 1}`,
+        key: field.name,
+        width: 30,
+      });
+    });
+
+    // Define worksheet columns dynamically
+    worksheet.columns = staticColumns;
+    const headerRow = worksheet.getRow(1);
+    headerRow.font = { bold: true, color: { argb: "FFFFFF" } }; // White text
+    headerRow.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "4CAF50" },
+    }; // Green background
+
+    // Add data rows for each staff member
+    staffMembers.forEach((staff, index) => {
+      const extraFields = staff.extraFieldsStaff || {};
+
+      const row = {
+        srno: `${index + 1}`, // Sequential SR NO.
         photoNameUnuiq: staff.photoNameUnuiq,
         name: staff.name,
         fatherName: staff.fatherName,
         husbandName: staff.husbandName,
         dob: staff.dob,
         contact: staff.contact,
-        adharNo: staff.adharNo,
         email: staff.email,
         address: staff.address,
         qualification: staff.qualification,
         designation: staff.designation,
         staffType: staff.staffType,
         doj: staff.doj,
-        // uid: staff.uid,
         staffID: staff.staffID,
         udiseCode: staff.udiseCode,
         schoolName: staff.schoolName,
         bloodGroup: staff.bloodGroup,
         dispatchNo: staff.dispatchNo,
-        dateOfIssue: staff.dateOfissue,
+        dateOfIssue: staff.dateOfIssue,
         ihrmsNo: staff.ihrmsNo,
         beltNo: staff.beltNo,
-        // photoName: staff.photoName,
-        licenceNo: staff.licenceNo, // Added
-        idNo: staff.idNo, // Added
-        jobStatus: staff.jobStatus, // Added
-        panCardNo: staff.panCardNo, // Added
-        extraField1: staff.extraField1, // Added
-        extraField2: staff.extraField2, // Added
+        licenceNo: staff.licenceNo,
+        idNo: staff.idNo,
+        jobStatus: staff.jobStatus,
+        panCardNo: staff.panCardNo,
+        extraField1: staff.extraField1,
+        extraField2: staff.extraField2,
+      };
+
+      // Add dynamic extra fields to each row, matching school fields
+      schoolExtraFields.forEach((field) => {
+        row[field.name] = extraFields.get(field.name) || ""; // Use Map's `get` method to access the field
       });
+
+      worksheet.addRow(row);
     });
 
     // Set headers for file download
@@ -3223,7 +3462,7 @@ exports.ExcelDataStaff = catchAsyncErron(async (req, res, next) => {
     // End the response
     res.end();
   } catch (error) {
-    console.error(error);
+    console.error("Error generating Excel file:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });

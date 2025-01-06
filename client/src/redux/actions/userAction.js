@@ -327,6 +327,7 @@ export const editStaff = (staffData, id) => async (dispatch) => {
     dispatch(setLoading(false));
     return response.data.message;
   } catch (error) {
+    console.log(error)
     dispatch(setLoading(false));
     dispatch(
       setError(error?.response?.data?.message || "registerStudent failed")

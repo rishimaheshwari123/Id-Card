@@ -240,7 +240,7 @@ const Viewdata = () => {
   const fatchStudent = async (e) => {
     if (e) e.preventDefault();
     const response = await axios.post(
-      `/user/students/${currSchool}?status=${status}`,
+      `/user/students/${currSchool}?status=${status}&page=${pagination.currentPage}&limit=${pagination.pageSize}&search=${searchQuery}&studentClass=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}`,
       null,
       config()
     );
@@ -490,6 +490,8 @@ const Viewdata = () => {
   const redirectToStudentEdit = (id) => {
     router.push(`/Viewdata/edit/${id}`);
   };
+
+
   const deleteStudent = async (id) => {
     // Show loading Swal
     Swal.fire({
