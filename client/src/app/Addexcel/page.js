@@ -109,17 +109,55 @@ const Addexcel = () => {
 
   // Validation for student fields
   if (currRole === "student") {
-    if (!finalMappedData.PhotoNo || !finalMappedData["Student Name"]) {
+    if(!finalMappedData.PhotoNo){
       toast.update(toastId, {
-        render: "PhotoNo and Student Name are compulsory for students!",
+        render: "PhotoNo and compulsory for students!",
         type: "error",
         isLoading: false,
         autoClose: 5000,
       });
-      setIsLoading(false);
-      return;
+      return
+    }
+    
+    // Check required fields for students
+    const requiredFields = schoolData.requiredFields;
+  
+    // Loop through each required field and check if it's present in the finalMappedData
+    for (let i = 0; i < requiredFields.length; i++) {
+      const field = requiredFields[i];
+      
+      if (!finalMappedData[field]) {
+        toast.update(toastId, {
+          render: `${field} is compulsory!`,
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
+        setIsLoading(false);
+        return;
+      }
+    }
+  
+    // Check extra fields if any
+    if (schoolData.extraFields && schoolData.extraFields.length > 0) {
+      for (let i = 0; i < schoolData.extraFields.length; i++) {
+        const field = schoolData.extraFields[i];
+        
+        // Assuming 'name' is a key in the extra field, adjust if necessary
+        if (!extraFieldsMapping[field.name]) {
+          toast.update(toastId, {
+            render: `${field.name} is missing!`,
+            type: "error",
+            isLoading: false,
+            autoClose: 5000,
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
     }
   }
+  
 
   const customFieldStaff = {
     PhotoNo: mappingStaff["PhotoNo."] || "", // Use the mapping for "PhotoNo."
@@ -142,15 +180,52 @@ const Addexcel = () => {
 
   // Validation for staff fields
   if (currRole === "staff") {
-    if (!finalMappedDataStaff.PhotoNo || !finalMappedDataStaff.Name) {
+    if(!finalMappedDataStaff.PhotoNo){
       toast.update(toastId, {
-        render: "PhotoNo and Name are compulsory for staff!",
+        render: "PhotoNo and compulsory for students!",
         type: "error",
         isLoading: false,
         autoClose: 5000,
       });
-      setIsLoading(false);
-      return;
+      return
+    }
+    
+    // Check required fields for students
+    const requiredFields = schoolData.requiredFieldsStaff;
+  
+    // Loop through each required field and check if it's present in the finalMappedData
+    for (let i = 0; i < requiredFields.length; i++) {
+      const field = requiredFields[i];
+      
+      if (!finalMappedDataStaff[field]) {
+        toast.update(toastId, {
+          render: `${field} is compulsory!`,
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
+        setIsLoading(false);
+        return;
+      }
+    }
+  
+    // Check extra fields if any
+    if (schoolData.extraFieldsStaff && schoolData.extraFieldsStaff.length > 0) {
+      for (let i = 0; i < schoolData.extraFieldsStaff.length; i++) {
+        const field = schoolData.extraFieldsStaff[i];
+        
+        // Assuming 'name' is a key in the extra field, adjust if necessary
+        if (!extraFieldsMappingStaff[field.name]) {
+          toast.update(toastId, {
+            render: `${field.name} is missing!`,
+            type: "error",
+            isLoading: false,
+            autoClose: 5000,
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
     }
   }
 
@@ -185,6 +260,9 @@ const Addexcel = () => {
       isLoading: false,
       autoClose: 5000,
     });
+    setFileName("")
+    setHeadings([])
+    currentExcel= {}
   } catch (error) {
     // If there's an error, update the loading toast to an error toast
     toast.update(toastId, {
@@ -319,110 +397,111 @@ const Addexcel = () => {
     }
   };
   
-  const handleSubmitnowfuntiion = async (event) => {
-    event.preventDefault();
-  
-    const processingTimePerPhoto = 2000; // 2 seconds per photo
-    const totalPhotos = selectedPhotos.length;
-    const totalProcessingTime = (totalPhotos * processingTimePerPhoto) / 1000; // in seconds
-  
-    const counsAll = await fetchStudentAndStaffCount(currSchool);
-    console.log(counsAll);
-    
-    // Check for student role
-    if (currRole === "student" && counsAll.studentCount < totalPhotos) {
-      Swal.fire({
-        icon: "error",
-        title: "Upload Failed",
-        text: `Please Add Students First. Current Student Count is ${counsAll.studentCount}`,
-        timer: 5000,
-        timerProgressBar: true,
-      });
-      return;
-    }
-    
-    // Check for staff role
-    if (currRole === "staff" && counsAll.staffCount < totalPhotos) {
-      Swal.fire({
-        icon: "error",
-        title: "Upload Failed",
-        text: `Please Add Staff First. Current Staff Count is ${counsAll.staffCount}`,
-        timer: 5000,
-        timerProgressBar: true,
-      });
-      return;
-    }
-    
+const handleSubmitnowfuntiion = async (event) => {
+  event.preventDefault();
 
-    // Inform the user about the estimated time
+  const processingTimePerPhoto = 2000; // 2 seconds per photo
+  const totalPhotos = selectedPhotos.length;
+  const totalProcessingTime = (totalPhotos * processingTimePerPhoto) / 1000; // in seconds
+
+  const counsAll = await fetchStudentAndStaffCount(currSchool);
+  console.log(selectedPhotos.length);
+
+  // Check for student role
+  if (currRole === "student" && counsAll.studentCount < totalPhotos) {
     Swal.fire({
-      title: "Uploading photos...",
-      text: `Estimated time to complete: ${totalProcessingTime} seconds. Please wait.`,
+      icon: "error",
+      title: "Upload Failed",
+      text: `Please Add Students First. Current Student Count is ${counsAll.studentCount}`,
+      allowOutsideClick: false, // This prevents closing the popup by clicking outside
+    });
+    setSelectedPhotos([]);
+    return;
+  }
+
+  // Check for staff role
+  if (currRole === "staff" && counsAll.staffCount < totalPhotos) {
+    Swal.fire({
+      icon: "error",
+      title: "Upload Failed",
+      text: `Please Add Staff First. Current Staff Count is ${counsAll.staffCount}`,
       allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
     });
-  
-    const formData = new FormData();
-    selectedPhotos.forEach((file) => {
-      formData.append("file", file);
-    });
-  
-    try {
-      for (let index = 0; index < selectedPhotos.length; index++) {
-        const file = selectedPhotos[index];
-        const singleFormData = new FormData();
-        singleFormData.append("file", file);
-  
-        // Upload each photo one by one
-        if (currRole === "student") {
-          await axios.post(`/user/student/avatars/${currSchool}`, singleFormData, {
-            withCredentials: true,
-            headers: {
-              "Content-Type": "multipart/form-data",
-              authorization: `${localStorage.getItem("token")}`,
-            },
-          });
-        } else if (currRole === "staff") {
-          await axios.post(`/user/staff/avatars/${currSchool}`, singleFormData, {
-            withCredentials: true,
-            headers: {
-              "Content-Type": "multipart/form-data",
-              authorization: `${localStorage.getItem("token")}`,
-            },
-          });
-        }
-  
-        // Simulate server processing delay
-        await new Promise((resolve) => setTimeout(resolve, processingTimePerPhoto));
-  
-        // Update Swal with remaining time
-        const remainingTime = ((totalPhotos - index - 1) * processingTimePerPhoto) / 1000; // in seconds
-        Swal.update({
-          text: `Processing photo ${index + 1} of ${totalPhotos}. Estimated time left: ${remainingTime} seconds.`,
+    setSelectedPhotos([]);
+    return;
+  }
+
+  // Inform the user about the estimated time
+  Swal.fire({
+    title: "Uploading photos...",
+    text: `Estimated time to complete: ${totalProcessingTime} seconds. Please wait.`,
+    allowOutsideClick: false,
+    showConfirmButton: false, // Remove the "OK" button here as well
+  });
+
+  const formData = new FormData();
+  selectedPhotos.forEach((file) => {
+    formData.append("file", file);
+  });
+
+  try {
+    for (let index = 0; index < selectedPhotos.length; index++) {
+      const file = selectedPhotos[index];
+      const singleFormData = new FormData();
+      singleFormData.append("file", file);
+
+      // Upload each photo one by one
+      if (currRole === "student") {
+        await axios.post(`/user/student/avatars/${currSchool}`, singleFormData, {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+            authorization: `${localStorage.getItem("token")}`,
+          },
+        });
+      } else if (currRole === "staff") {
+        await axios.post(`/user/staff/avatars/${currSchool}`, singleFormData, {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+            authorization: `${localStorage.getItem("token")}`,
+          },
         });
       }
-  
-      // All photos uploaded successfully
-      Swal.fire({
-        icon: "success",
-        title: "Upload Successful",
-        text: "All photos uploaded successfully.",
-        timer: 5000,
-        timerProgressBar: true,
-      });
-    } catch (error) {
-      console.error("Error uploading photos:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Upload Failed",
-        text: "Failed to upload photos. Please try again.",
-        timer: 5000,
-        timerProgressBar: true,
+
+      // Simulate server processing delay
+      await new Promise((resolve) => setTimeout(resolve, processingTimePerPhoto));
+
+      // Update Swal with remaining time
+      const remainingTime = ((totalPhotos - index - 1) * processingTimePerPhoto) / 1000; // in seconds
+      Swal.update({
+        text: `Processing photo ${index + 1} of ${totalPhotos}. Estimated time left: ${remainingTime} seconds.`,
+        allowOutsideClick: false,
+        showConfirmButton: false, // Remove the "OK" button here as well
       });
     }
-  };
+
+    // All photos uploaded successfully
+    Swal.fire({
+      icon: "success",
+      title: "Upload Successful",
+      text: "All photos uploaded successfully.",
+      allowOutsideClick: false,
+    });
+    setSelectedPhotos([]);
+
+
+  } catch (error) {
+    console.error("Error uploading photos:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Upload Failed",
+      text: "Failed to upload photos. Please try again.",
+      allowOutsideClick: false,
+    });
+  }
+};
+
   
   
   

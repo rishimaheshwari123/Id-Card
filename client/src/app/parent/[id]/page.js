@@ -210,7 +210,7 @@ function Page({ params }) {
     return (
       <div className="flex items-center justify-center h-screen bg-red-200 text-red-800 p-4 rounded-lg shadow-md">
         <div className="text-lg font-semibold">
-          Your printing stage is currently not editable. Please Contact School .
+          Link Expire
         </div>
       </div>
     );

@@ -2532,56 +2532,155 @@ exports.StudentsAvatars = catchAsyncErron(async (req, res, next) => {
   }
 });
 
+
 exports.StaffAvatars = catchAsyncErron(async (req, res, next) => {
+  console.log("enter");
+
   const studentId = req.params.id;
 
-  // const school = await Student.findById(studentId);
+  try {
+    const school = await School.findById(studentId);
+    if (!school) {
+      res.write(
+        `data: ${JSON.stringify({
+          success: false,
+          message: "School not found",
+        })}\n\n`
+      );
+      return res.end();
+    }
 
-  const files = req.files;
-  console.log(files);
-  const staffs = await Promise.all(
-    files.map(async (file) => {
+
+
+    const files = req.files;
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const students = [];
+
+    // Set headers for Server-Sent Events (SSE)
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    for (const file of files) {
       const fileName = path.parse(file.originalname).name;
-      console.log(fileName);
-      const currStaff = await Staff.findOne({
+      const currStudent = await Staff.findOne({
         school: studentId,
         photoName: fileName,
       });
-      console.log(currStaff);
-      if (currStaff) {
-        if (currStaff.avatar.publicId !== "") {
-          await cloudinary.v2.uploader.destroy(
-            currStaff.avatar.publicId,
-            (error, result) => {
-              if (error) {
-                console.error("Error deleting file from Cloudinary:", error);
-              } else {
-                console.log("File deleted successfully:", result);
-              }
-            }
-          );
-        }
-        const fileUri = getDataUri(file);
-        const myavatar = await cloudinary.v2.uploader.upload(fileUri.content);
+      console.log(currStudent);
 
-        currStaff.avatar = {
-          publicId: myavatar.public_id,
-          url: myavatar.secure_url,
-        };
-        await currStaff.save();
-        console.log(currStaff);
-        return currStaff;
+      if (currStudent) {
+        if (currStudent.avatar.publicId !== "") {
+          try {
+            await cloudinary.v2.uploader.destroy(currStudent.avatar.publicId);
+            console.log("File deleted successfully");
+          } catch (error) {
+            console.error("Error deleting file from Cloudinary:", error);
+          }
+        }
+
+        const fileUri = getDataUri(file);
+
+        try {
+          const myavatar = await cloudinary.v2.uploader.upload(fileUri.content);
+          currStudent.avatar = {
+            publicId: myavatar.public_id,
+            url: myavatar.secure_url,
+          };
+          currStudent.photoName = "";
+          await currStudent.save();
+
+          students.push(currStudent);
+
+          // Send processing status to the frontend
+          res.write(
+            `data: ${JSON.stringify({
+              success: true,
+              message: `Processing photo ${students.length} of ${files.length}`,
+              student: currStudent,
+            })}\n\n`
+          );
+        } catch (error) {
+          console.error("Error uploading file to Cloudinary:", error);
+        }
+
+        // Wait for 2 seconds before processing the next file
+        await delay(2000);
       }
-    })
-  );
-  console.log(staffs);
-  // Respond with the updated student information.
-  res.status(200).json({
-    success: true,
-    message: "send photos",
-    staffs,
-  });
+    }
+
+    // Final response after all files are processed
+    res.write(
+      `data: ${JSON.stringify({
+        success: true,
+        message: "All photos updated successfully",
+        students,
+      })}\n\n`
+    );
+    res.end(); // Close the SSE connection
+  } catch (error) {
+    console.error("Error:", error);
+    res.write(
+      `data: ${JSON.stringify({
+        success: false,
+        message: "An error occurred while processing photos",
+        error: error.message,
+      })}\n\n`
+    );
+    res.end();
+  }
 });
+
+// exports.StaffAvatars = catchAsyncErron(async (req, res, next) => {
+//   const studentId = req.params.id;
+
+//   // const school = await Student.findById(studentId);
+
+//   const files = req.files;
+//   console.log(files);
+//   const staffs = await Promise.all(
+//     files.map(async (file) => {
+//       const fileName = path.parse(file.originalname).name;
+//       console.log(fileName);
+//       const currStaff = await Staff.findOne({
+//         school: studentId,
+//         photoName: fileName,
+//       });
+//       console.log(currStaff);
+//       if (currStaff) {
+//         if (currStaff.avatar.publicId !== "") {
+//           await cloudinary.v2.uploader.destroy(
+//             currStaff.avatar.publicId,
+//             (error, result) => {
+//               if (error) {
+//                 console.error("Error deleting file from Cloudinary:", error);
+//               } else {
+//                 console.log("File deleted successfully:", result);
+//               }
+//             }
+//           );
+//         }
+//         const fileUri = getDataUri(file);
+//         const myavatar = await cloudinary.v2.uploader.upload(fileUri.content);
+
+//         currStaff.avatar = {
+//           publicId: myavatar.public_id,
+//           url: myavatar.secure_url,
+//         };
+//         await currStaff.save();
+//         console.log(currStaff);
+//         return currStaff;
+//       }
+//     })
+//   );
+//   console.log(staffs);
+//   // Respond with the updated student information.
+//   res.status(200).json({
+//     success: true,
+//     message: "send photos",
+//     staffs,
+//   });
+// });
 
 // exports.ExcelStudentData = catchAsyncErron(async (req, res, next) => {
 //   try {

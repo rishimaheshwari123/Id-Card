@@ -540,14 +540,59 @@ app.post(
       })
     );
 
-    console.log(staffData);
 
-    const insertedStaff = await Staff.insertMany(staffData);
-    res.status(200).json({
-      success: true,
-      message: `${insertedStaff.length} staff members inserted successfully.`,
-      data: staffData,
-    });
+    const existingStaff = await Staff.find({ school: schoolID });
+
+    const normalizedExistingStaff = existingStaff.map((staff) => ({
+      name: staff.name?.trim().toLowerCase(),
+      role: staff.role?.trim().toLowerCase(),
+      contact: staff.contact?.trim().toLowerCase(),
+      email: staff.email?.trim().toLowerCase(),
+    }));
+
+
+    const nonDuplicateStaff = [];
+    const duplicateEntries = [];
+
+    for (const staff of staffData) {
+      const isDuplicate = normalizedExistingStaff.some((existing) => {
+        return (
+          existing.name === staff.name?.toLowerCase() &&
+          existing.role === staff.role?.toLowerCase() &&
+          existing.contact === staff.contact?.toLowerCase() &&
+          existing.email === staff.email?.toLowerCase()
+        );
+      });
+
+      if (isDuplicate) {
+        duplicateEntries.push(staff);
+      } else {
+        nonDuplicateStaff.push(staff);
+      }
+    }
+
+    console.log(staffData);
+ try {
+      if (nonDuplicateStaff.length > 0) {
+        const insertedStaff = await Staff.insertMany(nonDuplicateStaff);
+        res.status(200).json({
+          success: true,
+          message: `${insertedStaff.length} staff members inserted successfully.`,
+          duplicates: duplicateEntries,
+        });
+      } else {
+        res.status(200).json({
+          success: true,
+          message: "No new staff members were inserted. All entries are duplicates.",
+          duplicates: duplicateEntries,
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("An error occurred while processing the staff data.");
+    }
+
+
   }
 );
 
