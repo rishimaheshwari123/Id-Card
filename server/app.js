@@ -325,6 +325,9 @@ app.post(
     const mappings = JSON.parse(req.body.data); // Mapping data sent from frontend
     const extraMapping = JSON.parse(req.body.extra); // Mapping data for extra fields sent from frontend
 
+    console.log(mappings)
+
+    
     const cleanMapping = (data) => {
       const cleanedData = {};
       for (let key in data) {
@@ -385,6 +388,7 @@ app.post(
       beltNo: newheader.indexOf(cleanedMappings.BeltNo || ""),
       dateOfissue: newheader.indexOf(cleanedMappings.DateofIssue || ""),
       photoName: newheader.indexOf(cleanedMappings.PhotoNo || ""),
+      signatureName: newheader.indexOf(cleanedMappings.SignatureName || ""),
       adharNo: newheader.indexOf(cleanedMappings.AdharnNo || ""),
       licenceNo: newheader.indexOf(cleanedMappings.LicenceNo || ""),
       idNo: newheader.indexOf(cleanedMappings.IDNo || ""),
@@ -457,7 +461,8 @@ app.post(
           udiseCode: row[columnIndex.udiseCode],
           bloodGroup: row[columnIndex.bloodGroup],
           dateOfissue: row[columnIndex.dateOfissue],
-          photoName: row[columnIndex.photoName],
+          photoName: row[columnIndex.photoName], 
+          signatureName: row[columnIndex.signatureName], 
           school: schoolID,
           user: req.id,
 
@@ -471,6 +476,7 @@ app.post(
           extraField1: row[columnIndex.extraField1],
           extraField2: row[columnIndex.extraField2],
           photoNameUnuiq: await getNextSequenceValue("staffName"),
+          signatureNameUnuiq: await getNextSequenceValue("staffSignature"),
           extraFieldsStaff: new Map(),
         };
 
@@ -540,7 +546,6 @@ app.post(
       })
     );
 
-
     const existingStaff = await Staff.find({ school: schoolID });
 
     const normalizedExistingStaff = existingStaff.map((staff) => ({
@@ -549,7 +554,6 @@ app.post(
       contact: staff.contact?.trim().toLowerCase(),
       email: staff.email?.trim().toLowerCase(),
     }));
-
 
     const nonDuplicateStaff = [];
     const duplicateEntries = [];
@@ -572,7 +576,7 @@ app.post(
     }
 
     console.log(staffData);
- try {
+    try {
       if (nonDuplicateStaff.length > 0) {
         const insertedStaff = await Staff.insertMany(nonDuplicateStaff);
         res.status(200).json({
@@ -583,16 +587,17 @@ app.post(
       } else {
         res.status(200).json({
           success: true,
-          message: "No new staff members were inserted. All entries are duplicates.",
+          message:
+            "No new staff members were inserted. All entries are duplicates.",
           duplicates: duplicateEntries,
         });
       }
     } catch (err) {
       console.error(err);
-      res.status(500).send("An error occurred while processing the staff data.");
+      res
+        .status(500)
+        .send("An error occurred while processing the staff data.");
     }
-
-
   }
 );
 

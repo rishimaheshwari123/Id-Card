@@ -51,11 +51,13 @@ const Viewdata = () => {
     currentPage: 1,
     pageSize:500,
   });
+
   const [searchQuery, setSearchQuery] = useState("");
   const [className, setClassname] = useState([]);
   const [sections, setSections] = useState([]);
   const [sectionValueSearch, setSectionValueSearch] = useState([]);
   const [classNameValue, setclassNameValue] = useState("");
+  const [schoolData, setSchoolData] = useState(null);
 
   // Course for
   const [unqiueCourse, setUnqiueCourse] = useState([]);
@@ -81,6 +83,7 @@ const Viewdata = () => {
     }
     if (user?.role == "school") {
       console.log(user?.school);
+      
       setCurrSchool(user?.school?._id);
       setloginSchool(true);
     }
@@ -219,7 +222,21 @@ const Viewdata = () => {
     if (e.target.value === "") {
       return;
     }
+    console.log(e.target.value)
     setCurrSchool(e.target.value);
+    const schoolId = e.target.value;
+    if (schoolId) {
+      // Fetch school data by schoolId from backend
+      axios
+        .get(`user/getschool/${schoolId}`)
+        .then((response) => {
+          setSchoolData(response.data.data); // Update the state with fetched data
+          console.log(response.data.data);
+        })
+        .catch((err) => {
+          console.log("Error fetching school data"); // Handle error if request fails
+        });
+    }
     setclassNameValue("");
     setCourseValueSearch("");
     setSectionValueSearch("");
@@ -782,6 +799,19 @@ const Viewdata = () => {
     const searchLocal = localStorage.getItem("searchLocal");
     const CourseLocal = localStorage.getItem("courseLocal");
 
+    const schoolId = savedSchool;
+    if (schoolId) {
+      // Fetch school data by schoolId from backend
+      axios
+        .get(`user/getschool/${schoolId}`)
+        .then((response) => {
+          setSchoolData(response.data.data); // Update the state with fetched data
+          console.log(response.data.data);
+        })
+        .catch((err) => {
+          console.log("Error fetching school data"); // Handle error if request fails
+        });
+    }
     console.log(savedStatus);
     if (savedSchool) setCurrSchool(savedSchool);
     if (savedRole) setCurrRole(savedRole);
@@ -887,6 +917,8 @@ const Viewdata = () => {
       });
     }
   };
+
+
 
   return (
     <div>
@@ -1606,6 +1638,16 @@ const Viewdata = () => {
                       )}
                     </ul>
                   )}
+               {        schoolData &&    schoolData?.requiredFieldsStaff.includes("Signature Name") && 
+               <div className=" flex justify-center my-4">
+                 <Image
+                      height={50}
+                      width={50}
+                      src={staff?.signatureImage?.url}
+                      alt={staff?.name}
+                      className="w-20 h-20"
+                    />
+                 </div>}
                   {/* Add more staff details as required */}
                   <div className="w-full flex justify-center items-center mt-2">
                     {status === "Panding" && (

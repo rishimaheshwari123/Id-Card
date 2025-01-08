@@ -12,6 +12,7 @@ import {
 import axios from "../../../axiosconfig";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
+import SignatureUpload from "./SignatureUpload";
 
 const Addexcel = () => {
   const { schools } = useSelector((state) => state.user);
@@ -25,10 +26,10 @@ const Addexcel = () => {
   const [fileName, setFileName] = useState(""); // State to store file name
 
   const [schoolData, setSchoolData] = useState(null);
- //student
+  //student
   const [mapping, setMapping] = useState({});
   const [extraFieldsMapping, setExtraFieldsMapping] = useState({});
- //Staff
+  //Staff
   const [mappingStaff, setMappingStaff] = useState({});
   const [extraFieldsMappingStaff, setExtraFieldsMappingStaff] = useState({});
 
@@ -79,74 +80,54 @@ const Addexcel = () => {
   };
   const [isLoading, setIsLoading] = useState(false);
 
- 
-
   const handleSubmitExcel = async (event) => {
-  event.preventDefault();
-  setIsLoading(true); // Set loading state to true when function is called
+    event.preventDefault();
+    setIsLoading(true); // Set loading state to true when function is called
 
-  // Show loading toast with a specific toastId
-  const toastId = toast.loading("Uploading...", { toastId: "uploadToast" });
-  
-  const customField = {
-    PhotoNo: mapping["PhotoNo."] || "", // Use the mapping for "PhotoNo."
-  };
+    // Show loading toast with a specific toastId
+    const toastId = toast.loading("Uploading...", { toastId: "uploadToast" });
 
-  // Generate dynamic fields based on the required fields and the mapping
-  const mappedData = schoolData?.requiredFields.reduce((acc, field) => {
-    // Only add the field if there's a heading available in the mapping
-    if (mapping[field]) {
-      acc[field] = mapping[field]; // Set the key as the field name, and value as the mapped heading
-    } else {
-      acc[field] = ""; // Default empty if no mapping found
-    }
-    return acc;
-  }, {});
+    const customField = {
+      PhotoNo: mapping["PhotoNo."] || "", // Use the mapping for "PhotoNo."
+    };
 
-  // Combine custom fields with the dynamic field mappings
-  const finalMappedData = { ...customField, ...mappedData };
-  console.log(finalMappedData);
+    // Generate dynamic fields based on the required fields and the mapping
+    const mappedData = schoolData?.requiredFields.reduce((acc, field) => {
+      // Only add the field if there's a heading available in the mapping
+      if (mapping[field]) {
+        acc[field] = mapping[field]; // Set the key as the field name, and value as the mapped heading
+      } else {
+        acc[field] = ""; // Default empty if no mapping found
+      }
+      return acc;
+    }, {});
 
-  // Validation for student fields
-  if (currRole === "student") {
-    if(!finalMappedData.PhotoNo){
-      toast.update(toastId, {
-        render: "PhotoNo and compulsory for students!",
-        type: "error",
-        isLoading: false,
-        autoClose: 5000,
-      });
-      return
-    }
-    
-    // Check required fields for students
-    const requiredFields = schoolData.requiredFields;
-  
-    // Loop through each required field and check if it's present in the finalMappedData
-    for (let i = 0; i < requiredFields.length; i++) {
-      const field = requiredFields[i];
-      
-      if (!finalMappedData[field]) {
+    // Combine custom fields with the dynamic field mappings
+    const finalMappedData = { ...customField, ...mappedData };
+    console.log(finalMappedData);
+
+    // Validation for student fields
+    if (currRole === "student") {
+      if (!finalMappedData.PhotoNo) {
         toast.update(toastId, {
-          render: `${field} is compulsory!`,
+          render: "PhotoNo and compulsory for students!",
           type: "error",
           isLoading: false,
           autoClose: 5000,
         });
-        setIsLoading(false);
         return;
       }
-    }
-  
-    // Check extra fields if any
-    if (schoolData.extraFields && schoolData.extraFields.length > 0) {
-      for (let i = 0; i < schoolData.extraFields.length; i++) {
-        const field = schoolData.extraFields[i];
-        
-        // Assuming 'name' is a key in the extra field, adjust if necessary
-        if (!extraFieldsMapping[field.name]) {
+
+      // Check required fields for students
+      const requiredFields = schoolData.requiredFields;
+
+      // Loop through each required field and check if it's present in the finalMappedData
+      for (let i = 0; i < requiredFields.length; i++) {
+        const field = requiredFields[i];
+
+        if (!finalMappedData[field]) {
           toast.update(toastId, {
-            render: `${field.name} is missing!`,
+            render: `${field} is compulsory!`,
             type: "error",
             isLoading: false,
             autoClose: 5000,
@@ -155,69 +136,71 @@ const Addexcel = () => {
           return;
         }
       }
+
+      // Check extra fields if any
+      if (schoolData.extraFields && schoolData.extraFields.length > 0) {
+        for (let i = 0; i < schoolData.extraFields.length; i++) {
+          const field = schoolData.extraFields[i];
+
+          // Assuming 'name' is a key in the extra field, adjust if necessary
+          if (!extraFieldsMapping[field.name]) {
+            toast.update(toastId, {
+              render: `${field.name} is missing!`,
+              type: "error",
+              isLoading: false,
+              autoClose: 5000,
+            });
+            setIsLoading(false);
+            return;
+          }
+        }
+      }
     }
-  }
-  
 
-  const customFieldStaff = {
-    PhotoNo: mappingStaff["PhotoNo."] || "", // Use the mapping for "PhotoNo."
-  };
+    const customFieldStaff = {
+      PhotoNo: mappingStaff["PhotoNo."] || "", // Use the mapping for "PhotoNo."
+    };
 
-  // Generate dynamic fields based on the required fields and the mapping for staff
-  const mappedDataStaff = schoolData?.requiredFieldsStaff.reduce((acc, field) => {
-    // Only add the field if there's a heading available in the mapping
-    if (mappingStaff[field]) {
-      acc[field] = mappingStaff[field]; // Set the key as the field name, and value as the mapped heading
-    } else {
-      acc[field] = ""; // Default empty if no mapping found
-    }
-    return acc;
-  }, {});
+    // Generate dynamic fields based on the required fields and the mapping for staff
+    const mappedDataStaff = schoolData?.requiredFieldsStaff.reduce(
+      (acc, field) => {
+        // Only add the field if there's a heading available in the mapping
+        if (mappingStaff[field]) {
+          acc[field] = mappingStaff[field]; // Set the key as the field name, and value as the mapped heading
+        } else {
+          acc[field] = ""; // Default empty if no mapping found
+        }
+        return acc;
+      },
+      {}
+    );
 
-  // Combine custom fields with the dynamic field mappings for staff
-  const finalMappedDataStaff = { ...customFieldStaff, ...mappedDataStaff };
-  console.log(finalMappedDataStaff);
+    // Combine custom fields with the dynamic field mappings for staff
+    const finalMappedDataStaff = { ...customFieldStaff, ...mappedDataStaff };
+    console.log(finalMappedDataStaff);
 
-  // Validation for staff fields
-  if (currRole === "staff") {
-    if(!finalMappedDataStaff.PhotoNo){
-      toast.update(toastId, {
-        render: "PhotoNo and compulsory for students!",
-        type: "error",
-        isLoading: false,
-        autoClose: 5000,
-      });
-      return
-    }
-    
-    // Check required fields for students
-    const requiredFields = schoolData.requiredFieldsStaff;
-  
-    // Loop through each required field and check if it's present in the finalMappedData
-    for (let i = 0; i < requiredFields.length; i++) {
-      const field = requiredFields[i];
-      
-      if (!finalMappedDataStaff[field]) {
+    // Validation for staff fields
+    if (currRole === "staff") {
+      if (!finalMappedDataStaff.PhotoNo) {
         toast.update(toastId, {
-          render: `${field} is compulsory!`,
+          render: "PhotoNo and compulsory for students!",
           type: "error",
           isLoading: false,
           autoClose: 5000,
         });
-        setIsLoading(false);
         return;
       }
-    }
-  
-    // Check extra fields if any
-    if (schoolData.extraFieldsStaff && schoolData.extraFieldsStaff.length > 0) {
-      for (let i = 0; i < schoolData.extraFieldsStaff.length; i++) {
-        const field = schoolData.extraFieldsStaff[i];
-        
-        // Assuming 'name' is a key in the extra field, adjust if necessary
-        if (!extraFieldsMappingStaff[field.name]) {
+
+      // Check required fields for students
+      const requiredFields = schoolData.requiredFieldsStaff;
+
+      // Loop through each required field and check if it's present in the finalMappedData
+      for (let i = 0; i < requiredFields.length; i++) {
+        const field = requiredFields[i];
+
+        if (!finalMappedDataStaff[field]) {
           toast.update(toastId, {
-            render: `${field.name} is missing!`,
+            render: `${field} is compulsory!`,
             type: "error",
             isLoading: false,
             autoClose: 5000,
@@ -226,55 +209,83 @@ const Addexcel = () => {
           return;
         }
       }
+
+      // Check extra fields if any
+      if (
+        schoolData.extraFieldsStaff &&
+        schoolData.extraFieldsStaff.length > 0
+      ) {
+        for (let i = 0; i < schoolData.extraFieldsStaff.length; i++) {
+          const field = schoolData.extraFieldsStaff[i];
+
+          // Assuming 'name' is a key in the extra field, adjust if necessary
+          if (!extraFieldsMappingStaff[field.name]) {
+            toast.update(toastId, {
+              render: `${field.name} is missing!`,
+              type: "error",
+              isLoading: false,
+              autoClose: 5000,
+            });
+            setIsLoading(false);
+            return;
+          }
+        }
+      }
     }
-  }
 
-  try {
-    console.log(fileName);
-    console.log(currRole);
+    try {
+      console.log(fileName);
+      console.log(currRole);
 
-    let response;
+      let response;
 
-    // Check conditions for 'student' and 'staff'
-    if (fileName && currRole === "student") {
-      response = await dispatch(
-        aadExcel(fileName, currSchool, finalMappedData, extraFieldsMapping)
-      );
-    } else if (fileName && currRole === "staff") {
-      response = await dispatch(aadExcelstaff(fileName, currSchool, finalMappedDataStaff, extraFieldsMappingStaff));
-    } else {
-      // If no file or school is selected, show an error toast and stop the loading toast
+      // Check conditions for 'student' and 'staff'
+      if (fileName && currRole === "student") {
+        response = await dispatch(
+          aadExcel(fileName, currSchool, finalMappedData, extraFieldsMapping)
+        );
+      } else if (fileName && currRole === "staff") {
+        response = await dispatch(
+          aadExcelstaff(
+            fileName,
+            currSchool,
+            finalMappedDataStaff,
+            extraFieldsMappingStaff
+          )
+        );
+      } else {
+        // If no file or school is selected, show an error toast and stop the loading toast
+        toast.update(toastId, {
+          render: "No File or School Selected",
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
+        return;
+      }
+
+      // Update the loading toast to a success toast once the response is received
       toast.update(toastId, {
-        render: "No File or School Selected",
+        render: response,
+        type: "success",
+        isLoading: false,
+        autoClose: 5000,
+      });
+      setFileName("");
+      setHeadings([]);
+      currentExcel = {};
+    } catch (error) {
+      // If there's an error, update the loading toast to an error toast
+      toast.update(toastId, {
+        render: "Something went wrong!",
         type: "error",
         isLoading: false,
         autoClose: 5000,
       });
-      return;
+    } finally {
+      setIsLoading(false); // Set loading state to false after operation
     }
-
-    // Update the loading toast to a success toast once the response is received
-    toast.update(toastId, {
-      render: response,
-      type: "success",
-      isLoading: false,
-      autoClose: 5000,
-    });
-    setFileName("")
-    setHeadings([])
-    currentExcel= {}
-  } catch (error) {
-    // If there's an error, update the loading toast to an error toast
-    toast.update(toastId, {
-      render: "Something went wrong!",
-      type: "error",
-      isLoading: false,
-      autoClose: 5000,
-    });
-  } finally {
-    setIsLoading(false); // Set loading state to false after operation
-  }
-};
+  };
 
   const handlePhotoFileSelect = (e) => {
     e.preventDefault();
@@ -367,16 +378,17 @@ const Addexcel = () => {
   //   }
   // };
 
-
-
   const fetchStudentAndStaffCount = async (schoolId) => {
     try {
       const [studentCountResponse, staffCountResponse] = await Promise.all([
         axios.get(`/user/students/count/${schoolId}`),
         axios.get(`/user/staff/count/${schoolId}`),
       ]);
-  
-      if (studentCountResponse.data.success && staffCountResponse.data.success) {
+
+      if (
+        studentCountResponse.data.success &&
+        staffCountResponse.data.success
+      ) {
         return {
           studentCount: studentCountResponse.data.studentCount,
           staffCount: staffCountResponse.data.staffCount,
@@ -396,118 +408,125 @@ const Addexcel = () => {
       return null;
     }
   };
-  
-const handleSubmitnowfuntiion = async (event) => {
-  event.preventDefault();
 
-  const processingTimePerPhoto = 2000; // 2 seconds per photo
-  const totalPhotos = selectedPhotos.length;
-  const totalProcessingTime = (totalPhotos * processingTimePerPhoto) / 1000; // in seconds
+  const handleSubmitnowfuntiion = async (event) => {
+    event.preventDefault();
 
-  const counsAll = await fetchStudentAndStaffCount(currSchool);
-  console.log(selectedPhotos.length);
+    const processingTimePerPhoto = 2000; // 2 seconds per photo
+    const totalPhotos = selectedPhotos.length;
+    const totalProcessingTime = (totalPhotos * processingTimePerPhoto) / 1000; // in seconds
 
-  // Check for student role
-  if (currRole === "student" && counsAll.studentCount < totalPhotos) {
+    const counsAll = await fetchStudentAndStaffCount(currSchool);
+    console.log(selectedPhotos.length);
+
+    // Check for student role
+    if (currRole === "student" && counsAll.studentCount < totalPhotos) {
+      Swal.fire({
+        icon: "error",
+        title: "Upload Failed",
+        text: `Please Add Students First. Current Student Count is ${counsAll.studentCount}`,
+        allowOutsideClick: false, // This prevents closing the popup by clicking outside
+      });
+      setSelectedPhotos([]);
+      return;
+    }
+
+    // Check for staff role
+    if (currRole === "staff" && counsAll.staffCount < totalPhotos) {
+      Swal.fire({
+        icon: "error",
+        title: "Upload Failed",
+        text: `Please Add Staff First. Current Staff Count is ${counsAll.staffCount}`,
+        allowOutsideClick: false,
+      });
+      setSelectedPhotos([]);
+      return;
+    }
+
+    // Inform the user about the estimated time
     Swal.fire({
-      icon: "error",
-      title: "Upload Failed",
-      text: `Please Add Students First. Current Student Count is ${counsAll.studentCount}`,
-      allowOutsideClick: false, // This prevents closing the popup by clicking outside
-    });
-    setSelectedPhotos([]);
-    return;
-  }
-
-  // Check for staff role
-  if (currRole === "staff" && counsAll.staffCount < totalPhotos) {
-    Swal.fire({
-      icon: "error",
-      title: "Upload Failed",
-      text: `Please Add Staff First. Current Staff Count is ${counsAll.staffCount}`,
+      title: "Uploading photos...",
+      text: `Estimated time to complete: ${totalProcessingTime} seconds. Please wait.`,
       allowOutsideClick: false,
+      showConfirmButton: false, // Remove the "OK" button here as well
     });
-    setSelectedPhotos([]);
-    return;
-  }
 
-  // Inform the user about the estimated time
-  Swal.fire({
-    title: "Uploading photos...",
-    text: `Estimated time to complete: ${totalProcessingTime} seconds. Please wait.`,
-    allowOutsideClick: false,
-    showConfirmButton: false, // Remove the "OK" button here as well
-  });
+    const formData = new FormData();
+    selectedPhotos.forEach((file) => {
+      formData.append("file", file);
+    });
 
-  const formData = new FormData();
-  selectedPhotos.forEach((file) => {
-    formData.append("file", file);
-  });
+    try {
+      for (let index = 0; index < selectedPhotos.length; index++) {
+        const file = selectedPhotos[index];
+        const singleFormData = new FormData();
+        singleFormData.append("file", file);
 
-  try {
-    for (let index = 0; index < selectedPhotos.length; index++) {
-      const file = selectedPhotos[index];
-      const singleFormData = new FormData();
-      singleFormData.append("file", file);
+        // Upload each photo one by one
+        if (currRole === "student") {
+          await axios.post(
+            `/user/student/avatars/${currSchool}`,
+            singleFormData,
+            {
+              withCredentials: true,
+              headers: {
+                "Content-Type": "multipart/form-data",
+                authorization: `${localStorage.getItem("token")}`,
+              },
+            }
+          );
+        } else if (currRole === "staff") {
+          await axios.post(
+            `/user/staff/avatars/${currSchool}`,
+            singleFormData,
+            {
+              withCredentials: true,
+              headers: {
+                "Content-Type": "multipart/form-data",
+                authorization: `${localStorage.getItem("token")}`,
+              },
+            }
+          );
+        }
 
-      // Upload each photo one by one
-      if (currRole === "student") {
-        await axios.post(`/user/student/avatars/${currSchool}`, singleFormData, {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "multipart/form-data",
-            authorization: `${localStorage.getItem("token")}`,
-          },
-        });
-      } else if (currRole === "staff") {
-        await axios.post(`/user/staff/avatars/${currSchool}`, singleFormData, {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "multipart/form-data",
-            authorization: `${localStorage.getItem("token")}`,
-          },
+        // Simulate server processing delay
+        await new Promise((resolve) =>
+          setTimeout(resolve, processingTimePerPhoto)
+        );
+
+        // Update Swal with remaining time
+        const remainingTime =
+          ((totalPhotos - index - 1) * processingTimePerPhoto) / 1000; // in seconds
+        Swal.update({
+          text: `Processing photo ${
+            index + 1
+          } of ${totalPhotos}. Estimated time left: ${remainingTime} seconds.`,
+          allowOutsideClick: false,
+          showConfirmButton: false, // Remove the "OK" button here as well
         });
       }
 
-      // Simulate server processing delay
-      await new Promise((resolve) => setTimeout(resolve, processingTimePerPhoto));
-
-      // Update Swal with remaining time
-      const remainingTime = ((totalPhotos - index - 1) * processingTimePerPhoto) / 1000; // in seconds
-      Swal.update({
-        text: `Processing photo ${index + 1} of ${totalPhotos}. Estimated time left: ${remainingTime} seconds.`,
+      // All photos uploaded successfully
+      Swal.fire({
+        icon: "success",
+        title: "Upload Successful",
+        text: "All photos uploaded successfully.",
         allowOutsideClick: false,
-        showConfirmButton: false, // Remove the "OK" button here as well
+      });
+      setSelectedPhotos([]);
+    } catch (error) {
+      console.error("Error uploading photos:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Upload Failed",
+        text: "Failed to upload photos. Please try again.",
+        allowOutsideClick: false,
       });
     }
+  };
 
-    // All photos uploaded successfully
-    Swal.fire({
-      icon: "success",
-      title: "Upload Successful",
-      text: "All photos uploaded successfully.",
-      allowOutsideClick: false,
-    });
-    setSelectedPhotos([]);
-
-
-  } catch (error) {
-    console.error("Error uploading photos:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Upload Failed",
-      text: "Failed to upload photos. Please try again.",
-      allowOutsideClick: false,
-    });
-  }
-};
-
-  
-  
-  
-  
   const handleInputChangeStaff = (fieldName, value, isExtraField = false) => {
-    console.log(fieldName,value)
+    console.log(fieldName, value);
     if (isExtraField) {
       setExtraFieldsMappingStaff((prevState) => ({
         ...prevState,
@@ -625,6 +644,7 @@ const handleSubmitnowfuntiion = async (event) => {
                 ) : (
                   <h2 className="mx-3 text-gray-400">Excel File</h2>
                 )}
+              
                 <input
                   id="excelFile"
                   type="file"
@@ -633,7 +653,7 @@ const handleSubmitnowfuntiion = async (event) => {
                   onChange={handleExcelFileSelect}
                 />
               </label>
-
+          
               <div className="flex justify-center p-5">
                 {headings.length > 0 && currRole == "student" && (
                   <div className="w-full max-w-2xl bg-gray-100 p-6 rounded-lg shadow-md">
@@ -744,7 +764,7 @@ const handleSubmitnowfuntiion = async (event) => {
                         </option>
                       ))}
                     </select>
-                    {schoolData?.requiredFieldsStaff?.map((field, index) => (
+                    {schoolData && schoolData?.requiredFieldsStaff?.map((field, index) => (
                       <div className="mb-4" key={index}>
                         <label
                           htmlFor={field}
@@ -818,6 +838,10 @@ const handleSubmitnowfuntiion = async (event) => {
               )}
             </form>
           )}
+
+          {
+            schoolData &&    schoolData?.requiredFieldsStaff.includes("Signature Name") && <SignatureUpload currRole={currRole} currSchool={currSchool} />
+                }
           {currRole && currSchool && (
             <form
               className="mt-6 w-full max-w-md"

@@ -4,7 +4,7 @@ import "cropperjs/dist/cropper.css";
 import Swal from "sweetalert2";
 import axios from "axios";
 
-const ImageUploaderWithCrop = ({ setImageData, selectedImage, setSelectedImage }) => {
+const ImageUploaderWithCrop = ({ setImageData, selectedImage, setSelectedImage,title="Upload Image" }) => {
   const [cropper, setCropper] = useState(null);
 
   const handlePhotoFileSelect = (event) => {
@@ -86,11 +86,11 @@ const ImageUploaderWithCrop = ({ setImageData, selectedImage, setSelectedImage }
   return (
     <div>
       <label
-        htmlFor="dropzone-file"
+        htmlFor={`dropzone-file-${title}`}
         className="flex items-center px-3 py-3 mx-auto mt-6 text-center border-2 border-dashed rounded-lg cursor-pointer"
       >
         <input
-          id="dropzone-file"
+        id={`dropzone-file-${title}`}
           type="file"
           className="hidden"
           onChange={handlePhotoFileSelect}
@@ -109,7 +109,7 @@ const ImageUploaderWithCrop = ({ setImageData, selectedImage, setSelectedImage }
             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
           />
         </svg>
-        <h2 className="mx-3 text-gray-400">Upload Your Image</h2>
+        <h2 className="mx-3 text-gray-400">{title}</h2>
       </label>
 
       {selectedImage && (
@@ -135,7 +135,7 @@ const ImageUploaderWithCrop = ({ setImageData, selectedImage, setSelectedImage }
             onClick={handleUpload}
             className="mt-4 cursor-pointer px-4 py-2 bg-blue-500 text-white rounded"
           >
-            Upload
+            {title}
           </p>
         </div>
       )}

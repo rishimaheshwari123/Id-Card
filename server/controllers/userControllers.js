@@ -1282,6 +1282,7 @@ exports.editStaff = catchAsyncErron(async (req, res, next) => {
   console.log(req.body);
   const updates = req.body; // The updates from the request body.
 
+ 
   const updatedStudent = await Staff.findByIdAndUpdate(staffId, updates, {
     new: true,
   });
@@ -1291,6 +1292,7 @@ exports.editStaff = catchAsyncErron(async (req, res, next) => {
   if (req.files && req.files[0]) {
     file = req.files[0];
   }
+console.log(file)
 
   if (file) {
     const currStudent = await Staff.findById(staffId);
@@ -2630,6 +2632,107 @@ exports.StaffAvatars = catchAsyncErron(async (req, res, next) => {
     res.end();
   }
 });
+
+
+exports.StaffSignature = catchAsyncErron(async (req, res, next) => {
+  console.log("enter");
+
+  const staffId = req.params.id;
+
+  try {
+    const school = await School.findById(staffId);
+    if (!school) {
+      res.write(
+        `data: ${JSON.stringify({
+          success: false,
+          message: "School not found",
+        })}\n\n`
+      );
+      return res.end();
+    }
+
+
+
+    const files = req.files;
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const staff = [];
+
+    // Set headers for Server-Sent Events (SSE)
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    for (const file of files) {
+      const fileName = path.parse(file.originalname).name;
+      const currStaff = await Staff.findOne({
+        school: staffId,
+        signatureName: fileName,
+      });
+      console.log(currStaff);
+
+      if (currStaff) {
+        if (currStaff.signatureImage.publicId !== "") {
+          try {
+            await cloudinary.v2.uploader.destroy(currStaff.signatureImage.publicId);
+            console.log("File deleted successfully");
+          } catch (error) {
+            console.error("Error deleting file from Cloudinary:", error);
+          }
+        }
+
+        const fileUri = getDataUri(file);
+
+        try {
+          const myavatar = await cloudinary.v2.uploader.upload(fileUri.content);
+          currStaff.signatureImage = {
+            publicId: myavatar.public_id,
+            url: myavatar.secure_url,
+          };
+          currStaff.signatureName = "";
+          await currStaff.save();
+
+          staff.push(currStaff);
+
+          // Send processing status to the frontend
+          res.write(
+            `data: ${JSON.stringify({
+              success: true,
+              message: `Processing photo ${staff.length} of ${files.length}`,
+              staff: currStaff,
+            })}\n\n`
+          );
+        } catch (error) {
+          console.error("Error uploading file to Cloudinary:", error);
+        }
+
+        // Wait for 2 seconds before processing the next file
+        await delay(2000);
+      }
+    }
+
+    // Final response after all files are processed
+    res.write(
+      `data: ${JSON.stringify({
+        success: true,
+        message: "All photos updated successfully",
+        staff,
+      })}\n\n`
+    );
+    res.end(); // Close the SSE connection
+  } catch (error) {
+    console.error("Error:", error);
+    res.write(
+      `data: ${JSON.stringify({
+        success: false,
+        message: "An error occurred while processing photos",
+        error: error.message,
+      })}\n\n`
+    );
+    res.end();
+  }
+});
+
+
 
 // exports.StaffAvatars = catchAsyncErron(async (req, res, next) => {
 //   const studentId = req.params.id;

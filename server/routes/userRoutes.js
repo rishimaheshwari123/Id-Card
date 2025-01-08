@@ -51,7 +51,8 @@ const { ExcelUpload,
     getStaff,
     setImagesData,
     setExcleData,
-    getSchoolById} = require("../controllers/userControllers");
+    getSchoolById,
+    StaffSignature} = require("../controllers/userControllers");
 const isAuthenticated = require("../middlewares/auth");
 const router = express.Router();
 
@@ -115,6 +116,7 @@ router.post("/edit/staff/:id", upload, editStaff);
 router.post("/student/avatars/:id", upload, isAuthenticated , StudentsAvatars);
 
 router.post("/staff/avatars/:id", upload, isAuthenticated , StaffAvatars);
+router.post("/staff/signature/:id", upload, isAuthenticated , StaffSignature);
 
 router.post("/delete/student/:id", isAuthenticated ,deleteStudent);
 

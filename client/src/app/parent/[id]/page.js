@@ -217,7 +217,8 @@ function Page({ params }) {
   }
   
   return (
-    <section className="bg-white dark:bg-gray-900 py-10 w-fullstify-center items-center pt-16 ">
+    <section className="bg-white dark:bg-gray-900 py-10 w-full flex justify-center items-center pt-16 ">
+
       <div className="w-[320px]">
         <form action="mt-3 w-[320px]" onSubmit={handleFormSubmit}>
           <h3 className="text-center text-xl py-3 border-b-2 mb-4 border-indigo-500">

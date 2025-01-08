@@ -919,6 +919,20 @@ const EditSchool = ({ params }) => {
                 <span className="text-gray-600">Extra Field 2</span>
               </label>
 
+              <label
+                htmlFor="signatureName"
+                className="flex items-center space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  id="signatureName"
+                  name="Signature Name"
+                  checked={requiredFieldsStaff.includes("Signature Name")}
+                  onChange={handleStaffChange}
+                />
+                <span className="text-gray-600">Staff Signature</span>
+              </label>
+
               <div className="p-4 bg-gray-100 rounded-lg shadow-md">
                 <div className="flex items-center mb-4">
                   <input

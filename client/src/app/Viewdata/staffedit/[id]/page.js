@@ -51,12 +51,14 @@ const Editsatff = ({ params }) => {
   const [extraField2, setExtraField2] = useState("");
   const [id, setID] = useState();
   const [imageData, setImageData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
+  const [SignatureData, setSignatureData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
   const [selectedImage, setSelectedImage] = useState(null); // Base64 image data
+  const [selectedImageSig, setSelectedImageSig] = useState(null); // Base64 image data
 
   const router = useRouter();
   const dispatch = useDispatch();
   const StudentlId = params ? params?.id : null; // Assuming you have a route
-  
+
   const [extraFieldsStaff, setExtraFieldsStaff] = useState({});
 
   // Assuming you have stored the school data in your Redux store
@@ -75,7 +77,7 @@ const Editsatff = ({ params }) => {
       };
       const response = await axios.get(`/user/staff/${staffId}`, config());
       const staffData = response.data.staff;
-      console.log(staffData)
+      console.log(staffData);
       if (staffData) {
         setName(staffData?.name);
         setFatherName(staffData?.fatherName);
@@ -103,6 +105,10 @@ const Editsatff = ({ params }) => {
           publicId: staffData?.avatar?.publicId,
           url: staffData?.avatar?.url,
         });
+        setSignatureData({
+          publicId: staffData?.signatureImage?.publicId,
+          url: staffData?.signatureImage?.url,
+        });
         setLicenceNo(staffData?.licenceNo); // New field
         setIdNo(staffData?.idNo); // New field
         setJobStatus(staffData?.jobStatus); // New field
@@ -111,7 +117,6 @@ const Editsatff = ({ params }) => {
         setExtraField1(staffData?.extraField1); // New field
         setExtraField2(staffData?.extraField2); // New field
         setExtraFieldsStaff(staffData?.extraFieldsStaff);
-
       }
       if (user?.role == "school") {
         setcurrschool(user?.school);
@@ -129,20 +134,20 @@ const Editsatff = ({ params }) => {
     e.preventDefault();
     console.log("call");
     try {
-         // Show loading alert
-         Swal.fire({
-          title: "Please wait...",
-          text: "Updating staff data...",
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
+      // Show loading alert
+      Swal.fire({
+        title: "Please wait...",
+        text: "Updating staff data...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
       const formData = {};
-  
+
       // Add non-empty fields to formData
       formData.avatar = imageData;
-  
+
       if (name) formData.name = name.trim();
       if (fatherName) formData.fatherName = fatherName.trim();
       if (husbandName) formData.husbandName = husbandName.trim();
@@ -170,25 +175,22 @@ const Editsatff = ({ params }) => {
       if (aadharCardNo) formData.adharNo = aadharCardNo.trim();
       if (extraField1) formData.extraField1 = extraField1.trim();
       if (extraField2) formData.extraField2 = extraField2.trim();
-    if (extraFieldsStaff) formData.extraFieldsStaff = extraFieldsStaff;
+      if (extraFieldsStaff) formData.extraFieldsStaff = extraFieldsStaff;
+      if (SignatureData) formData.signatureImage = SignatureData;
 
       console.log(formData);
       console.log(id);
-  
-   
-  
+
       const response = await dispatch(editStaff(formData, id));
       if (response === "Staff updated successfully") {
         setSelectedImage(null);
-  
+
         // Show success alert with two buttons
         Swal.fire({
           icon: "success",
           title: "Staff Updated Successfully",
-         
-        })
-      router.push("/Viewdata");
-
+        });
+        router.push("/Viewdata");
       } else {
         // Show error alert
         Swal.fire({
@@ -214,9 +216,6 @@ const Editsatff = ({ params }) => {
       });
     }
   };
-
-
-
 
   const handleExtraFieldChange = (e, fieldName) => {
     setExtraFieldsStaff((prevState) => ({
@@ -734,24 +733,51 @@ const Editsatff = ({ params }) => {
               </div>
             )}
 
-            {currSchool?.extraFieldsStaff?.length > 0 && currSchool?.extraFieldsStaff?.map((field, index) => (
-              <div key={index} className="mb-4">
-              <label
-                  htmlFor="extraField2"
-                  className="block text-sm font-medium text-gray-700"
-                >
-             {field.name}
-                </label>
-                <input
-                  type="text"
-                  id={field.name}
-                  value={extraFieldsStaff?.[field.name]} // Use existing value or empty string
-                  placeholder={field.name}
-                  onChange={(e) => handleExtraFieldChange(e, field.name)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            {currSchool?.extraFieldsStaff?.length > 0 &&
+              currSchool?.extraFieldsStaff?.map((field, index) => (
+                <div key={index} className="mb-4">
+                  <label
+                    htmlFor="extraField2"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    {field.name}
+                  </label>
+                  <input
+                    type="text"
+                    id={field.name}
+                    value={extraFieldsStaff?.[field.name]} // Use existing value or empty string
+                    placeholder={field.name}
+                    onChange={(e) => handleExtraFieldChange(e, field.name)}
+                    className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+              ))}
+
+            {currSchool &&
+              currSchool?.requiredFieldsStaff.includes("Signature Name") && (
+              
+              <>
+
+                <div className=" flex justify-center my-4">
+                  <Image
+                    height={50}
+                    width={50}
+                    src={SignatureData?.url}
+                    className="w-20 h-20"
+                  />
+                </div>
+
+                <ImageUploaderWithCrop
+                  setImageData={setSignatureData}
+                  setSelectedImage={setSelectedImageSig}
+                  selectedImage={selectedImageSig}
+                  title="Upload Signature"
+              
                 />
-              </div>
-            ))}
+              </>
+              )}
+
+
 
             {/* Add a submit button */}
             <button
