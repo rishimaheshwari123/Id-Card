@@ -772,6 +772,7 @@ const Editsatff = ({ params }) => {
                   setSelectedImage={setSelectedImageSig}
                   selectedImage={selectedImageSig}
                   title="Upload Signature"
+                  height={true}
               
                 />
               </>

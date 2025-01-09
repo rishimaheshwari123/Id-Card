@@ -4,7 +4,7 @@ import "cropperjs/dist/cropper.css";
 import Swal from "sweetalert2";
 import axios from "axios";
 
-const ImageUploaderWithCrop = ({ setImageData, selectedImage, setSelectedImage,title="Upload Image" }) => {
+const ImageUploaderWithCrop = ({ setImageData, selectedImage, setSelectedImage,title="Upload Image" ,height=false}) => {
   const [cropper, setCropper] = useState(null);
 
   const handlePhotoFileSelect = (event) => {
@@ -114,6 +114,25 @@ const ImageUploaderWithCrop = ({ setImageData, selectedImage, setSelectedImage,t
 
       {selectedImage && (
         <div className="mt-4">
+          {
+            height ?
+            <Cropper
+            src={selectedImage}
+            style={{ height: 150, width: "100%" }}
+            aspectRatio={0}        // Disable fixed aspect ratio
+            guides={false}         // Disable guides
+            viewMode={3}           // Allow free resizing and movement of the crop box
+            dragMode="move"       // Allow moving the crop box
+            responsive={true}
+            autoCropArea={1}       // Maximize crop area
+            checkOrientation={false}
+            wheelZoom={true}       // Enable zoom with mouse wheel
+            zoomable={true}        // Enable zoom with buttons
+            minCropBoxWidth={50}   // Minimum crop box width
+            minCropBoxHeight={50}  // Minimum crop box height
+            toggleDragModeOnDblclick={false}  // Disable double-click mode toggle
+            onInitialized={(instance) => setCropper(instance)}  // Initialize the cropper instance
+          /> :
           <Cropper
             src={selectedImage}
             style={{ height: 400, width: "100%" }}
@@ -131,6 +150,7 @@ const ImageUploaderWithCrop = ({ setImageData, selectedImage, setSelectedImage,t
             toggleDragModeOnDblclick={false}  // Disable double-click mode toggle
             onInitialized={(instance) => setCropper(instance)}  // Initialize the cropper instance
           />
+          }
           <p
             onClick={handleUpload}
             className="mt-4 cursor-pointer px-4 py-2 bg-blue-500 text-white rounded"

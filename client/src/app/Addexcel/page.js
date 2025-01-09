@@ -840,7 +840,7 @@ const Addexcel = () => {
           )}
 
           {
-            schoolData &&    schoolData?.requiredFieldsStaff.includes("Signature Name") && <SignatureUpload currRole={currRole} currSchool={currSchool} />
+         currRole==="staff" &&    schoolData &&    schoolData?.requiredFieldsStaff.includes("Signature Name") && <SignatureUpload currRole={currRole} currSchool={currSchool} />
                 }
           {currRole && currSchool && (
             <form

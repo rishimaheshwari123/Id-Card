@@ -2,7 +2,20 @@ import React from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi"; // Left and Right arrows
 
 const Pagination = ({ totalPages, currentPage, setPage }) => {
-  // Calculate the previous and next page numbers
+  const maxVisibleButtons = 5; // Number of buttons to display
+
+  // Calculate the range of page numbers to display
+  const getPageNumbers = () => {
+    let start = Math.max(1, currentPage - Math.floor(maxVisibleButtons / 2));
+    let end = Math.min(totalPages, start + maxVisibleButtons - 1);
+
+    if (end - start < maxVisibleButtons - 1) {
+      start = Math.max(1, end - maxVisibleButtons + 1);
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  };
+
   const goToPreviousPage = () => {
     if (currentPage > 1) {
       setPage(currentPage - 1);
@@ -15,14 +28,10 @@ const Pagination = ({ totalPages, currentPage, setPage }) => {
     }
   };
 
-  // Generate page buttons for individual pages
-  const renderPaginationButtons = () => {
-    let buttons = [];
-
-    // Add "Previous" button
-    buttons.push(
+  return (
+    <div className="mt-6 flex justify-center items-center w-full max-w-3xl mx-auto">
+      {/* Previous Button */}
       <button
-        key="prev"
         onClick={goToPreviousPage}
         disabled={currentPage === 1}
         className={`${
@@ -33,29 +42,24 @@ const Pagination = ({ totalPages, currentPage, setPage }) => {
       >
         <FiChevronLeft size={20} />
       </button>
-    );
 
-    // Add page number buttons
-    for (let i = 1; i <= totalPages; i++) {
-      buttons.push(
+      {/* Page Number Buttons */}
+      {getPageNumbers().map((page) => (
         <button
-          key={i}
-          onClick={() => setPage(i)}
+          key={page}
+          onClick={() => setPage(page)}
           className={`${
-            i === currentPage
+            page === currentPage
               ? "bg-blue-500 text-white"
               : "bg-gray-200 text-gray-700 hover:bg-blue-300"
           } py-2 px-4 mx-1 rounded-full transition duration-300`}
         >
-          {i}
+          {page}
         </button>
-      );
-    }
+      ))}
 
-    // Add "Next" button
-    buttons.push(
+      {/* Next Button */}
       <button
-        key="next"
         onClick={goToNextPage}
         disabled={currentPage === totalPages}
         className={`${
@@ -66,14 +70,6 @@ const Pagination = ({ totalPages, currentPage, setPage }) => {
       >
         <FiChevronRight size={20} />
       </button>
-    );
-
-    return buttons;
-  };
-
-  return (
-    <div className="mt-6 flex justify-center items-center w-full max-w-3xl mx-auto">
-      {renderPaginationButtons()}
     </div>
   );
 };

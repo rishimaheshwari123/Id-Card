@@ -52,6 +52,8 @@ function Page({ params }) {
   const studentId = params.id; // Access dynamic route param
   const schoolId = searchParams.get("schoolid"); // Access query param
 
+  const [loading, setLoding] = useState(true);
+
   useEffect(() => {
     if (schoolId) {
       // Fetch school data by schoolId from backend
@@ -68,6 +70,7 @@ function Page({ params }) {
 
   useEffect(() => {
     const factchstudent = async () => {
+      setLoding(true);
       const response = await axios.post(`/user/student/${studentId}`);
       console.log(response);
       const temuser = response.data.student;
@@ -120,6 +123,7 @@ function Page({ params }) {
         setRegNo(temuser?.regNo);
         setExtraField1(temuser?.extraField1);
         setExtraField2(temuser?.extraField2);
+        setLoding(false);
       }
     };
     factchstudent();
@@ -205,20 +209,24 @@ function Page({ params }) {
     }));
   };
 
-
-  if (!isPending) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-red-200 text-red-800 p-4 rounded-lg shadow-md">
-        <div className="text-lg font-semibold">
-          Link Expire
-        </div>
+      <div className="grid min-h-[calc(100vh-3.5rem)] place-items-center">
+        <div className="spinner"></div>
       </div>
     );
   }
-  
+
+  if (!loading && !isPending) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-red-200 text-red-800 p-4 rounded-lg shadow-md">
+        <div className="text-lg font-semibold">Link Expire</div>
+      </div>
+    );
+  }
+
   return (
     <section className="bg-white dark:bg-gray-900 py-10 w-full flex justify-center items-center pt-16 ">
-
       <div className="w-[320px]">
         <form action="mt-3 w-[320px]" onSubmit={handleFormSubmit}>
           <h3 className="text-center text-xl py-3 border-b-2 mb-4 border-indigo-500">
@@ -243,7 +251,7 @@ function Page({ params }) {
               htmlFor="name"
               className="block text-sm font-medium text-gray-700"
             >
-              Student Name 
+              Student Name
             </label>
 
             <input

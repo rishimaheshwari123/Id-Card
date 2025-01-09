@@ -1148,6 +1148,7 @@ const Adddata = () => {
                 setSelectedImage={setSelectedImageSig}
                 selectedImage={selectedImageSig}
                 title="Upload Signature"
+                height={true}
               />
               <button
                 type="submit"
