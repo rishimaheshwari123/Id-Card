@@ -1143,13 +1143,13 @@ const Adddata = () => {
                 title="Upload Passport Size"
               />
 
-              <ImageUpload
+          { currSchool.requiredFieldsStaff.includes("Signature Name") &&  <ImageUpload
                 setImageData={setSignatureData}
                 setSelectedImage={setSelectedImageSig}
                 selectedImage={selectedImageSig}
                 title="Upload Signature"
                 height={true}
-              />
+              />}
               <button
                 type="submit"
                 onClick={handleStaffFormSubmit}

@@ -1281,7 +1281,8 @@ const Viewdata = () => {
                           className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                           style={{ maxHeight: "200px", overflowY: "auto" }}
                         >
-                          <option value=""> All Staff Type</option>
+                        {/* all staff type */}
+                          <option value=""> Filter</option>
                           {unqiueStaff.map(
                             (name, index) =>
                               name && (

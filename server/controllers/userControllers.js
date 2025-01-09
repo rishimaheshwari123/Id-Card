@@ -853,7 +853,6 @@ exports.addStudent = catchAsyncErron(async (req, res, next) => {
     console.log(req.body);
     if (!name) return next(new errorHandler("name is Required"));
 
-    if (!fatherName) return next(new errorHandler("fathername is Required"));
 
     let currStudent = {
       name,
@@ -3722,8 +3721,8 @@ exports.ExcelDataStaff = catchAsyncErron(async (req, res, next) => {
 
       const row = {
         srno: `${index + 1}`, // Sequential SR NO.
-        photoNameUnuiq: staff.photoNameUnuiq,
-        signatureNo: staff.signatureNameUnuiq,
+        photoNameUnuiq: `IMG${staff.photoNameUnuiq}`,
+        signatureNo: `SIG${staff.signatureNameUnuiq}`,
         name: staff.name,
         fatherName: staff.fatherName,
         husbandName: staff.husbandName,
