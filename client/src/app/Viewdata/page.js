@@ -1696,12 +1696,11 @@ const Viewdata = () => {
                   )}
                {        schoolData &&    schoolData?.requiredFieldsStaff.includes("Signature Name") && 
                <div className=" flex justify-center my-4">
-                 <Image
-                      height={50}
-                      width={50}
+                 <img
+                    
                       src={staff?.signatureImage?.url}
                       alt={staff?.name}
-                      className="w-20 h-20"
+                      className="w-[80%] h-auto max-h-[85px]"
                     />
                  </div>}
                   {/* Add more staff details as required */}
