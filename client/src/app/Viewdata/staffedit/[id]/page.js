@@ -759,11 +759,11 @@ const Editsatff = ({ params }) => {
               <>
 
                 <div className=" flex justify-center my-4">
-                  <Image
+                  <img
                     height={50}
                     width={50}
                     src={SignatureData?.url}
-                    className="w-20 h-20"
+                     className="w-[80%] h-auto max-h-[85px]"
                   />
                 </div>
 

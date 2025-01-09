@@ -168,7 +168,7 @@ function SignatureUpload({ currRole,currSchool }) {
         {selectedPhotos?.length !== 0 && (
           <div className="mt-6">
             <button className="w-full px-6 py-3 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50">
-              Add Photos
+            Upload Signature
             </button>
           </div>
         )}

@@ -118,7 +118,7 @@ const ImageUploaderWithCrop = ({ setImageData, selectedImage, setSelectedImage,t
             height ?
             <Cropper
             src={selectedImage}
-            style={{ height: 150, width: "100%" }}
+            style={{  width: "100%" }}
             aspectRatio={0}        // Disable fixed aspect ratio
             guides={false}         // Disable guides
             viewMode={3}           // Allow free resizing and movement of the crop box
