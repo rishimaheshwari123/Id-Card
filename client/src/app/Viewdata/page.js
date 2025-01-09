@@ -504,6 +504,62 @@ const Viewdata = () => {
     }
   };
 
+  const downloadSignature = async () => {
+    try {
+      // Show SweetAlert2 loading popup
+      const swalInstance = Swal.fire({
+        title: "Downloading...",
+        text: "Please wait while the avatars are being downloaded.",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading(); // Show loading spinner
+        },
+      });
+
+      let response;
+
+  
+      if (currRole == "staff") {
+        response = await axios.post(
+          `/user/staff/signatureNew/${currSchool}`,
+          { status },
+          {
+            ...config(),
+            responseType: "blob", // Ensure response is a blob
+          }
+        );
+      }
+
+      // Extract filename from response headers
+      const contentDisposition = response.headers["content-disposition"];
+      const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+      const filename = filenameMatch ? filenameMatch[1] : "avatars.zip";
+
+      // Create and trigger download of the ZIP file
+      const blob = new Blob([response.data], { type: "application/zip" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      // Close the SweetAlert2 loading popup after successful download
+      Swal.fire({
+        icon: "success",
+        title: "Download Complete",
+        text: `The avatars have been successfully downloaded as ${filename}`,
+      });
+    } catch (error) {
+      // Handle error and show SweetAlert2 error popup
+      console.error("Error downloading avatars:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Download Failed",
+        text: "An error occurred while downloading the avatars.",
+      });
+    }
+  };
   const redirectToStudentEdit = (id) => {
     router.push(`/Viewdata/edit/${id}`);
   };
@@ -1739,6 +1795,14 @@ const Viewdata = () => {
                     onClick={downloadImages}
                   >
                     <FaImages /> Export Images
+                  </button>
+                )}
+                {(schoolData?.requiredFieldsStaff.includes("Signature Name") && user?.exportImage || user?.school?.exportImages) && (
+                  <button
+                    className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                    onClick={downloadSignature}
+                  >
+                    <FaImages /> Signature Download
                   </button>
                 )}
                 {user?.school && (

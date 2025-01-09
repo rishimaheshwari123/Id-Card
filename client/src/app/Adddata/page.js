@@ -60,6 +60,9 @@ const Adddata = () => {
   const [extraField2, setExtraField2] = useState("");
   const [imageData, setImageData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
   const [selectedImage, setSelectedImage] = useState(null); // Base64 image data
+  // Signature
+  const [SignatureData, setSignatureData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
+  const [selectedImageSig, setSelectedImageSig] = useState(null); // Base64 image data
 
   const [validUpTo, setValidUpTo] = useState("");
   const [course, setCourse] = useState("");
@@ -247,10 +250,12 @@ const Adddata = () => {
     if (extraField1) formData.extraField1 = extraField1;
     if (extraField2) formData.extraField2 = extraField2;
     if (extraFieldsStaff) formData.extraFieldsStaff = extraFieldsStaff;
+    if (SignatureData) formData.SignatureData = SignatureData;
 
     // Add other staff fields here
     if (imageData.publicId) formData.publicId = imageData.publicId;
     if (imageData.url) formData.url = imageData.url;
+
     // Log formData
     console.log(formData);
 
@@ -1135,8 +1140,15 @@ const Adddata = () => {
                 setImageData={setImageData}
                 setSelectedImage={setSelectedImage}
                 selectedImage={selectedImage}
+                title="Upload Passport Size"
               />
 
+              <ImageUpload
+                setImageData={setSignatureData}
+                setSelectedImage={setSelectedImageSig}
+                selectedImage={selectedImageSig}
+                title="Upload Signature"
+              />
               <button
                 type="submit"
                 onClick={handleStaffFormSubmit}

@@ -51,8 +51,8 @@ const Editsatff = ({ params }) => {
   const [extraField2, setExtraField2] = useState("");
   const [id, setID] = useState();
   const [imageData, setImageData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
-  const [SignatureData, setSignatureData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
   const [selectedImage, setSelectedImage] = useState(null); // Base64 image data
+  const [SignatureData, setSignatureData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
   const [selectedImageSig, setSelectedImageSig] = useState(null); // Base64 image data
 
   const router = useRouter();

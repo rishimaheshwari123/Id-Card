@@ -1025,8 +1025,9 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
     const id = req.id;
     let file = null;
 
-    console.log(req.body.extraFieldsStaff);
+    console.log(req.body);
 
+    
     const user = await User.findById(id);
 
     if (user) {
@@ -1133,6 +1134,7 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
       staff.school = currSchool._id;
       staff.user = id;
       staff.photoNameUnuiq = await getNextSequenceValue("staffName");
+      staff.signatureNameUnuiq = await getNextSequenceValue("staffSignature");
 
       const { publicId, url } = req.body;
 
@@ -1140,6 +1142,12 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
         publicId: publicId,
         url: url,
       };
+      if(req.body.SignatureData){
+        staff.signatureImage ={
+          publicId:req.body.SignatureData.publicId,
+          url:req.body.SignatureData.url
+        }
+      }
 
       await staff.save();
 
@@ -3190,6 +3198,103 @@ exports.StaffNewAvatarsDownload = catchAsyncErron(async (req, res, next) => {
   }
 });
 
+
+exports.StaffSignatureDownload = catchAsyncErron(async (req, res, next) => {
+  const schoolId = req.params.id; // School ID from URL parameter
+  const { status } = req.body; // Status from request body
+
+  try {
+    // Fetch school details and student data
+    const school = await School.findById(schoolId); // Assuming you have a School model
+    if (!school) {
+      return res
+        .status(404)
+        .json({ success: false, message: "School not found" });
+    }
+
+    const students = await Staff.find({ school: schoolId, status });
+    if (!students.length) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No students found" });
+    }
+
+    const studentAvatars = students.map((student, index) => ({
+      url: student.signatureImage.url,
+      name: student.signatureNameUnuiq,
+    }));
+
+    // Create a temporary directory to store the avatars
+    const tempDir = path.join(__dirname, "temp");
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir);
+    }
+
+    // Download the images and save them locally with student names
+    for (let { url, name } of studentAvatars) {
+      try {
+        const response = await axios({
+          url,
+          method: "GET",
+          responseType: "stream",
+        });
+
+        const filePath = path.join(tempDir, `${name.replace(/ /g, "_")}.jpg`);
+        const writer = fs.createWriteStream(filePath);
+        response.data.pipe(writer);
+
+        // Wait until the image is fully downloaded
+        await new Promise((resolve, reject) => {
+          writer.on("finish", resolve);
+          writer.on("error", reject);
+        });
+      } catch (error) {
+        console.error(`Failed to download avatar from ${url}:`, error.message);
+      }
+    }
+
+    // Create a ZIP file named after the school
+    const zipFileName = `${school.name.replace(/ /g, "_")}_Siganture.zip`;
+    console.log(zipFileName);
+    const zipFilePath = path.join(__dirname, zipFileName);
+    const output = fs.createWriteStream(zipFilePath);
+    const archive = archiver("zip", { zlib: { level: 9 } });
+
+    archive.pipe(output);
+
+    // Add all the downloaded files to the ZIP archive
+    const files = fs.readdirSync(tempDir);
+    files.forEach((file) => {
+      const filePath = path.join(tempDir, file);
+      archive.file(filePath, { name: file });
+    });
+
+    await archive.finalize();
+
+    // Cleanup the temporary directory after creating the ZIP file
+    fs.rmSync(tempDir, { recursive: true, force: true });
+
+    // Send the ZIP file to the client
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${zipFileName}"`
+    );
+    res.setHeader("Content-Type", "application/zip");
+    const readStream = fs.createReadStream(zipFilePath);
+    readStream.pipe(res);
+
+    // Once the ZIP is sent, delete it from the server
+    readStream.on("close", () => {
+      fs.unlinkSync(zipFilePath); // Clean up the ZIP file
+    });
+  } catch (error) {
+    console.error("Error while creating or downloading ZIP file:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+
+
 // exports.StaffNewAvatarsDownload = catchAsyncErron(async (req, res, next) => {
 //   const schoolId = req.params.id;
 //   let {status} = req.body;
@@ -3464,7 +3569,9 @@ exports.ExcelDataStaff = catchAsyncErron(async (req, res, next) => {
 
     // Static columns for required fields
     const staticColumnsAll = [
+      { header: "SR NO.", key: "srno", width: 15 },
       { header: "PHOTO NO.", key: "photoNameUnuiq", width: 20 },
+      { header: "Signature Photo NO.", key: "signatureNo", width: 20 },
       { header: "Name", key: "name", width: 20 },
       requiredFieldsStaff.includes("Father's Name") && {
         header: "FATHER'S NAME",
@@ -3616,6 +3723,7 @@ exports.ExcelDataStaff = catchAsyncErron(async (req, res, next) => {
       const row = {
         srno: `${index + 1}`, // Sequential SR NO.
         photoNameUnuiq: staff.photoNameUnuiq,
+        signatureNo: staff.signatureNameUnuiq,
         name: staff.name,
         fatherName: staff.fatherName,
         husbandName: staff.husbandName,
