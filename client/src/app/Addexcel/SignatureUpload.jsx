@@ -139,7 +139,7 @@ function SignatureUpload({ currRole,currSchool }) {
       {" "}
       <form className="mt-6 w-full max-w-md" onSubmit={handleSubmitnowfuntiion}>
         <label
-          htmlFor="dropzone-file"
+          htmlFor="dropzone-file-staff"
           className="flex items-center px-3 py-3 mx-auto mt-6 text-center border-2 border-dashed rounded-lg cursor-pointer"
         >
           <svg
@@ -158,7 +158,7 @@ function SignatureUpload({ currRole,currSchool }) {
           </svg>
           <h2 className="mx-3 text-gray-400">Staff Signature</h2>
           <input
-            id="dropzone-file"
+            id="dropzone-file-staff"
             type="file"
             className="hidden"
             multiple
