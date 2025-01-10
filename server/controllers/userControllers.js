@@ -3009,6 +3009,7 @@ exports.StaffSignature = catchAsyncErron(async (req, res, next) => {
 //   }
 // });
 
+//stuednt
 exports.StaffAvatarsDownload = catchAsyncErron(async (req, res, next) => {
   const schoolId = req.params.id; // School ID from URL parameter
   const { status } = req.body; // Status from request body
@@ -3030,7 +3031,7 @@ exports.StaffAvatarsDownload = catchAsyncErron(async (req, res, next) => {
     }
 
     const studentAvatars = students.map((student, index) => ({
-      url: student.avatar.url,
+      url: student.avatar.url || "https://plus.unsplash.com/premium_photo-1699534403319-978d740f9297?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       name: `${student.photoNameUnuiq}`,
     }));
 
@@ -3103,6 +3104,7 @@ exports.StaffAvatarsDownload = catchAsyncErron(async (req, res, next) => {
   }
 });
 
+//staff
 exports.StaffNewAvatarsDownload = catchAsyncErron(async (req, res, next) => {
   const schoolId = req.params.id; // School ID from URL parameter
   const { status } = req.body; // Status from request body
@@ -3124,7 +3126,7 @@ exports.StaffNewAvatarsDownload = catchAsyncErron(async (req, res, next) => {
     }
 
     const studentAvatars = students.map((student, index) => ({
-      url: student.avatar.url,
+      url: student.avatar.url || "https://plus.unsplash.com/premium_photo-1699534403319-978d740f9297?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       name: `IMG${student.photoNameUnuiq}`,
     }));
 
@@ -3197,7 +3199,7 @@ exports.StaffNewAvatarsDownload = catchAsyncErron(async (req, res, next) => {
   }
 });
 
-
+//staff signature
 exports.StaffSignatureDownload = catchAsyncErron(async (req, res, next) => {
   const schoolId = req.params.id; // School ID from URL parameter
   const { status } = req.body; // Status from request body
@@ -3219,7 +3221,7 @@ exports.StaffSignatureDownload = catchAsyncErron(async (req, res, next) => {
     }
 
     const studentAvatars = students.map((student, index) => ({
-      url: student.signatureImage.url,
+      url: student.signatureImage.url || "https://plus.unsplash.com/premium_photo-1699534403319-978d740f9297?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       name: `SIG${student.signatureNameUnuiq}`,
     }));
 
