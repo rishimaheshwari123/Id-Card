@@ -1695,7 +1695,7 @@ const Viewdata = () => {
                       )}
                     </ul>
                   )}
-               {        schoolData &&    schoolData?.requiredFieldsStaff.includes("Signature Name") && 
+               {      schoolData &&    schoolData?.requiredFieldsStaff.includes("Signature Name") && 
                <div className=" flex justify-center my-4">
                  <img
                     
@@ -1797,7 +1797,7 @@ const Viewdata = () => {
                     <FaImages /> Export Images
                   </button>
                 )}
-                {(schoolData?.requiredFieldsStaff.includes("Signature Name") && user?.exportImage || user?.school?.exportImages) && (
+                {(currRole ==="staff"   && schoolData?.requiredFieldsStaff.includes("Signature Name") && user?.exportImage || user?.school?.exportImages) && (
                   <button
                     className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg shadow-lg"
                     onClick={downloadSignature}

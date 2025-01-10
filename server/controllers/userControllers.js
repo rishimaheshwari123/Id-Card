@@ -3031,7 +3031,7 @@ exports.StaffAvatarsDownload = catchAsyncErron(async (req, res, next) => {
 
     const studentAvatars = students.map((student, index) => ({
       url: student.avatar.url,
-      name: `IMG${student.photoNameUnuiq}`,
+      name: `${student.photoNameUnuiq}`,
     }));
 
     // Create a temporary directory to store the avatars
