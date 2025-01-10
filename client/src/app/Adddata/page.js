@@ -1081,14 +1081,14 @@ const Adddata = () => {
                 </div>
               )}
 
-              {/* Extra Field 2 */}
-              {currSchool?.requiredFieldsStaff?.includes("Extra Field 2") && (
+              {/* Institute */}
+              {currSchool?.requiredFieldsStaff?.includes("Institute") && (
                 <div className="mb-4">
                   <input
                     type="text"
-                    id="extraField2"
+                    id="Institute"
                     value={extraField2}
-                    placeholder="Extra Field 2"
+                    placeholder="Institute"
                     onChange={(e) => setExtraField2(e.target.value)}
                     className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />

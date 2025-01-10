@@ -953,17 +953,17 @@ const AddSchool = () => {
                 <span className="text-gray-600">Extra Field 1</span>
               </label>
               <label
-                htmlFor="extraField2"
+                htmlFor="institute"
                 className="flex items-center space-x-2"
               >
                 <input
                   type="checkbox"
-                  id="extraField2"
-                  name="Extra Field 2"
-                  checked={requiredFieldsStaff.includes("Extra Field 2")}
+                  id="institute"
+                  name="Institute"
+                  checked={requiredFieldsStaff.includes("Institute")}
                   onChange={handleStaffChange}
                 />
-                <span className="text-gray-600">Extra Field 2</span>
+                <span className="text-gray-600">Institute</span>
               </label>
 
 

@@ -66,6 +66,9 @@ const Viewdata = () => {
   // Staff Type for
   const [unqiueStaff, setUnqiueStaff] = useState([]);
   const [staffValueSearch, setValueStaff] = useState("");
+  // Staff In for
+  const [unqiueStaffInsi, setUnqiueStaffInsi] = useState([]);
+  const [staffValueSearchInsi, setValueStaffInsi] = useState("");
 
   const [studentData, setStudentData] = useState([]);
   const [staffData, setStaffData] = useState([]);
@@ -216,6 +219,8 @@ const Viewdata = () => {
     sectionValueSearch,
     courseValueSearch,
     staffValueSearch,
+    staffValueSearchInsi,
+    
   ]);
 
   const handleSchoolSelect = (e) => {
@@ -282,7 +287,7 @@ const Viewdata = () => {
   const fatchStaff = async (e) => {
     if (e) e.preventDefault();
     const response = await axios.post(
-      `/user/staffs/${currSchool}?status=${status}`,
+      `/user/staffs/${currSchool}?status=${status}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}`,
       null,
       config()
     );
@@ -302,7 +307,7 @@ const Viewdata = () => {
       const isStudent = currRole === "student";
       const endpoint = isStudent
         ? `/user/students/${currSchool}?status=${status}&page=${pagination.currentPage}&limit=${pagination.pageSize}&search=${searchQuery}&studentClass=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}`
-        : `/user/staffs/${currSchool}?status=${status}&staffType=${staffValueSearch}`;
+        : `/user/staffs/${currSchool}?status=${status}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}`;
       const noDataMessage = isStudent
         ? "No students found for the provided school ID"
         : "No staff found for the provided school ID";
@@ -348,6 +353,7 @@ const Viewdata = () => {
         setStaffData(response?.data?.staff || []);
         console.log(response?.data?.staffTypes);
         setUnqiueStaff(response?.data?.staffTypes || []);
+        setUnqiueStaffInsi(response?.data?.instituteUni || []);
       }
       setsubmited(true); // Mark form as submitted
     } catch (error) {
@@ -1282,8 +1288,40 @@ const Viewdata = () => {
                           style={{ maxHeight: "200px", overflowY: "auto" }}
                         >
                         {/* all staff type */}
-                          <option value=""> Filter</option>
+                          <option value=""> Staff Type</option>
                           {unqiueStaff.map(
+                            (name, index) =>
+                              name && (
+                                <option key={index} value={name}>
+                                  {name}
+                                </option>
+                              )
+                          )}
+                        </select>
+                      </div>
+                    )}
+                  {currRole === "staff" &&
+                    unqiueStaffInsi &&
+                    unqiueStaffInsi.length > 0 && (
+                      <div className="flex items-center gap-4">
+                        {/* Dropdown */}
+                        <select
+                          value={staffValueSearchInsi || ""} // Ensure value is always a string
+                          onChange={(e) => {
+                            setValueStaffInsi(e.target.value);
+                            setPagination({
+                              totalStudents: 0,
+                              totalPages: 0,
+                              currentPage: 1,
+                              pageSize: 50,
+                            });
+                          }} // Update state on change
+                          className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                          style={{ maxHeight: "200px", overflowY: "auto" }}
+                        >
+                        {/* all staff type */}
+                          <option value=""> Institute</option>
+                          {unqiueStaffInsi.map(
                             (name, index) =>
                               name && (
                                 <option key={index} value={name}>
@@ -1678,9 +1716,9 @@ const Viewdata = () => {
                       Extra Field 1: {staff?.extraField1}
                     </p>
                   )}
-                  {staff?.extraField2 && (
+                  {staff?.institute && (
                     <p className="text-gray-700">
-                      Extra Field 2: {staff?.extraField2}
+                    Institute: {staff?.institute}
                     </p>
                   )}
 

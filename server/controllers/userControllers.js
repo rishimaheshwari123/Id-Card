@@ -1123,7 +1123,9 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
         currStaff.extraField1 = req.body.extraField1;
       }
       if (req.body.extraField2) {
-        currStaff.extraField2 = req.body.extraField2;
+        currStaff.institute = req.body.extraField2;
+      }else {
+        currStaff.institute = null;
       }
 
       console.log(currStaff);
@@ -1591,12 +1593,16 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
   const schoolId = req.params.id; // School ID from request params
   const status = req.query.status; // State from query parameters
   const staffType = req.query.staffType; // Search term from query parameters
+  const institute = req.query.institute; // Search term from query parameters
 
   let queryObj = { school: schoolId };
 
   const StaffData = await School.findById(schoolId);
   const staffTypes = StaffData.requiredFieldsStaff.includes("Staff Type")
     ? await Staff.distinct("staffType", queryObj)
+    : [];
+  const instituteUni = StaffData.requiredFieldsStaff.includes("Institute")
+    ? await Staff.distinct("institute", queryObj)
     : [];
 
   if (status) {
@@ -1612,6 +1618,14 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
     } else {
       const escapedClassName = escapeRegex(staffType); // Escape special characters
       queryObj.staffType = { $regex: `^${escapedClassName}$`, $options: "i" }; // Exact match with regex
+    }
+  }
+  if (institute) {
+    if (institute === "no-staff" || institute === "") {
+      queryObj.institute = null; // Logic to filter for "Without Class Name"
+    } else {
+      const escapedClassName = escapeRegex(institute); // Escape special characters
+      queryObj.institute = { $regex: `^${escapedClassName}$`, $options: "i" }; // Exact match with regex
     }
   }
   // Find all staff in the given school using the school ID
@@ -1643,6 +1657,7 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
     message: "Students found for the provided school ID",
     staff: staffWithRole,
     staffTypes,
+    instituteUni
   });
 });
 

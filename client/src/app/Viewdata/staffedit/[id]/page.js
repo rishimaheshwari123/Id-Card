@@ -115,7 +115,7 @@ const Editsatff = ({ params }) => {
         setPanCardNo(staffData?.panCardNo); // New field
         setAadharCardNo(staffData?.adharNo); // New field
         setExtraField1(staffData?.extraField1); // New field
-        setExtraField2(staffData?.extraField2); // New field
+        setExtraField2(staffData?.institute); // New field
         setExtraFieldsStaff(staffData?.extraFieldsStaff);
       }
       if (user?.role == "school") {
@@ -174,7 +174,7 @@ const Editsatff = ({ params }) => {
       if (panCardNo) formData.panCardNo = panCardNo.trim();
       if (aadharCardNo) formData.adharNo = aadharCardNo.trim();
       if (extraField1) formData.extraField1 = extraField1.trim();
-      if (extraField2) formData.extraField2 = extraField2.trim();
+      if (extraField2) formData.institute = extraField2.trim();
       if (extraFieldsStaff) formData.extraFieldsStaff = extraFieldsStaff;
       if (SignatureData) formData.signatureImage = SignatureData;
 
@@ -714,13 +714,13 @@ const Editsatff = ({ params }) => {
             )}
 
             {/* Extra Field 2 */}
-            {currSchool?.requiredFieldsStaff?.includes("Extra Field 2") && (
+            {currSchool?.requiredFieldsStaff?.includes("Institute") && (
               <div className="mb-4">
                 <label
                   htmlFor="extraField2"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Extra Field 2
+                 Institute
                 </label>
                 <input
                   type="text"

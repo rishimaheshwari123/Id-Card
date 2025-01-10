@@ -68,7 +68,7 @@ const staffModel = mongoose.Schema(
     jobStatus: String,
     panCardNo: String,
     extraField1: String,
-    extraField2: String,
+    institute: String,
     extraFieldsStaff: {
       type: Map,
       of: String,  // You can use `String`, `Mixed`, or any other type based on your needs
