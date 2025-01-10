@@ -1050,9 +1050,7 @@ const Viewdata = () => {
         {submitted && (
           <div className="container mx-auto px-4 sm:px-8 lg:px-16">
             {/* Heading */}
-            <h1 className="text-center text-xl sm:text-2xl lg:text-3xl pb-6 font-semibold text-gray-800">
-              {currRole === "student" ? "Students" : "Staff"}
-            </h1>
+           
 
             {/* Search Section */}
             <div className="bg-gray-100 rounded-lg shadow-md p-4 w-full">
@@ -1271,247 +1269,253 @@ const Viewdata = () => {
                 setPage={setPage}
               />
             )}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {students?.map((student) => (
-                <div
-                  key={student?._id}
-                  className={`shadow-md relative p-4 rounded-md border w-full bg-indigo-50 ${
-                    studentIds.includes(student._id)
-                      ? "border-blue-500"
-                      : "border-indigo-50"
-                  }`}
-                  onClick={() => handleStudentSelect(student._id)}
-                >
-                  {status === "Panding" && (
-                    <button
-                      onClick={() => handleShare(student._id, student.name)}
-                      className="absolute top-2 right-5 p-2 z-10  bg-indigo-900 text-white rounded-full opacity-75 hover:opacity-100 hover:bg-indigo-700"
-                    >
-                      <FaShareAlt size={20} />
-                    </button>
-                  )}
-                  {status === "Panding" && (
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        deleteStudent(student._id);
-                      }}
-                      className="absolute top-2 left-5 p-2 z- items-center bg-red-600 text-white  rounded-full hover:bg-red-700"
-                    >
-                      <FaTrashAlt />
-                    </button>
-                  )}
-                  <div className="flex justify-center mb-2">
-                    <Image
-                      height={50}
-                      width={50}
-                      src={student?.avatar?.url}
-                      alt={student?.name}
-                      className="w-20 h-20 "
-                    />
-                    {/* <Image
-                      
-                    /> */}
-                  </div>
-                  {/* Render student card resembling ID card */}
-                  <h2 className="text-lg font-medium text-gray-700 text-center py-2">
-                    {student?.parentChanges && (
-                      <>
-                        <FaCheckCircle className="text-green-500 inline mr-2" />
-                        Updates By Parent
-                      </>
-                    )}
-                  </h2>
-                  <h2 className="text-lg font-semibold text-gray-700 text-center py-2">
-                    {student?.name}
-                  </h2>
-                  {student?.photoNameUnuiq && (
-                    <p className="text-gray-700">
-                      Photo Unique No.: {student?.photoNameUnuiq}
-                    </p>
-                  )}
 
-                  <p className="text-gray-700">
-                    Class: {student?.class || <span>&nbsp;</span>}
-                  </p>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+  {students?.map((student) => (
+    <div
+      key={student?._id}
+           className={`relative shadow-lg p-6 rounded-xl border-2 w-full bg-gradient-to-b from-blue-400 via-blue-300 to-blue-100 transform  transition-all duration-300 ${
 
-                  <p className="text-gray-700">
-                    Section: {student?.section || <span>&nbsp;</span>}
-                  </p>
+        studentIds.includes(student._id) ? "border-blue-500" : "border-gray-200"
+      }`}
+      onClick={() => handleStudentSelect(student._id)}
+    >
+      {status === "Panding" && (
+        <>
+          <button
+            onClick={() => handleShare(student._id, student.name)}
+            className="absolute top-3 right-3 p-2 z-10 bg-blue-600 text-white rounded-full shadow-md hover:bg-blue-500"
+          >
+            <FaShareAlt size={18} />
+          </button>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              deleteStudent(student._id);
+            }}
+            className="absolute top-3 left-3 p-2 z-10 bg-red-600 text-white rounded-full shadow-md hover:bg-red-500"
+          >
+            <FaTrashAlt />
+          </button>
+        </>
+      )}
 
-                  <p className="text-gray-700">
-                    Course: {student?.course || <span>&nbsp;</span>}
-                  </p>
+      <div className="flex flex-col items-center">
+    
 
-                  <ul>
-                    {schoolData.extraFields.map((field, index) => (
-                      <li key={index} className="flex gap-2">
-                        <p>{field?.name}:</p>
-                        {student.extraFields &&
-                        student.extraFields[field?.name] ? (
-                          <span>{student.extraFields[field?.name]}</span>
-                        ) : (
-                          <span>{""}</span> // Agar value nahi mili to "N/A" dikhayega
-                        )}
-                      </li>
-                    ))}
-                  </ul>
 
-                  <div className="w-full  flex justify-center items-center mt-2">
-                    {status === "Panding" && (
-                      <>
-                        {/* Edit Button */}
-                        <button
-                          onClick={() => redirectToStudentEdit(student._id)}
-                          className="flex items-center text-sm lg:px-5 px-2 py-1 bg-indigo-600 text-white m-2 rounded-md hover:bg-indigo-700"
-                        >
-                          <FaEdit className="mr-2" />
-                          Edit
-                        </button>
+        <Image
+          height={50}
+          width={50}
+          src={student?.avatar?.url}
+          alt={student?.name}
+          className="w-20 h-20 rounded-full border-4 border-blue-500 shadow-lg"
 
-                        {/* Delete Button */}
-                        {user?.school && (
-                          <>
-                            <button
-                              className="flex items-center gap-2 text-sm bg-yellow-600 hover:bg-yellow-700 text-white py-1 px-2 rounded-lg shadow-lg"
-                              onClick={(e) => {
-                                moveReadySingle(student._id);
-                              }}
-                            >
-                              Move to Ready
-                            </button>
-                          </>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+
+        />
+   
+        <h3 className="text-xl font-bold text-gray-800 mt-4 text-center">
+          {student?.name}
+        </h3>
+        {student?.parentChanges && (
+          <p className="text-green-600 flex items-center gap-2 text-sm mt-2">
+            <FaCheckCircle />
+            Updates By Parent
+          </p>
+        )}
+      
+
+      {/* Divider Line */}
+      <div className="h-1 w-2/3 bg-blue-500 mx-auto my-4 rounded-full"></div>
+
+      </div>
+
+      <div className="mt-4 text-gray-700 ">
+        {student?.photoNameUnuiq && (
+          <p className="text-sm font-medium">
+            Photo Unique No.: {student?.photoNameUnuiq}
+          </p>
+        )}
+        <p>
+          <span className="font-semibold">Class:</span> {student?.class || "N/A"}
+        </p>
+        <p>
+          <span className="font-semibold">Section:</span> {student?.section || "N/A"}
+        </p>
+        <p>
+          <span className="font-semibold">Course:</span> {student?.course || "N/A"}
+        </p>
+      </div>
+
+      <ul className="mt-4 text-gray-700">
+        {schoolData.extraFields.map((field, index) => (
+          <li key={index} className="flex gap-4 text-sm">
+            <span className="font-semibold">{field?.name}:</span>
+            <span>{student.extraFields?.[field?.name] || "N/A"}</span>
+          </li>
+        ))}
+      </ul>
+
+      {status === "Panding" && (
+        <div className="flex justify-between mt-4">
+          <button
+            onClick={() => redirectToStudentEdit(student._id)}
+            className="flex items-center text-sm px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transform transition-all duration-200"
+          >
+            <FaEdit className="mr-2" />
+            Edit
+          </button>
+          {user?.school && (
+            <button
+              onClick={(e) => moveReadySingle(student._id)}
+              className="text-sm px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transform transition-all duration-200"
+            >
+              Move to Ready
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  ))}
+</div>
+
+
+
+
+
           </div>
         )}
         {submitted && staffs?.length > 0 && (
           <div className="container mx-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {staffs?.map((staff) => (
-                <div
-                  key={staff?._id}
-                  className={`shadow-md p-4 rounded-md border w-full bg-indigo-50 ${
-                    staffIds.includes(staff._id)
-                      ? "border-blue-500"
-                      : "border-indigo-50"
-                  }`}
-                  onClick={() => handleStaffSelect(staff._id)}
-                  // onClick={() => console.log("hello")}
-                >
-                  {status === "Panding" && (
-                    <button
-                      onClick={() => handleShare2(staff._id, staff.name)}
-                      className="absolute top-2 right-5 p-2 z-10  bg-indigo-900 text-white rounded-full opacity-75 hover:opacity-100 hover:bg-indigo-700"
-                    >
-                      <FaShareAlt size={20} />
-                    </button>
-                  )}
-                  {status === "Panding" && (
-                    <button
-                      onClick={() => deleteStaff(staff._id)}
-                      className="absolute top-2 left-5 p-2 z- items-center bg-red-600 text-white  rounded-full hover:bg-red-700"
-                    >
-                      <FaTrashAlt />
-                    </button>
-                  )}
-                  <div className="flex justify-center mb-2">
-                    <Image
-                      height={50}
-                      width={50}
-                      src={staff?.avatar?.url}
-                      alt={staff?.name}
-                      className="w-20 h-20"
-                    />
-                  </div>
-                  <h2 className="text-lg font-medium text-gray-700 text-center py-2">
-                    {staff?.shareUpdate && (
-                      <>
-                        <FaCheckCircle className="text-green-500 inline mr-2" />
-                        Verified
-                      </>
-                    )}
-                  </h2>
-                  <h2 className="text-lg font-medium text-gray-700 text-center py-2">
-                    {staff?.name}
-                  </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+  {staffs?.map((staff) => (
+    <div
+      key={staff?._id}
+      className={`relative shadow-lg p-6 rounded-xl border-2 w-full bg-gradient-to-b from-blue-400 via-blue-300 to-blue-100 transform  transition-all duration-300 ${
+        staffIds.includes(staff._id)
+          ? "border-blue-500"
+          : "border-indigo-50"
+      }`}
+      onClick={() => handleStaffSelect(staff._id)}
+    >
+      {/* Share and Delete Buttons */}
+      {status === "Panding" && (
+        <div className="absolute right-0 top-2 flex justify-between w-full px-4">
+          <button
+            onClick={() => handleShare2(staff._id, staff.name)}
+            className="p-2 bg-indigo-700 text-white rounded-full hover:bg-indigo-800 shadow-md transition-all"
+          >
+            <FaShareAlt size={18} />
+          </button>
+          <button
+            onClick={() => deleteStaff(staff._id)}
+            className="p-2 bg-red-600 text-white rounded-full hover:bg-red-700 shadow-md transition-all"
+          >
+            <FaTrashAlt size={18} />
+          </button>
+        </div>
+      )}
 
-                  {staff?.photoNameUnuiq && (
-                    <p className="text-gray-700">
-                      Photo Unique No.: {staff?.photoNameUnuiq}
-                    </p>
-                  )}
-                  <p className="text-gray-700">
-                    Staff Type: {staff?.staffType || <span>&nbsp;</span>}
-                  </p>
+      {/* Photo */}
+      <div className="flex justify-center my-4">
+        <Image
+          height={50}
+          width={50}
+          src={staff?.avatar?.url}
+          alt={staff?.name}
+          className="w-20 h-20 rounded-full border-4 border-blue-500 shadow-lg"
 
-                  <p className="text-gray-700">
-                    Institute: {staff?.institute || <span>&nbsp;</span>}
-                  </p>
+        />
+      </div>
 
-                  <ul>
-                    {schoolData.extraFieldsStaff.map((field, index) => (
-                      <li key={index} className="flex gap-2">
-                        <p>{field?.name}:</p>
-                        {staff.extraFieldsStaff &&
-                        staff.extraFieldsStaff[field?.name] ? (
-                          <span>{staff.extraFieldsStaff[field?.name]}</span>
-                        ) : (
-                          <span>{""}</span> // Agar value nahi mili to "N/A" dikhayega
-                        )}
-                      </li>
-                    ))}
-                  </ul>
+      {/* Name */}
+      <h3 className="text-xl font-semibold text-center text-gray-800">
+        {staff?.name}
+      </h3>
 
-                  {schoolData &&
-                    schoolData?.requiredFieldsStaff.includes(
-                      "Signature Name"
-                    ) && (
-                      <div className=" flex justify-center my-4">
-                        <img
-                          src={staff?.signatureImage?.url}
-                          alt={staff?.name}
-                          className="w-[80%] h-auto max-h-[85px]"
-                        />
-                      </div>
-                    )}
-                  {/* Add more staff details as required */}
-                  <div className="w-full flex justify-center items-center mt-2">
-                    {status === "Panding" && (
-                      <>
-                        {/* Edit Button */}
-                        <button
-                          onClick={() => redirectToStaffEdit(staff._id)}
-                          className="flex items-center px-5 py-1 bg-indigo-600 text-white m-2 rounded-md hover:bg-indigo-700"
-                        >
-                          <FaEdit className="mr-2" />
-                          Edit
-                        </button>
+      {/* Verified Badge */}
+      {staff?.shareUpdate && (
+        <h4 className="text-center text-sm text-green-600 font-semibold">
+          <FaCheckCircle className="inline mr-1" />
+          Verified
+        </h4>
+      )}
 
-                        {/* Delete Button */}
-                        {user?.school && (
-                          <>
-                            <button
-                              className="flex items-center gap-2 text-sm bg-yellow-600 hover:bg-yellow-700 text-white py-1 px-2 rounded-lg shadow-lg"
-                              onClick={(e) => {
-                                moveReadySingle(staff._id);
-                              }}
-                            >
-                              Move to Ready
-                            </button>
-                          </>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+      {/* Divider Line */}
+      <div className="h-1 w-2/3 bg-blue-500 mx-auto my-4 rounded-full"></div>
+
+      {/* Details */}
+      <div className="text-sm text-gray-700 font-medium">
+        {staff?.photoNameUnuiq && (
+          <p className="py-1">
+            <span className="font-semibold">Photo Unique No.:</span>{" "}
+            {staff?.photoNameUnuiq}
+          </p>
+        )}
+        <p className="py-1">
+          <span className="font-semibold">Staff Type:</span>{" "}
+          {staff?.staffType || "N/A"}
+        </p>
+        <p className="py-1">
+          <span className="font-semibold">Institute:</span>{" "}
+          {staff?.institute || "N/A"}
+        </p>
+        <ul className="py-1">
+          {schoolData.extraFieldsStaff.map((field, index) => (
+            <li key={index} className="flex justify-between">
+              <span className="font-semibold">{field?.name}:</span>
+              <span>
+                {staff.extraFieldsStaff && staff.extraFieldsStaff[field?.name]
+                  ? staff.extraFieldsStaff[field?.name]
+                  : "N/A"}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Signature */}
+      {schoolData &&
+        schoolData?.requiredFieldsStaff.includes("Signature Name") && (
+          <div className="flex justify-center my-4">
+            <img
+              src={staff?.signatureImage?.url}
+              alt={staff?.name}
+              className="w-[80%] h-auto max-h-[85px] rounded-md border shadow-md"
+            />
+          </div>
+        )}
+
+      {/* Action Buttons */}
+      {status === "Panding" && (
+        <div className="flex justify-center gap-4 mt-4">
+          {/* Edit Button */}
+          <button
+            onClick={() => redirectToStaffEdit(staff._id)}
+            className="px-4 py-2 bg-indigo-700 flex items-center text-white rounded-lg shadow-md hover:bg-indigo-800 transition-all"
+          >
+            <FaEdit className="mr-2" />
+            Edit
+          </button>
+
+          {/* Move to Ready Button */}
+          {user?.school && (
+            <button
+              onClick={(e) => {
+                moveReadySingle(staff._id);
+              }}
+              className="px-4 py-2 bg-yellow-600 text-white rounded-lg shadow-md hover:bg-yellow-700 transition-all"
+            >
+              Move to Ready
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  ))}
+</div>
+
           </div>
         )}
       </section>
