@@ -79,7 +79,7 @@ export default function Home() {
   const navItems = [
     { icon: <FaHome />, label: "Home", link: "/" },
     { icon: <FaSignInAlt />, label: "Distributor Login", link: "/Signin" },
-    { icon: <FaSchool />, label: "School Login", link: "/SchoolSignin" },
+    { icon: <FaSchool />, label: "Vendor Login", link: "/SchoolSignin" },
     { icon: <FaInfoCircle />, label: "About Us", link: "/About" },
     { icon: <FaPhoneAlt />, label: "Contact Us", link: "/Contact" },
   ];
@@ -88,13 +88,13 @@ export default function Home() {
   const links = [
     {
       href: "/Addschool",
-      label: "Add School",
+      label: "Add Vendor",
       icon: <FaSchool />,
       visibleFor: "school", // Only show for users who are not "school"
     },
     {
       href: "/SchoolList",
-      label: "School List",
+      label: "Vendor List",
       icon: <FaUser />,
       visibleFor: "school", // Only show for users who are not "school"
     },
@@ -192,7 +192,7 @@ export default function Home() {
                       </>
                     ) : (
                       <>
-                        <FaSchool /> School
+                        <FaSchool /> Vendor
                       </>
                     )}
                   </p>
@@ -221,7 +221,7 @@ export default function Home() {
                         href="/Addschool"
                         className="lg:text-2xl text-xl font-semibold hover:text-white rounded-full min-w-full py-1.5 px-6 cursor-pointer bg-gray-900 bg-opacity-90 flex items-center justify-center gap-2"
                       >
-                        <FaSchool /> Add School
+                        <FaSchool /> Add Vendor
                       </Link>
                     </div>
                   )}
@@ -231,7 +231,7 @@ export default function Home() {
                         href="/SchoolList"
                         className="lg:text-2xl text-xl font-semibold hover:text-white rounded-full py-1.5 px-6 cursor-pointer bg-gray-900 bg-opacity-90 flex items-center justify-center gap-2"
                       >
-                        <FaUser /> School List
+                        <FaUser /> Vendor List
                       </Link>
                     </div>
                   )}

@@ -361,7 +361,7 @@ const Adddata = () => {
                   htmlFor="school"
                   className="block text-md text-center font-medium text-gray-700"
                 >
-                  Select School
+                  Select Vendor
                 </label>
                 <select
                   id="school"
@@ -369,7 +369,7 @@ const Adddata = () => {
                   value={currSchool._id}
                   className="mt-1 h-10 px-3 border block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 >
-                  <option value="">Select School</option>
+                  <option value="">Select Vendor</option>
                   {schools?.map((school) => (
                     <option key={school?._id} value={school?._id}>
                       {school.name}

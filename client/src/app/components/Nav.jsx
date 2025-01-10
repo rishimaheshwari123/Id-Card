@@ -412,13 +412,13 @@ const Nav = () => {
                       />
                     </div> */}
                     <div className="row">
-                      <header>School</header>
+                      <header>Vendor</header>
                       <ul className="mega-links pe-5">
                         <li>
-                          <Link href="/Addschool">Add School</Link>
+                          <Link href="/Addschool">Add Vendor</Link>
                         </li>
                         <li>
-                          <Link href="/SchoolList">School List</Link>
+                          <Link href="/SchoolList">Vendor List</Link>
                         </li>
                       </ul>
                     </div>

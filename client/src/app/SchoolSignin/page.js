@@ -57,7 +57,7 @@ const SchoolSignin = () => {
               width={450}
             />
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white border-b-2 border-indigo-600 pb-3">
-              School Sign In
+              Vendor Sign In
             </h1>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Please sign in to your account

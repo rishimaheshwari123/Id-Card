@@ -65,7 +65,7 @@ const Limit = ({ params }) => {
       {user && (
         <form onSubmit={handleSubmit} className="w-full flex flex-col justify-center items-center">
           <div className="mt-5">
-            <label htmlFor="schoolLimit">School Limit:</label>
+            <label htmlFor="schoolLimit">Vendor Limit:</label>
             <input
               type="number"
               id="schoolLimit"

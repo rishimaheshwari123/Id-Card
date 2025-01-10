@@ -24,8 +24,6 @@ import {
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 import Pagination from "@/component/Pagination";
-import Link from "next/link";
-import Staff from "../Admin/Staff/page";
 
 const Viewdata = () => {
   const { user, schools, error } = useSelector((state) => state.user);
@@ -49,7 +47,7 @@ const Viewdata = () => {
     totalStudents: 0,
     totalPages: 0,
     currentPage: 1,
-    pageSize:500,
+    pageSize: 500,
   });
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -86,7 +84,7 @@ const Viewdata = () => {
     }
     if (user?.role == "school") {
       console.log(user?.school);
-      
+
       setCurrSchool(user?.school?._id);
       setloginSchool(true);
     }
@@ -220,14 +218,13 @@ const Viewdata = () => {
     courseValueSearch,
     staffValueSearch,
     staffValueSearchInsi,
-    
   ]);
 
   const handleSchoolSelect = (e) => {
     if (e.target.value === "") {
       return;
     }
-    console.log(e.target.value)
+    console.log(e.target.value);
     setCurrSchool(e.target.value);
     const schoolId = e.target.value;
     if (schoolId) {
@@ -239,7 +236,7 @@ const Viewdata = () => {
           console.log(response.data.data);
         })
         .catch((err) => {
-          console.log("Error fetching school data"); // Handle error if request fails
+          console.log("Error fetching Vendor data"); // Handle error if request fails
         });
     }
     setclassNameValue("");
@@ -251,7 +248,7 @@ const Viewdata = () => {
       currentPage: 1,
       pageSize: 50,
     });
-    console.log("Selected School:", e.target.value);
+    console.log("Selected Vendor:", e.target.value);
   };
 
   // Function to toggle chat box visibility
@@ -287,7 +284,7 @@ const Viewdata = () => {
   const fatchStaff = async (e) => {
     if (e) e.preventDefault();
     const response = await axios.post(
-      `/user/staffs/${currSchool}?status=${status}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}`,
+      `/user/staffs/${currSchool}?status=${status}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}&search=${searchQuery}`,
       null,
       config()
     );
@@ -307,13 +304,13 @@ const Viewdata = () => {
       const isStudent = currRole === "student";
       const endpoint = isStudent
         ? `/user/students/${currSchool}?status=${status}&page=${pagination.currentPage}&limit=${pagination.pageSize}&search=${searchQuery}&studentClass=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}`
-        : `/user/staffs/${currSchool}?status=${status}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}`;
+        : `/user/staffs/${currSchool}?status=${status}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}&search=${searchQuery}`;
       const noDataMessage = isStudent
-        ? "No students found for the provided school ID"
-        : "No staff found for the provided school ID";
+        ? "No students found for the provided Vendor ID"
+        : "No staff found for the provided Vendor ID";
       const toastMessage = isStudent
-        ? "No Students Added In This School"
-        : "No Staff Member Added In This School";
+        ? "No Students Added In This Vendor"
+        : "No Staff Member Added In This Vendor";
 
       // Make the API request
       const response = await axios.post(endpoint, null, config());
@@ -524,7 +521,6 @@ const Viewdata = () => {
 
       let response;
 
-  
       if (currRole == "staff") {
         response = await axios.post(
           `/user/staff/signatureNew/${currSchool}`,
@@ -569,7 +565,6 @@ const Viewdata = () => {
   const redirectToStudentEdit = (id) => {
     router.push(`/Viewdata/edit/${id}`);
   };
-
 
   const deleteStudent = async (id) => {
     // Show loading Swal
@@ -678,83 +673,16 @@ const Viewdata = () => {
 
   const handleSearch = (query, currentRole) => {
     setSearchQuery(query);
-    if (currRole === "student") {
-      setPagination({
-        totalStudents: 0,
-        totalPages: 0,
-        currentPage: 1,
-        pageSize: 50,
-      });
-      handleFormSubmit(false);
-      return;
-    }
 
-    let filtered = [];
-
-    if (currRole === "student") {
-      filtered = studentData.filter((student) => {
-        return (
-          student.name.toLowerCase().includes(query.toLowerCase()) ||
-          (student.fatherName &&
-            student.fatherName.toLowerCase().includes(query.toLowerCase())) ||
-          (student.email &&
-            student.email.toLowerCase().includes(query.toLowerCase())) ||
-          (student.rollNo &&
-            student.rollNo.toLowerCase().includes(query.toLowerCase())) ||
-          (student.class &&
-            student.class.toLowerCase().includes(query.toLowerCase())) ||
-          (student.admissionNo &&
-            student.admissionNo.toLowerCase().includes(query.toLowerCase())) ||
-          (student.contact &&
-            student.contact.toLowerCase().includes(query.toLowerCase())) ||
-          (student.section &&
-            student.section.toLowerCase().includes(query.toLowerCase())) ||
-          (student.session &&
-            student.session.toLowerCase().includes(query.toLowerCase()))
-        );
-      });
-    } else if (currRole === "staff") {
-      filtered = staffData.filter((staff) => {
-        return (
-          staff.name.toLowerCase().includes(query.toLowerCase()) ||
-          (staff.fatherName &&
-            staff.fatherName.toLowerCase().includes(query.toLowerCase())) ||
-          (staff.husbandName &&
-            staff.husbandName.toLowerCase().includes(query.toLowerCase())) ||
-          (staff.email &&
-            staff.email.toLowerCase().includes(query.toLowerCase())) ||
-          (staff.contact &&
-            staff.contact.toLowerCase().includes(query.toLowerCase())) ||
-          (staff.qualification &&
-            staff.qualification.toLowerCase().includes(query.toLowerCase())) ||
-          (staff.designation &&
-            staff.designation.toLowerCase().includes(query.toLowerCase())) ||
-          (staff.staffType &&
-            staff.staffType.toLowerCase().includes(query.toLowerCase())) ||
-          (staff.doj &&
-            staff.doj.toLowerCase().includes(query.toLowerCase())) ||
-          (staff.staffID &&
-            staff.staffID.toLowerCase().includes(query.toLowerCase())) ||
-          (staff.uid &&
-            staff.uid.toLowerCase().includes(query.toLowerCase())) ||
-          (staff.schoolName &&
-            staff.schoolName.toLowerCase().includes(query.toLowerCase())) ||
-          (staff.bloodGroup &&
-            staff.bloodGroup.toLowerCase().includes(query.toLowerCase())) ||
-          (staff.panCardNo &&
-            staff.panCardNo.toLowerCase().includes(query.toLowerCase()))
-        );
-      });
-    }
-
-    // Set the filtered data based on role
-    if (currRole === "student") {
-      setstudents(filtered);
-    } else if (currRole === "staff") {
-      setstaffs(filtered);
-    }
+    setPagination({
+      totalStudents: 0,
+      totalPages: 0,
+      currentPage: 1,
+      pageSize: 50,
+    });
+    handleFormSubmit(false);
+    return;
   };
-
 
   const [isAllSelected, setIsAllSelected] = useState(false); // State to track selection
 
@@ -787,8 +715,8 @@ const Viewdata = () => {
         fatchStudent();
         setStudentIds([]);
         setStaffIds([]);
-        setIsAllSelected(false)
-        selectAllStudents()
+        setIsAllSelected(false);
+        selectAllStudents();
         // Show success alert after successful deletion
         Swal.fire("Success!", "Students deleted successfully.", "success");
       } catch (error) {
@@ -850,8 +778,6 @@ const Viewdata = () => {
     setIsAllSelected(!isAllSelected); // Toggle the state
   };
 
- 
-
   useEffect(() => {
     const savedSchool = localStorage.getItem("currSchool");
     const savedRole = localStorage.getItem("currRole");
@@ -871,7 +797,7 @@ const Viewdata = () => {
           console.log(response.data.data);
         })
         .catch((err) => {
-          console.log("Error fetching school data"); // Handle error if request fails
+          console.log("Error fetching Vendor data"); // Handle error if request fails
         });
     }
     console.log(savedStatus);
@@ -913,7 +839,7 @@ const Viewdata = () => {
   };
   const handleShare2 = (studentID, name) => {
     if (!studentID || !currSchool) {
-      console.error("Student ID or school ID is missing.");
+      console.error("Student ID or Vendor ID is missing.");
       return;
     }
 
@@ -980,8 +906,6 @@ const Viewdata = () => {
     }
   };
 
-
-
   return (
     <div>
       <Nav />
@@ -1015,7 +939,7 @@ const Viewdata = () => {
                     value={currSchool}
                     className="mt-1 h-10 px-3 border block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   >
-                    <option value="">Select School</option>
+                    <option value="">Select Vendor</option>
                     {schools?.map((school) => (
                       <option key={school._id} value={school._id}>
                         {school.name}
@@ -1092,7 +1016,7 @@ const Viewdata = () => {
 
           {!loginSchool && schools?.length === 0 && (
             <h4 className="text-center text-2xl py-2 px-5 text-red-500">
-              Please add a School
+              Please add a Vendor
             </h4>
           )}
         </div>
@@ -1107,7 +1031,7 @@ const Viewdata = () => {
           <div className="flex justify-center items-center  bg-gray-50">
             <div className="bg-yellow-100 text-yellow-700 p-8 rounded-lg border-l-8 border-yellow-600 shadow-xl mx-auto max-w-md">
               <p className="font-semibold text-lg text-center leading-relaxed">
-                Please select a School Role and Status.
+                Please select a Vendor Role and Status.
               </p>
             </div>
           </div>
@@ -1148,7 +1072,7 @@ const Viewdata = () => {
                           : "Search staff..."
                       }
                       value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onChange={(e) => handleSearch(e.target.value)}
                       className="w-full p-2 sm:p-3 border-none focus:outline-none rounded-r-md text-sm sm:text-base"
                     />
                   </div>
@@ -1287,7 +1211,7 @@ const Viewdata = () => {
                           className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                           style={{ maxHeight: "200px", overflowY: "auto" }}
                         >
-                        {/* all staff type */}
+                          {/* all staff type */}
                           <option value=""> Staff Type</option>
                           {unqiueStaff.map(
                             (name, index) =>
@@ -1319,7 +1243,7 @@ const Viewdata = () => {
                           className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                           style={{ maxHeight: "200px", overflowY: "auto" }}
                         >
-                        {/* all staff type */}
+                          {/* all staff type */}
                           <option value=""> Institute</option>
                           {unqiueStaffInsi.map(
                             (name, index) =>
@@ -1401,125 +1325,37 @@ const Viewdata = () => {
                   <h2 className="text-lg font-semibold text-gray-700 text-center py-2">
                     {student?.name}
                   </h2>
-                  {student?.fatherName && (
-                    <h6 className="text-gray-700">
-                      Fathers Name: {student?.fatherName}
-                    </h6>
-                  )}
-                  {student?.motherName && (
-                    <p className="text-gray-700">
-                      Mothers Name: {student?.motherName}
-                    </p>
-                  )}
-                  {student?.dob && (
-                    <p className="text-gray-700">
-                      Date of Birth: {student?.dob}
-                    </p>
-                  )}
-                  {student?.contact && (
-                    <p className="text-gray-700">Contact: {student?.contact}</p>
-                  )}
-                  {student?.email && (
-                    <p className="text-gray-700">Email: {student?.email}</p>
-                  )}
-                  {student?.address && (
-                    <p className="text-gray-700">Address: {student?.address}</p>
-                  )}
-                  {student?.rollNo && (
-                    <p className="text-gray-700">Roll No.: {student?.rollNo}</p>
-                  )}
-                  {student?.class && (
-                    <p className="text-gray-700">Class: {student?.class}</p>
-                  )}
-                  {student?.section && (
-                    <p className="text-gray-700">Section: {student?.section}</p>
-                  )}
-                  {student?.session && (
-                    <p className="text-gray-700">Session: {student?.session}</p>
-                  )}
-                  {student?.admissionNo && (
-                    <p className="text-gray-700">
-                      Admission No.: {student?.admissionNo}
-                    </p>
-                  )}
-                  {student?.busNo && (
-                    <p className="text-gray-700">Bus No.: {student?.busNo}</p>
-                  )}
-                  {student?.bloodGroup && (
-                    <p className="text-gray-700">
-                      Blood Group: {student?.bloodGroup}
-                    </p>
-                  )}
-                  {student?.studentID && (
-                    <p className="text-gray-700">
-                      Student ID: {student?.studentID}
-                    </p>
-                  )}
-                  {student?.aadharNo && (
-                    <p className="text-gray-700">
-                      Aadhar No.: {student?.aadharNo}
-                    </p>
-                  )}
-                  {student?.ribbionColour && (
-                    <p className="text-gray-700">
-                      Ribbon Colour: {student?.ribbionColour}
-                    </p>
-                  )}
-                  {student?.routeNo && (
-                    <p className="text-gray-700">
-                      Route No.: {student?.routeNo}
-                    </p>
-                  )}
                   {student?.photoNameUnuiq && (
                     <p className="text-gray-700">
                       Photo Unique No.: {student?.photoNameUnuiq}
                     </p>
                   )}
 
-                  {student?.houseName && (
-                    <p className="text-gray-700">
-                      House Name: {student?.houseName}
-                    </p>
-                  )}
-                  {student?.validUpTo && (
-                    <p className="text-gray-700">
-                      Valid Up To: {student?.validUpTo}
-                    </p>
-                  )}
-                  {student?.course && (
-                    <p className="text-gray-700">Course: {student?.course}</p>
-                  )}
-                  {student?.batch && (
-                    <p className="text-gray-700">Batch: {student?.batch}</p>
-                  )}
-                  {student?.idNo && (
-                    <p className="text-gray-700">ID No.: {student?.idNo}</p>
-                  )}
-                  {student?.regNo && (
-                    <p className="text-gray-700">Reg. No.: {student?.regNo}</p>
-                  )}
-                  {student?.extraField1 && (
-                    <p className="text-gray-700">
-                      Extra Field-1: {student?.extraField1}
-                    </p>
-                  )}
-                  {student?.extraField2 && (
-                    <p className="text-gray-700">
-                      Extra Field-2: {student?.extraField2}
-                    </p>
-                  )}
+                  <p className="text-gray-700">
+                    Class: {student?.class || <span>&nbsp;</span>}
+                  </p>
 
-                  {Object.entries(student.extraFields || {}).length > 0 && (
-                    <ul>
-                      {Object.entries(student.extraFields).map(
-                        ([key, value]) => (
-                          <li key={key} className="flex gap-2">
-                            <p>{key}:</p> {value}
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  )}
+                  <p className="text-gray-700">
+                    Section: {student?.section || <span>&nbsp;</span>}
+                  </p>
+
+                  <p className="text-gray-700">
+                    Course: {student?.course || <span>&nbsp;</span>}
+                  </p>
+
+                  <ul>
+                    {schoolData.extraFields.map((field, index) => (
+                      <li key={index} className="flex gap-2">
+                        <p>{field?.name}:</p>
+                        {student.extraFields &&
+                        student.extraFields[field?.name] ? (
+                          <span>{student.extraFields[field?.name]}</span>
+                        ) : (
+                          <span>{""}</span> // Agar value nahi mili to "N/A" dikhayega
+                        )}
+                      </li>
+                    ))}
+                  </ul>
 
                   <div className="w-full  flex justify-center items-center mt-2">
                     {status === "Panding" && (
@@ -1604,144 +1440,46 @@ const Viewdata = () => {
                   <h2 className="text-lg font-medium text-gray-700 text-center py-2">
                     {staff?.name}
                   </h2>
-                  {staff?.fatherName && (
-                    <p className="text-gray-700">
-                      Father&apos;s Name: {staff?.fatherName}
-                    </p>
-                  )}
-                  {staff?.husbandName && (
-                    <p className="text-gray-700">
-                      Husband&apos;s Name: {staff?.husbandName}
-                    </p>
-                  )}
+
                   {staff?.photoNameUnuiq && (
                     <p className="text-gray-700">
                       Photo Unique No.: {staff?.photoNameUnuiq}
                     </p>
                   )}
-                  {staff?.dob && (
-                    <p className="text-gray-700">Date of Birth: {staff?.dob}</p>
-                  )}
-                  {staff?.contact && (
-                    <p className="text-gray-700">Contact: {staff?.contact}</p>
-                  )}
-                  {staff?.email && (
-                    <p className="text-gray-700">Email: {staff?.email}</p>
-                  )}
-                  {staff?.address && (
-                    <p className="text-gray-700">Address: {staff?.address}</p>
-                  )}
-                  {staff?.qualification && (
-                    <p className="text-gray-700">
-                      Qualification: {staff?.qualification}
-                    </p>
-                  )}
-                  {staff?.designation && (
-                    <p className="text-gray-700">
-                      Designation: {staff?.designation}
-                    </p>
-                  )}
-                  {staff?.staffType && (
-                    <p className="text-gray-700">
-                      Staff Type: {staff?.staffType}
-                    </p>
-                  )}
-                  {staff?.doj && (
-                    <p className="text-gray-700">
-                      Date of Joining: {staff?.doj}
-                    </p>
-                  )}
-                  {staff?.uid && (
-                    <p className="text-gray-700">UID: {staff?.uid}</p>
-                  )}
-                  {staff?.staffID && (
-                    <p className="text-gray-700">Staff ID: {staff?.staffID}</p>
-                  )}
-                  {staff?.udiseCode && (
-                    <p className="text-gray-700">
-                      UDISE Code: {staff?.udiseCode}
-                    </p>
-                  )}
-                  {staff?.schoolName && (
-                    <p className="text-gray-700">
-                      School Name: {staff?.schoolName}
-                    </p>
-                  )}
-                  {staff?.bloodGroup && (
-                    <p className="text-gray-700">
-                      Blood Group: {staff?.bloodGroup}
-                    </p>
-                  )}
-                  {staff?.dispatchNo && (
-                    <p className="text-gray-700">
-                      Dispatch No.: {staff?.dispatchNo}
-                    </p>
-                  )}
-                  {staff?.dateOfissue && (
-                    <p className="text-gray-700">
-                      Date of Issue: {staff?.dateOfissue}
-                    </p>
-                  )}
-                  {staff?.ihrmsNo && (
-                    <p className="text-gray-700">IHRMS No.: {staff?.ihrmsNo}</p>
-                  )}
-                  {staff?.beltNo && (
-                    <p className="text-gray-700">Belt No.: {staff?.beltNo}</p>
-                  )}
-                  {staff?.licenceNo && (
-                    <p className="text-gray-700">
-                      Licence No.: {staff?.licenceNo}
-                    </p>
-                  )}
-                  {staff?.idNo && (
-                    <p className="text-gray-700">ID No.: {staff?.idNo}</p>
-                  )}
-                  {staff?.jobStatus && (
-                    <p className="text-gray-700">
-                      Job Status: {staff?.jobStatus}
-                    </p>
-                  )}
-                  {staff?.panCardNo && (
-                    <p className="text-gray-700">
-                      PAN Card No.: {staff?.panCardNo}
-                    </p>
-                  )}
-                  {staff?.adharNo && (
-                    <p className="text-gray-700">
-                      Addhar Card No.: {staff?.adharNo}
-                    </p>
-                  )}
-                  {staff?.extraField1 && (
-                    <p className="text-gray-700">
-                      Extra Field 1: {staff?.extraField1}
-                    </p>
-                  )}
-                  {staff?.institute && (
-                    <p className="text-gray-700">
-                    Institute: {staff?.institute}
-                    </p>
-                  )}
+                  <p className="text-gray-700">
+                    Staff Type: {staff?.staffType || <span>&nbsp;</span>}
+                  </p>
 
-                  {Object.entries(staff.extraFieldsStaff || {}).length > 0 && (
-                    <ul>
-                      {Object.entries(staff.extraFieldsStaff).map(
-                        ([key, value]) => (
-                          <li key={key} className="flex gap-2">
-                            <p>{key}:</p> {value}
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  )}
-               {      schoolData &&    schoolData?.requiredFieldsStaff.includes("Signature Name") && 
-               <div className=" flex justify-center my-4">
-                 <img
-                    
-                      src={staff?.signatureImage?.url}
-                      alt={staff?.name}
-                      className="w-[80%] h-auto max-h-[85px]"
-                    />
-                 </div>}
+                  <p className="text-gray-700">
+                    Institute: {staff?.institute || <span>&nbsp;</span>}
+                  </p>
+
+                  <ul>
+                    {schoolData.extraFieldsStaff.map((field, index) => (
+                      <li key={index} className="flex gap-2">
+                        <p>{field?.name}:</p>
+                        {staff.extraFieldsStaff &&
+                        staff.extraFieldsStaff[field?.name] ? (
+                          <span>{staff.extraFieldsStaff[field?.name]}</span>
+                        ) : (
+                          <span>{""}</span> // Agar value nahi mili to "N/A" dikhayega
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {schoolData &&
+                    schoolData?.requiredFieldsStaff.includes(
+                      "Signature Name"
+                    ) && (
+                      <div className=" flex justify-center my-4">
+                        <img
+                          src={staff?.signatureImage?.url}
+                          alt={staff?.name}
+                          className="w-[80%] h-auto max-h-[85px]"
+                        />
+                      </div>
+                    )}
                   {/* Add more staff details as required */}
                   <div className="w-full flex justify-center items-center mt-2">
                     {status === "Panding" && (
@@ -1835,7 +1573,10 @@ const Viewdata = () => {
                     <FaImages /> Export Images
                   </button>
                 )}
-                {(currRole ==="staff"   && schoolData?.requiredFieldsStaff.includes("Signature Name") && user?.exportImage || user?.school?.exportImages) && (
+                {((currRole === "staff" &&
+                  schoolData?.requiredFieldsStaff.includes("Signature Name") &&
+                  user?.exportImage) ||
+                  user?.school?.exportImages) && (
                   <button
                     className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-lg shadow-lg"
                     onClick={downloadSignature}

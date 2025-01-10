@@ -1524,18 +1524,37 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
     // If there is a search term, add the search logic
     if (search) {
       queryObj.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { rollNo: { $regex: search, $options: "i" } },
-        { section: { $regex: search, $options: "i" } },
-        { class: { $regex: search, $options: "i" } },
-        { fatherName: { $regex: search, $options: "i" } },
-        { motherName: { $regex: search, $options: "i" } },
-        { contact: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
-        { admissionNo: { $regex: search, $options: "i" } },
-        { studentID: { $regex: search, $options: "i" } },
-        { aadharNo: { $regex: search, $options: "i" } },
-        { regNo: { $regex: search, $options: "i" } },
+        // { name: { $regex: search, $options: "i" } },
+        // { rollNo: { $regex: search, $options: "i" } },
+        // { section: { $regex: search, $options: "i" } },
+        // { class: { $regex: search, $options: "i" } },
+        // { fatherName: { $regex: search, $options: "i" } },
+        // { motherName: { $regex: search, $options: "i" } },
+        // { contact: { $regex: search, $options: "i" } },
+        // { email: { $regex: search, $options: "i" } },
+        // { admissionNo: { $regex: search, $options: "i" } },
+        // { studentID: { $regex: search, $options: "i" } },
+        // { aadharNo: { $regex: search, $options: "i" } },
+        // { regNo: { $regex: search, $options: "i" } },
+        {
+          $expr: {
+            $gt: [
+              {
+                $size: {
+                  $filter: {
+                    input: { $objectToArray: "$extraFields" },
+                    as: "field",
+                    cond: {
+                      $regexMatch: { input: "$$field.v", regex: search, options: "i" },
+                    },
+                  },
+                },
+              },
+              0,
+            ],
+          },
+        },
+
         // You can add more fields here as needed
       ];
     }
@@ -1594,8 +1613,38 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
   const status = req.query.status; // State from query parameters
   const staffType = req.query.staffType; // Search term from query parameters
   const institute = req.query.institute; // Search term from query parameters
+  const search = req.query.search; // Search term from query parameters
 
   let queryObj = { school: schoolId };
+
+
+  if (search) {
+    queryObj.$or = [
+      // { name: { $regex: search, $options: "i" } },
+
+      {
+        $expr: {
+          $gt: [
+            {
+              $size: {
+                $filter: {
+                  input: { $objectToArray: "$extraFieldsStaff" },
+                  as: "field",
+                  cond: {
+                    $regexMatch: { input: "$$field.v", regex: search, options: "i" },
+                  },
+                },
+              },
+            },
+            0,
+          ],
+        },
+      },
+
+      // You can add more fields here as needed
+    ];
+  }
+
 
   const StaffData = await School.findById(schoolId);
   const staffTypes = StaffData.requiredFieldsStaff.includes("Staff Type")

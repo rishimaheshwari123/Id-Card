@@ -1,22 +1,16 @@
 "use client"
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
+
 import axios from "../../../../axiosconfig";
-import { FaRegUser } from "react-icons/fa";
-import { LiaProductHunt } from "react-icons/lia";
-import { FiShoppingCart } from "react-icons/fi";
-import { FaSchool } from "react-icons/fa";
-import { IoIosSchool } from "react-icons/io";
+
 import Layout from "@/app/components/Admin/Layout";
-import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from "recharts";
-import Image from 'next/image'
 
 const ChangeLimits = () => {
   const [users, setUsers] = useState();
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
-  const dispatch = useDispatch();
+
   const basePath = "/admin"; // Add this line to define basePath
 
   const config = () => {
@@ -89,20 +83,20 @@ const ChangeLimits = () => {
                     <th className="py-2 px-4 font-semibold">Name</th>
                     <th className="py-2 px-4 font-semibold">Email</th>
                     <th className="py-2 px-4 font-semibold">
-                      schoolLimit
+                    Vendor Limit
                     </th>
                     <th className="py-2 px-4 font-semibold">
-                      studentLimit
+                      Student Limit
                     </th>
                     <th className="py-2 px-4 font-semibold">staffLimit</th>
                     <th className="py-2 px-4 font-semibold">Contact</th>
                     <th className="py-2 px-4 font-semibold">city</th>
                     <th className="py-2 px-4 font-semibold">
-                      district
+                      District
                     </th>
                     <th className="py-2 px-4 font-semibold">state</th>
                     <th className="py-2 px-4 font-semibold">
-                      companyName
+                      Company Name
                     </th>
                   </tr>
                 </thead>

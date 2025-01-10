@@ -4,114 +4,77 @@ import React, { useEffect } from "react";
 import Nav from "../components/Nav";
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
+import Swal from "sweetalert2";
 import { deletSchool } from "@/redux/actions/userAction";
-import Image from "next/image";
 
 const SchoolList = () => {
-  // Fetch schools data from Redux store
   const { schools, error } = useSelector((state) => state.user);
   const dispatch = useDispatch();
 
-  const currdeletSchool = (id) => {
-    dispatch(deletSchool(id));
+  // Handle delete with SweetAlert2 confirmation
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(deletSchool(id));
+        Swal.fire("Deleted!", "The school has been deleted.", "success");
+      }
+    });
   };
 
-  
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-gray-50 min-h-screen">
       <Nav />
-      <div className="max-w-4xl mx-auto ">
-        <h1 className="text-3xl font-bold text-gray-800  pt-20">School List</h1>
-        {error && <p className="text-red-500">{error}</p>}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-16">
+      <div className="max-w-6xl mx-auto px-4 py-20">
+        <h1 className="text-4xl font-bold text-gray-800 mb-6 text-center">
+          School List
+        </h1>
+        {error && (
+          <p className="text-center text-red-500 font-medium mb-4">{error}</p>
+        )}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {/* Loop through schools and display each */}
           {schools?.map((school) => (
-            <div key={school._id} className="bg-white rounded-lg shadow-md p-4">
-              <Image
-                height={50}
-                width={50}
-                src={school?.logo?.url}
-                alt={school?.name}
-                className="w-full h-32 object-cover mb-4 rounded-lg"
-              />
-              <h2 className="text-xl font-semibold mb-2 text-gray-800 truncate">
+            <div
+              key={school._id}
+              className="bg-white rounded-lg shadow-lg p-6 border border-gray-200 hover:shadow-xl transition duration-200"
+            >
+              <h2 className="text-2xl font-semibold text-gray-700 mb-4 truncate">
                 {school?.name}
               </h2>
               {school?.contact && (
                 <p className="text-sm text-gray-600 mb-2">
-                  Contact: {school.contact}
+                  <strong>Contact:</strong> {school.contact}
                 </p>
               )}
               {school?.showPassword && (
                 <p className="text-sm text-gray-600 mb-2">
-                  Password: {school.showPassword}
+                  <strong>Password:</strong> {school.showPassword}
                 </p>
               )}
               {school?.address && (
                 <p className="text-sm text-gray-600 mb-2">
-                  Address: {school.address}
+                  <strong>Address:</strong> {school.address}
                 </p>
               )}
-              {school?.requiredFields?.length != 0 && (
-                <div>
-                  <h6>Required Student Fields</h6>
-                  {school?.requiredFields?.map((field, index) => (
-                    <p
-                      key={index}
-                      className="bg-gray-200 text-gray-800 px-2 py-1 rounded-md text-sm mr-2 mb-2 inline-block"
-                    >
-                      {field}
-                    </p>
-                  ))}
-
-                  {school?.extraFields?.map((field, index) => (
-                    <p
-                      key={index}
-                      className="bg-gray-200 text-gray-800 px-2 py-1 rounded-md text-sm mr-2 mb-2 inline-block"
-                    >
-                      {field.name}{" "}
-                      {/* Accessing the 'name' field of each item */}
-                    </p>
-                  ))}
-                </div>
-              )}
-
-              {school?.requiredFieldsStaff?.length != 0 && (
-                <div>
-                  <h6>Required Staff Fields</h6>
-                  {school?.requiredFieldsStaff?.map((field, index) => (
-                    <p
-                      key={index}
-                      className="bg-gray-200 text-gray-800 px-2 py-1 rounded-md text-sm mr-2 mb-2 inline-block"
-                    >
-                      {field}
-                    </p>
-                  ))}
-                  {school?.extraFieldsStaff?.map((field, index) => (
-                    <p
-                      key={index}
-                      className="bg-gray-200 text-gray-800 px-2 py-1 rounded-md text-sm mr-2 mb-2 inline-block"
-                    >
-                      {field.name}{" "}
-                      {/* Accessing the 'name' field of each item */}
-                    </p>
-                  ))}
-                </div>
-              )}
-
-              {/* <button className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600">
-                View Details
-              </button> */}
-              <div className="flex gap-2  ">
+              <div className="flex gap-4 mt-4">
                 <Link
                   href={`/SchoolList/${school._id}`}
-                  className="bg-blue-500 text-xs text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+                  className="bg-blue-500 text-sm text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
                 >
                   Edit School
                 </Link>
                 <button
-                  className="bg-red-500 text-xs text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
-                  onClick={() => currdeletSchool(school._id)}
+                  className="bg-red-500 text-sm text-white py-2 px-4 rounded-lg hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
+                  onClick={() => handleDelete(school._id)}
                 >
                   Delete School
                 </button>
@@ -119,6 +82,11 @@ const SchoolList = () => {
             </div>
           ))}
         </div>
+        {schools?.length === 0 && (
+          <p className="text-center text-gray-500 mt-10">
+            No schools available. Add new schools to display here.
+          </p>
+        )}
       </div>
     </div>
   );

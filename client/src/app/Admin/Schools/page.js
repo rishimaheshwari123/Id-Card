@@ -49,7 +49,7 @@ function Schools() {
             <div id="right-dashboard">
               <div className="nav flex items-center justify-between w-full py-4 px-6 border-b-2 border-gray-200 	">
                 <div className="left flex items-center gap-3">
-                  <h1 className="font-semibold"> Schools</h1>
+                  <h1 className="font-semibold"> Vendors</h1>
                 </div>
               </div>
             </div>

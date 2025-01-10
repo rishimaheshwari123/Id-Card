@@ -180,7 +180,7 @@ const ChageImages = async (id) =>{
                     <th className="py-2 px-4 font-semibold">district</th>
                     <th className="py-2 px-4 font-semibold">state</th>
                     <th className="py-2 px-4 font-semibold">companyName</th>
-                    <th className="py-2 px-4 font-semibold">schoolLimit</th>
+                    <th className="py-2 px-4 font-semibold">VendorLimit</th>
                     <th className="py-2 px-4 font-semibold">studentLimit</th>
                     <th className="py-2 px-4 font-semibold">staffLimit</th>
                     <th className="py-2 px-4 font-semibold">exportExcel</th>

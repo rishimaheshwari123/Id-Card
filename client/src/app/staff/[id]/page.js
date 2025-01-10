@@ -47,6 +47,8 @@ function Page({ params }) {
   const [selectedImage, setSelectedImage] = useState(null); // Base64 image data
   const [extraFieldsStaff, setExtraFieldsStaff] = useState({});
   const [isPending, setIsPending] = useState(false);
+ const [SignatureData, setSignatureData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
+  const [selectedImageSig, setSelectedImageSig] = useState(null); // Base64 image data
 
   const dispatch = useDispatch();
 
@@ -105,6 +107,10 @@ function Page({ params }) {
         setImageData({
           publicId: staffData?.avatar?.publicId,
           url: staffData?.avatar?.url,
+        });
+        setSignatureData({
+          publicId: staffData?.signatureImage?.publicId,
+          url: staffData?.signatureImage?.url,
         });
         setLicenceNo(staffData?.licenceNo); // New field
         setIdNo(staffData?.idNo); // New field
@@ -172,6 +178,7 @@ function Page({ params }) {
       console.log(formData);
       console.log(id);
       if (extraFieldsStaff) formData.extraFieldsStaff = extraFieldsStaff;
+      if (SignatureData) formData.signatureImage = SignatureData;
 
       const response = await dispatch(editStaff(formData, id));
       if (response === "Staff updated successfully") {
@@ -228,7 +235,7 @@ function Page({ params }) {
   
   return (
     <div>
-      <section className="bg-white dark:bg-gray-900 py-10 w-full flex justify-center items-center pt-16 ">
+     <section className="bg-white dark:bg-gray-900 py-10 w-full flex justify-center items-center pt-16 ">
         <div className="w-[320px]">
           <form action="mt-3 w-[320px]" onSubmit={handleFormSubmit}>
             <h3 className="text-center text-xl py-3 border-b-2 mb-4 border-indigo-500">
@@ -265,150 +272,7 @@ function Page({ params }) {
                 required
               />
             </div>
-            {currSchool?.requiredFieldsStaff?.includes("Father's Name") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="fatherName"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Father Name
-                </label>
-                <input
-                  type="text"
-                  id="fatherName"
-                  value={fatherName}
-                  placeholder="Father's Name"
-                  onChange={(e) => setFatherName(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-            {currSchool?.requiredFieldsStaff?.includes("Husband's Name") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="husbandName"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Husaband Name
-                </label>
-                <input
-                  type="text"
-                  id="husbandName"
-                  value={husbandName}
-                  placeholder="Husband's Name"
-                  onChange={(e) => setHusbandName(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-            {currSchool?.requiredFieldsStaff?.includes("Date of Birth") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="dob"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Date Of Birth
-                </label>
-                <input
-                  type="text"
-                  id="dob"
-                  value={dob}
-                  placeholder="Date of Birth"
-                  onChange={(e) => setDob(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-            {currSchool?.requiredFieldsStaff?.includes("Contact No.") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="contact"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Contact No.
-                </label>
-                <input
-                  type="text"
-                  id="contact"
-                  value={contact}
-                  placeholder="Contact"
-                  onChange={(e) => setContact(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-            {currSchool?.requiredFieldsStaff?.includes("E-mail") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  E-mail
-                </label>
-                <input
-                  type="text"
-                  id="email"
-                  value={email}
-                  placeholder="Email"
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-            {currSchool?.requiredFieldsStaff?.includes("Address") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="address"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Address
-                </label>
-                <input
-                  type="text"
-                  id="address"
-                  value={address}
-                  placeholder="Address"
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-            {currSchool?.requiredFieldsStaff?.includes("Qualification") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="qualification"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Qualification
-                </label>
-                <input
-                  type="text"
-                  id="qualification"
-                  value={qualification}
-                  placeholder="Qualification"
-                  onChange={(e) => setQualification(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-            {currSchool?.requiredFieldsStaff?.includes("Designation") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="designation"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Designation
-                </label>
-                <input
-                  type="text"
-                  id="designation"
-                  value={designation}
-                  placeholder="Designation"
-                  onChange={(e) => setDesignation(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
+          
             {currSchool?.requiredFieldsStaff?.includes("Staff Type") && (
               <div className="mb-4">
                 <label
@@ -427,302 +291,16 @@ function Page({ params }) {
                 />
               </div>
             )}
-            {currSchool?.requiredFieldsStaff?.includes("Date of Joining") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="doj"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Date of Joining
-                </label>
-                <input
-                  type="text"
-                  id="doj"
-                  value={doj}
-                  placeholder="Date of Joining"
-                  onChange={(e) => setDoj(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-
-            {/* Remanin */}
-
-            {currSchool?.requiredFieldsStaff?.includes("Staff ID") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="staffId"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Staff ID
-                </label>
-                <input
-                  type="text"
-                  id="staffId"
-                  value={staffID}
-                  placeholder="Staff ID"
-                  onChange={(e) => setStaffID(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-            {currSchool?.requiredFieldsStaff?.includes("UDISE Code") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="uid"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  UDISE Code
-                </label>
-                <input
-                  type="text"
-                  id="uid"
-                  value={udiseCode}
-                  placeholder="UID Code"
-                  onChange={(e) => setUdiseCode(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-            {currSchool?.requiredFieldsStaff?.includes("Office Name") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="schoolName"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Office Name
-                </label>
-                <input
-                  type="text"
-                  id="schoolName"
-                  value={schoolName}
-                  placeholder="Office Name"
-                  onChange={(e) => setSchoolName(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-            {currSchool?.requiredFieldsStaff?.includes("Blood Group") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="bloodGroup"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Blood Group
-                </label>
-                <input
-                  type="text"
-                  id="bloodGroup"
-                  value={bloodGroup}
-                  placeholder="Blood Group"
-                  onChange={(e) => setBloodGroup(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-            {currSchool?.requiredFieldsStaff?.includes("Dispatch No.") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="dispatchNo"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Dispatch No.
-                </label>
-                <input
-                  type="text"
-                  id="dispatchNo"
-                  value={dispatchNo}
-                  placeholder="Dispatch No."
-                  onChange={(e) => setDispatchNo(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-            {currSchool?.requiredFieldsStaff?.includes("Date of Issue") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="dateOfIssue"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Date of Issue.
-                </label>
-                <input
-                  type="text"
-                  id="dateOfIssue"
-                  value={dateOfIssue}
-                  placeholder="Date of Issue"
-                  onChange={(e) => setDateOfIssue(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-            {currSchool?.requiredFieldsStaff?.includes("IHRMS No.") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="ihrmsNo"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  IHRMS No.
-                </label>
-                <input
-                  type="text"
-                  id="ihrmsNo"
-                  value={ihrmsNo}
-                  placeholder=""
-                  onChange={(e) => setIhrmsNo(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-            {currSchool?.requiredFieldsStaff?.includes("Belt No.") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="beltNo"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Belt No.
-                </label>
-                <input
-                  type="text"
-                  id="beltNo"
-                  value={beltNo}
-                  placeholder="Belt No."
-                  onChange={(e) => setBeltNo(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-
-            {/* Repeat above pattern for other fields */}
-
-            {/* Licence No. */}
-            {currSchool?.requiredFieldsStaff?.includes("Licence No.") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="licenceNo"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Licence No.
-                </label>
-                <input
-                  type="text"
-                  id="licenceNo"
-                  value={licenceNo}
-                  placeholder="Licence No."
-                  onChange={(e) => setLicenceNo(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-
-            {/* ID No. */}
-            {currSchool?.requiredFieldsStaff?.includes("ID No.") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="idNo"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  ID No.
-                </label>
-                <input
-                  type="text"
-                  id="idNo"
-                  value={idNo}
-                  placeholder="ID No."
-                  onChange={(e) => setIdNo(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-
-            {/* Job Status */}
-            {currSchool?.requiredFieldsStaff?.includes("Job Status") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="jobStatus"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Job Status
-                </label>
-                <input
-                  type="text"
-                  id="jobStatus"
-                  value={jobStatus}
-                  placeholder="Job Status"
-                  onChange={(e) => setJobStatus(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-
-            {/* PAN Card No. */}
-            {currSchool?.requiredFieldsStaff?.includes("PAN Card No.") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="panCardNo"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  PAN Card No.
-                </label>
-                <input
-                  type="text"
-                  id="panCardNo"
-                  value={panCardNo}
-                  placeholder="PAN Card No."
-                  onChange={(e) => setPanCardNo(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-
-            {/* Aadhar Card No. */}
-            {currSchool?.requiredFieldsStaff?.includes("Aadhar Card No.") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="aadharCardNo"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Aadhar Card No.
-                </label>
-                <input
-                  type="text"
-                  id="aadharCardNo"
-                  value={aadharCardNo}
-                  placeholder="Aadhar Card No."
-                  onChange={(e) => setAadharCardNo(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-
-            {/* Extra Field 1 */}
-            {currSchool?.requiredFieldsStaff?.includes("Extra Field 1") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="extraField1"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Extra Field 1
-                </label>
-                <input
-                  type="text"
-                  id="extraField1"
-                  value={extraField1}
-                  placeholder="Extra Field 1"
-                  onChange={(e) => setExtraField1(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
+           
 
             {/* Extra Field 2 */}
-            {currSchool?.requiredFieldsStaff?.includes("Extra Field 2") && (
+            {currSchool?.requiredFieldsStaff?.includes("Institute") && (
               <div className="mb-4">
                 <label
                   htmlFor="extraField2"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Extra Field 2
+                 Institute
                 </label>
                 <input
                   type="text"
@@ -734,6 +312,7 @@ function Page({ params }) {
                 />
               </div>
             )}
+
             {currSchool?.extraFieldsStaff?.length > 0 &&
               currSchool?.extraFieldsStaff?.map((field, index) => (
                 <div key={index} className="mb-4">
@@ -753,6 +332,34 @@ function Page({ params }) {
                   />
                 </div>
               ))}
+
+            {currSchool &&
+              currSchool?.requiredFieldsStaff.includes("Signature Name") && (
+              
+              <>
+
+                <div className=" flex justify-center my-4">
+                  <img
+                    height={50}
+                    width={50}
+                    src={SignatureData?.url}
+                     className="w-[80%] h-auto max-h-[85px]"
+                  />
+                </div>
+
+                <ImageUploaderWithCrop
+                  setImageData={setSignatureData}
+                  setSelectedImage={setSelectedImageSig}
+                  selectedImage={selectedImageSig}
+                  title="Upload Signature"
+                  height={true}
+              
+                />
+              </>
+              )}
+
+
+
             {/* Add a submit button */}
             <button
               type="submit"

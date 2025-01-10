@@ -50,7 +50,7 @@ const Addexcel = () => {
           console.log(response.data.data);
         })
         .catch((err) => {
-          console.log("Error fetching school data"); // Handle error if request fails
+          console.log("Error fetching Vendor data"); // Handle error if request fails
         });
     }
   };
@@ -256,7 +256,7 @@ const Addexcel = () => {
       } else {
         // If no file or school is selected, show an error toast and stop the loading toast
         toast.update(toastId, {
-          render: "No File or School Selected",
+          render: "No File or Vendor Selected",
           type: "error",
           isLoading: false,
           autoClose: 5000,
@@ -294,90 +294,7 @@ const Addexcel = () => {
     console.log([...selectedPhotos, ...files]);
   };
 
-  // const handleSubmitnowfuntiion = async (event) => {
-
-  //   event.preventDefault();
-
-  //   // Show loading alert
-  //   Swal.fire({
-  //     title: "Uploading photos...",
-  //     text: "Please wait while your photos are being uploaded.",
-  //     allowOutsideClick: false,
-  //     didOpen: () => {
-  //       Swal.showLoading();
-  //     },
-  //   });
-
-  //   const formData = new FormData();
-  //   console.log("Selected photos:", selectedPhotos); // Log selectedPhotos array
-  //   let message;
-  //   selectedPhotos.forEach((file, index) => {
-  //     // Append each file with a unique key based on its index
-  //     formData.append(`file`, file);
-  //   });
-
-  //   // Log FormData entries
-  //   for (const pair of formData.entries()) {
-  //     console.log(pair[0] + ", " + pair[1]);
-  //   }
-
-  //   try {
-  //     let response = "Successfully Uploaded";
-
-  //     if (currRole === "student") {
-  //       response = await axios.post(
-  //         `/user/student/avatars/${currSchool}`,
-  //         formData,
-  //         {
-  //           withCredentials: true,
-  //           headers: {
-  //             "Content-Type": "multipart/form-data",
-  //             authorization: `${localStorage.getItem("token")}`,
-  //           },
-  //         }
-  //       );
-  //       message = `Uploaded ${response.data.students.length} Photo`;
-  //     } else if (currRole === "staff") {
-  //       response = await axios.post(
-  //         `/user/staff/avatars/${currSchool}`,
-  //         formData,
-  //         {
-  //           withCredentials: true,
-  //           headers: {
-  //             "Content-Type": "multipart/form-data",
-  //             authorization: `${localStorage.getItem("token")}`,
-  //           },
-  //         }
-  //       );
-  //       message = `Uploaded ${response.data.staffs.length} Photo`;
-  //     }
-
-  //     console.log(response.data.staffs);
-
-  //     // Close loading alert and show success message
-  //     Swal.fire({
-  //       icon: "success",
-  //       title: "Upload Successful",
-  //       text: message,
-  //       timer: 5000,
-  //       timerProgressBar: true,
-  //     });
-
-  //     // setSelectedPhotos([]);
-  //   } catch (error) {
-  //     console.error("Error uploading photos:", error);
-
-  //     // Close loading alert and show error message
-  //     Swal.fire({
-  //       icon: "error",
-  //       title: "Upload Failed",
-  //       text: "Failed to upload photos. Please try again.",
-  //       timer: 5000,
-  //       timerProgressBar: true,
-  //     });
-  //   }
-  // };
-
+ 
   const fetchStudentAndStaffCount = async (schoolId) => {
     try {
       const [studentCountResponse, staffCountResponse] = await Promise.all([
@@ -573,7 +490,7 @@ const Addexcel = () => {
                   htmlFor="school"
                   className="block text-md text-center font-medium text-gray-700"
                 >
-                  Select School
+                  Select Vendor
                 </label>
                 <select
                   id="school"
@@ -581,7 +498,7 @@ const Addexcel = () => {
                   value={currSchool}
                   className="mt-1 h-10 px-3 border block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 >
-                  <option value="">Select School</option>
+                  <option value="">Select Vendor</option>
                   {schools?.map((school) => (
                     <option key={school._id} value={school._id}>
                       {school.name}
@@ -593,7 +510,7 @@ const Addexcel = () => {
           )}
           {schools?.length === 0 && (
             <h4 className="text-center text-2xl py-2 px-5 text-red-500">
-              Please add a School
+              Please add a Vendor
             </h4>
           )}
           <form className="mt-3 w-full max-w-md">

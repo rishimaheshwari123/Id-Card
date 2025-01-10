@@ -99,7 +99,7 @@ function Dashboard() {
                 <div className="admin-content p-6 flex flex-col sm:flex-row gap-6">
                   <div className="cart h-[150px] w-[250px] md:w-[280px] flex items-center justify-center flex-col sm:w-[300px] bg-[#fff] border-l-2 border-sky-500 rounded-lg text-center hover:text-[#fff]">
                     <FaSchool className="mx-auto h-[40px] w-[40px] " />
-                    <h2>Total Schools : {dashboardData.totalSchools}</h2>
+                    <h2>Total Vendors : {dashboardData.totalSchools}</h2>
                   </div>
                   <div className="cart h-[150px] w-[250px] md:w-[280px] flex items-center justify-center flex-col bg-[#fff] border-l-2 border-sky-500 rounded-lg text-center hover:text-[#fff]">
                     <FaRegUser className="mx-auto h-[40px] w-[40px] " />
