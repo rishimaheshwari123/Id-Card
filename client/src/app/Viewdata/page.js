@@ -1271,11 +1271,13 @@ const Viewdata = () => {
             )}
 
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+     <div>
+     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
   {students?.map((student) => (
     <div
       key={student?._id}
-           className={`relative shadow-lg p-6 rounded-xl border-2 w-full bg-gradient-to-b from-blue-400 via-blue-300 to-blue-100 transform  transition-all duration-300 ${
+                     className={`relative shadow-lg p-6 rounded-xl border-2 w-full bg-gradient-to-b from-blue-400 via-blue-300 to-blue-100 transform  transition-all duration-300 ${
+
 
         studentIds.includes(student._id) ? "border-blue-500" : "border-gray-200"
       }`}
@@ -1306,11 +1308,11 @@ const Viewdata = () => {
 
 
         <Image
-          height={50}
-          width={50}
+          height={100}
+          width={130}
+          className="min-w-30 min-h-26 rounded-full border-4 border-blue-500 shadow-lg"
           src={student?.avatar?.url}
           alt={student?.name}
-          className="w-20 h-20 rounded-full border-4 border-blue-500 shadow-lg"
 
 
         />
@@ -1379,6 +1381,7 @@ const Viewdata = () => {
     </div>
   ))}
 </div>
+     </div>
 
 
 
@@ -1387,8 +1390,9 @@ const Viewdata = () => {
           </div>
         )}
         {submitted && staffs?.length > 0 && (
-          <div className="container mx-auto">
+          <div className=" mx-auto px-16 ">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
   {staffs?.map((staff) => (
     <div
       key={staff?._id}
@@ -1418,13 +1422,15 @@ const Viewdata = () => {
       )}
 
       {/* Photo */}
+
+      <div className="flex flex-col items-center">
       <div className="flex justify-center my-4">
         <Image
-          height={50}
-          width={50}
+        height={100}
+          width={130}
+          className="min-w-30 min-h-24 rounded-full border-4 border-blue-500 shadow-lg"
           src={staff?.avatar?.url}
           alt={staff?.name}
-          className="w-20 h-20 rounded-full border-4 border-blue-500 shadow-lg"
 
         />
       </div>
@@ -1473,6 +1479,7 @@ const Viewdata = () => {
             </li>
           ))}
         </ul>
+      </div>
       </div>
 
       {/* Signature */}
