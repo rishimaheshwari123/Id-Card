@@ -3031,7 +3031,7 @@ exports.StaffAvatarsDownload = catchAsyncErron(async (req, res, next) => {
 
     const studentAvatars = students.map((student, index) => ({
       url: student.avatar.url,
-      name: student.photoNameUnuiq,
+      name: `IMG${student.photoNameUnuiq}`,
     }));
 
     // Create a temporary directory to store the avatars
@@ -3125,7 +3125,7 @@ exports.StaffNewAvatarsDownload = catchAsyncErron(async (req, res, next) => {
 
     const studentAvatars = students.map((student, index) => ({
       url: student.avatar.url,
-      name: student.photoNameUnuiq,
+      name: `IMG${student.photoNameUnuiq}`,
     }));
 
     // Create a temporary directory to store the avatars
@@ -3220,7 +3220,7 @@ exports.StaffSignatureDownload = catchAsyncErron(async (req, res, next) => {
 
     const studentAvatars = students.map((student, index) => ({
       url: student.signatureImage.url,
-      name: student.signatureNameUnuiq,
+      name: `SIG${student.signatureNameUnuiq}`,
     }));
 
     // Create a temporary directory to store the avatars

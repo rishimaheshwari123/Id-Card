@@ -1334,7 +1334,7 @@ const Viewdata = () => {
                         e.preventDefault();
                         deleteStudent(student._id);
                       }}
-                      className="absolute top-2 left-5 p-2 z-10 items-center bg-red-600 text-white  rounded-full hover:bg-red-700"
+                      className="absolute top-2 left-5 p-2 z- items-center bg-red-600 text-white  rounded-full hover:bg-red-700"
                     >
                       <FaTrashAlt />
                     </button>
@@ -1541,7 +1541,7 @@ const Viewdata = () => {
                   {status === "Panding" && (
                     <button
                       onClick={() => deleteStaff(staff._id)}
-                      className="absolute top-2 left-5 p-2 z-10 items-center bg-red-600 text-white  rounded-full hover:bg-red-700"
+                      className="absolute top-2 left-5 p-2 z- items-center bg-red-600 text-white  rounded-full hover:bg-red-700"
                     >
                       <FaTrashAlt />
                     </button>
