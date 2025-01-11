@@ -958,7 +958,6 @@ const Viewdata = () => {
               className="mt-6 w-full flex justify-between flex-wrap"
               onSubmit={handleFormSubmit}
             >
-            
               {/* School Dropdown */}
               {!loginSchool && (
                 <div className="mb-4 flex gap-3 items-center">
@@ -976,14 +975,18 @@ const Viewdata = () => {
                     ))}
                   </select>
 
-                  {
-                submitted &&   <Link
-                href={`/ShareUpload?vendor=${currSchool}&role=${currRole}`}
-                    className={`px-4 py-2 rounded-md font-medium  bg-gray-200 text-gray-700`}
-                >
-         Share 
-                </Link>
-              }
+                  {submitted && (
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(
+                        `Add Data With Excel: ${window.location.origin}/ShareUpload?vendor=${currSchool}&role=${currRole}`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-block px-4 py-2 rounded-md font-medium bg-green-500 text-white"
+                    >
+                      Share
+                    </a>
+                  )}
                 </div>
               )}
 
@@ -1011,15 +1014,14 @@ const Viewdata = () => {
                 >
                   Staff
                 </button>
-                {
-                submitted &&   <Link
-                href={`/Adddata?vendor=${currSchool}&role=${currRole}&class=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}`}
+                {submitted && (
+                  <Link
+                    href={`/Adddata?vendor=${currSchool}&role=${currRole}&class=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}`}
                     className={`px-4 py-2 rounded-md font-medium  bg-gray-200 text-gray-700`}
-                >
-                Add New {currRole}
-                </Link>
-              }
-               
+                  >
+                    Add New {currRole}
+                  </Link>
+                )}
               </div>
 
               {/* Status Selection Buttons */}
@@ -1077,10 +1079,6 @@ const Viewdata = () => {
                     </span>
                   )}
                 </button>
-
-             
-
-                
               </div>
             </form>
           )}
