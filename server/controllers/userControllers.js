@@ -1477,7 +1477,7 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
     const course = req.query.course; // Search term from query parameters
 
     console.log(course);
-    let queryObj = { school: schoolId };
+    let queryObj = { school: new mongoose.Types.ObjectId(schoolId) };
     const SchoolData = await School.findById(schoolId);
 
     const uniqueStudents = await Student.distinct("class", queryObj);
@@ -1595,9 +1595,7 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
     try {
        staffCountByStatus = await Student.aggregate([
         {
-          $match: {
-            school: new  mongoose.Types.ObjectId(schoolId), // Replace with your actual field for school ID
-          },
+          $match:queryObj,
         },
         {
           $group: {
@@ -1641,7 +1639,7 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
   const institute = req.query.institute; // Search term from query parameters
   const search = req.query.search; // Search term from query parameters
 
-  let queryObj = { school: schoolId };
+  let queryObj = { school: new mongoose.Types.ObjectId(schoolId)  };
 
 
   
@@ -1746,9 +1744,7 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
     try {
        staffCountByStatus = await Staff.aggregate([
         {
-          $match: {
-            school: new  mongoose.Types.ObjectId(schoolId), // Replace with your actual field for school ID
-          },
+          $match: queryObj,
         },
         {
           $group: {

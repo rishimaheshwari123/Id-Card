@@ -71,8 +71,8 @@ const Viewdata = () => {
   const [studentData, setStudentData] = useState([]);
   const [staffData, setStaffData] = useState([]);
 
-  const[statusCount,setSatusCount] = useState([])
-  
+  const [statusCount, setSatusCount] = useState([]);
+
   const resetState = () => {
     setstudents([]);
     setStudentData([]);
@@ -85,10 +85,10 @@ const Viewdata = () => {
       redirect("/");
     }
     if (user?.role == "school") {
-    const schoolId = user?.school?._id;
-      
-        console.log(user?.school);
-        axios
+      const schoolId = user?.school?._id;
+
+      console.log(user?.school);
+      axios
         .get(`user/getschool/${schoolId}`)
         .then((response) => {
           setSchoolData(response.data.data); // Update the state with fetched data
@@ -97,7 +97,7 @@ const Viewdata = () => {
         .catch((err) => {
           console.log("Error fetching Vendor data"); // Handle error if request fails
         });
-    
+
       setCurrSchool(user?.school?._id);
       setloginSchool(true);
     }
@@ -308,7 +308,7 @@ const Viewdata = () => {
 
   const handleFormSubmit = async (e) => {
     if (e) e.preventDefault();
-
+    setSatusCount([]);
     setLoading(true); // Start the loading spinner
     resetState(); // Reset state for students and staff
 
@@ -356,8 +356,7 @@ const Viewdata = () => {
         setClassname(response?.data?.uniqueStudents || []);
         setSections(response?.data?.uniqueSection || []);
         setUnqiueCourse(response?.data?.uniqueCourse || []);
-        setSatusCount(response.data.staffCountByStatus || [])
-
+        setSatusCount(response.data.staffCountByStatus || []);
       } else {
         setstaffs(response?.data?.staff || []);
         console.log(response?.data?.staff);
@@ -366,9 +365,9 @@ const Viewdata = () => {
           totalStudents: response.data.pagination.totalStudents,
           totalPages: response.data.pagination.totalPages,
         });
-        setSatusCount(response?.data?.staffCountByStatus || [])
-        console.log(statusCount)
-        console.log(response.data.staffCountByStatus)
+        setSatusCount(response?.data?.staffCountByStatus || []);
+        console.log(statusCount);
+        console.log(response.data.staffCountByStatus);
         setStaffData(response?.data?.staff || []);
         console.log(response?.data?.staffTypes);
         setUnqiueStaff(response?.data?.staffTypes || []);
@@ -928,7 +927,7 @@ const Viewdata = () => {
     }
   };
   const Statuschecker = (value) => {
-    const statusObj = statusCount?.find(count => count._id === value);
+    const statusObj = statusCount?.find((count) => count._id === value);
     return statusObj ? statusObj.count : 0; // Return count or 0 if not found
   };
   return (
@@ -1001,60 +1000,57 @@ const Viewdata = () => {
               </div>
 
               {/* Status Selection Buttons */}
-              <div className="mb-4 flex space-x-4">
+              <div className="mb-4 flex space-x-4 relative">
+  {/* Pending Button */}
   <button
     type="button"
     onClick={() => setstatus("Panding")}
-    className={`px-3 py-1 rounded-md font-medium ${
-      status === "Panding"
-        ? "bg-green-600 text-white"
-        : "bg-gray-200 text-gray-700"
+    className={`px-4 py-2 rounded-md font-medium relative ${
+      status === "Panding" ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700"
     }`}
   >
     Pending
     {statusCount.length > 0 && (
-      <span className="ml-2 text-sm ">
+      <span className="absolute -top-2 right-0 mt- mr-1 text-sm font-semibold text-white bg-red-600 rounded-full px-2">
         {Statuschecker("Panding")}
       </span>
     )}
   </button>
 
+  {/* Ready to Print Button */}
   <button
     type="button"
     onClick={() => setstatus("Ready to print")}
-    className={`px-3 py-1 rounded-md font-medium ${
-      status === "Ready to print"
-        ? "bg-green-600 text-white"
-        : "bg-gray-200 text-gray-700"
+    className={`px-4 py-2 rounded-md font-medium relative ${
+      status === "Ready to print" ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700"
     }`}
   >
-    <p className="flex gap-2">
-      Ready to Print
-      {statusCount.length > 0 && (
-        <span className="ml-2 text-sm ">
-          {Statuschecker("Ready to print")}
-        </span>
-      )}
-    </p>
+    Ready to Print
+    {statusCount.length > 0 && (
+      <span className="absolute -top-3 right-0 mt-1 mr-1 text-sm font-semibold text-white bg-red-600 rounded-full px-2">
+        {Statuschecker("Ready to print")}
+      </span>
+    )}
   </button>
 
+  {/* Printed Button */}
   <button
     type="button"
     onClick={() => setstatus("Printed")}
-    className={`px-3 py-1 rounded-md font-medium ${
-      status === "Printed"
-        ? "bg-green-600 text-white"
-        : "bg-gray-200 text-gray-700"
+    className={`px-4 py-2 rounded-md font-medium relative ${
+      status === "Printed" ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700"
     }`}
   >
     Printed
     {statusCount.length > 0 && (
-      <span className="ml-2 text-sm ">
+      <span className="absolute -top-3 right-0 mt-1 mr-1 text-sm font-semibold text-white bg-red-600 rounded-full px-2">
         {Statuschecker("Printed")}
       </span>
     )}
   </button>
 </div>
+
+
 
             </form>
           )}
@@ -1304,7 +1300,7 @@ const Viewdata = () => {
           </div>
         )}
 
-        {submitted &&  (
+        {submitted && (
           <div className="container mx-auto px-16 ">
             {pagination.totalPages > 0 && (
               <Pagination
@@ -1313,150 +1309,158 @@ const Viewdata = () => {
                 setPage={setPage}
               />
             )}
-         
 
             <div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {students?.length > 0  && students?.map((student) => (
-                  <div
-                    key={student?._id}
-                    className={`relative shadow-lg p-6 rounded-xl border-2 w-full bg-gradient-to-b from-blue-400 via-blue-300 to-blue-100 transform  transition-all duration-300 ${
-                      studentIds.includes(student._id)
-                        ? "border-blue-500"
-                        : "border-gray-200"
-                    }`}
-                    onClick={() => handleStudentSelect(student._id)}
-                  >
-                    {status === "Panding" && (
-                      <div className="absolute top-2 right-2 flex justify-between w-[95%] left-2 items-right ">
-                        {student?.parentChanges ? (
-                          <p className="text-green-900 flex items-center gap-2 text-sm ">
-                            <FaCheckCircle />
-                            Updates By Parent
-                          </p>
-                        ) : (
-                          <p className=" opacity-0">{"."}</p>
-                        )}
-                        <div>
-                          <div className="flex gap-3">
-                            <button
-                              onClick={() =>
-                                handleShare(student._id, student.name)
-                              }
-                              className=" p-1 z-10 bg-green-600 text-white rounded-full shadow-md hover:bg-blue-500"
-                            >
-                              <FaShareAlt size={13} />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.preventDefault();
-                                deleteStudent(student._id);
-                              }}
-                              className=" p-1 z-10 bg-red-600 text-white rounded-full shadow-md hover:bg-red-500"
-                            >
-                              <FaTrashAlt ize={13} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className=" mt-3">
-                      <h3 className=" font-bold text-gray-800 mt-4 text-center text-wrap break-words">
-                        {student?.name}
-                      </h3>
-                      <div className="flex flex-col items-center mt-1">
-                        <div className="grid grid-cols-2 gap-2 ">
-                          <Image
-                            height={80}
-                            width={80}
-                            className="min-w-[95%] max-w-[95%] min-h-[100px] max-h-[100px] rounded-full border-4 border-blue-500 shadow-lg"
-                            src={student?.avatar?.url}
-                            alt={student?.name}
-                          />
-
+                {students?.length > 0 &&
+                  students?.map((student) => (
+                    <div
+                      key={student?._id}
+                      className={`relative shadow-lg p-6 rounded-xl border-2 w-full bg-gradient-to-b from-blue-400 via-blue-300 to-blue-100 transform  transition-all duration-300 ${
+                        studentIds.includes(student._id)
+                          ? "border-blue-500"
+                          : "border-gray-200"
+                      }`}
+                      onClick={() => handleStudentSelect(student._id)}
+                    >
+                      {status === "Panding" && (
+                        <div className="absolute top-2 right-2 flex justify-between w-[95%] left-2 items-right ">
+                          {student?.parentChanges ? (
+                            <p className="text-green-900 flex items-center gap-2 text-sm ">
+                              <FaCheckCircle />
+                              Updates By Parent
+                            </p>
+                          ) : (
+                            <p className=" opacity-0">{"."}</p>
+                          )}
                           <div>
-                            <div className="mt-4 text-gray-700 ">
-                              {student?.photoNameUnuiq && (
-                                <p className="text-[10px] font-medium">
-                                  Photo No.: {student?.photoNameUnuiq}
-                                </p>
-                              )}
-                              {schoolData?.requiredFields?.includes(
-                                "Class"
-                              ) && (
-                                <p>
-                                  <span className="font-semibold">Class:</span>{" "}
-                                  <span className=" text-[13px]">
-                                    {" "}
-                                    {student?.class || ""}
-                                  </span>
-                                </p>
-                              )}
-                              {schoolData?.requiredFields?.includes(
-                                "Section"
-                              ) && (
-                                <p>
-                                  <span className="font-semibold">
-                                    Section:
-                                  </span>{" "}
-                                  <span className=" text-[13px]">
-                                    {" "}
-                                    {student?.section || ""}
-                                  </span>
-                                </p>
-                              )}
-                              {schoolData?.requiredFields?.includes(
-                                "Course"
-                              ) && (
-                                <p>
-                                  <span className="font-semibold">Course:</span>{" "}
-                                  {student?.course || ""}
-                                </p>
-                              )}
+                            <div className="flex gap-3">
+                              <button
+                                onClick={() =>
+                                  handleShare(student._id, student.name)
+                                }
+                                className=" p-1 z-10 bg-green-600 text-white rounded-full shadow-md hover:bg-blue-500"
+                              >
+                                <FaShareAlt size={13} />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  deleteStudent(student._id);
+                                }}
+                                className=" p-1 z-10 bg-red-600 text-white rounded-full shadow-md hover:bg-red-500"
+                              >
+                                <FaTrashAlt ize={13} />
+                              </button>
                             </div>
                           </div>
                         </div>
+                      )}
+
+                      <div className=" mt-3">
+                        <h3 className=" font-bold text-gray-800 mt-4 text-center text-wrap break-words">
+                          {student?.name}
+                        </h3>
+                        <div className="flex flex-col items-center mt-1">
+                          <div className="grid grid-cols-2 gap-2 ">
+                            <Image
+                              height={80}
+                              width={80}
+                              className="min-w-[95%] max-w-[95%] min-h-[100px] max-h-[100px] rounded-full border-4 border-blue-500 shadow-lg"
+                              src={student?.avatar?.url}
+                              alt={student?.name}
+                            />
+
+                            <div>
+                              <div className="mt-4 text-gray-700 ">
+                                {student?.photoNameUnuiq && (
+                                  <p className="text-[10px] font-medium">
+                                    Photo No.: {student?.photoNameUnuiq}
+                                  </p>
+                                )}
+                                {schoolData?.requiredFields?.includes(
+                                  "Class"
+                                ) && (
+                                  <p>
+                                    <span className="font-semibold">
+                                      Class:
+                                    </span>{" "}
+                                    <span className=" text-[13px]">
+                                      {" "}
+                                      {student?.class || ""}
+                                    </span>
+                                  </p>
+                                )}
+                                {schoolData?.requiredFields?.includes(
+                                  "Section"
+                                ) && (
+                                  <p>
+                                    <span className="font-semibold">
+                                      Section:
+                                    </span>{" "}
+                                    <span className=" text-[13px]">
+                                      {" "}
+                                      {student?.section || ""}
+                                    </span>
+                                  </p>
+                                )}
+                                {schoolData?.requiredFields?.includes(
+                                  "Course"
+                                ) && (
+                                  <p>
+                                    <span className="font-semibold">
+                                      Course:
+                                    </span>{" "}
+                                    {student?.course || ""}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Divider Line */}
+                        <div className="h-[2px] w-[100%] bg-blue-500 mx-auto my-4 rounded-full"></div>
+
+                        <ul className="mt-2 text-gray-700   flex gap-1  flex-wrap">
+                          {schoolData?.extraFields.map((field, index) => (
+                            <li
+                              key={index}
+                              className="flex text-[13px] gap-1  "
+                            >
+                              <span className="font-semibold text-w  ">
+                                {field?.name}:
+                              </span>
+                              <span>
+                                {" "}
+                                {student?.extraFields?.[field?.name] || ""}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                      {/* Divider Line */}
-                      <div className="h-[2px] w-[100%] bg-blue-500 mx-auto my-4 rounded-full"></div>
 
-                      <ul className="mt-2 text-gray-700   flex gap-1  flex-wrap">
-                        {schoolData?.extraFields.map((field, index) => (
-                          <li key={index} className="flex text-[13px] gap-1  ">
-                            <span className="font-semibold text-w  ">
-                              {field?.name}:
-                            </span>
-                            <span>
-                              {" "}
-                              {student?.extraFields?.[field?.name] || ""}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {status === "Panding" && (
-                      <div className="flex justify-center mt-4 gap-3">
-                        <button
-                          onClick={() => redirectToStudentEdit(student._id)}
-                          className="flex items-center text-sm px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transform transition-all duration-200"
-                        >
-                          <FaEdit className="mr-2" />
-                          Edit
-                        </button>
-                        {user?.school && (
+                      {status === "Panding" && (
+                        <div className="flex justify-center mt-4 gap-3">
                           <button
-                            onClick={(e) => moveReadySingle(student._id)}
-                            className="text-sm px-1 py-2 text-[12px] bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transform transition-all duration-200"
+                            onClick={() => redirectToStudentEdit(student._id)}
+                            className="flex items-center text-sm px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transform transition-all duration-200"
                           >
-                           <span className=" text-[8px]"> Move to</span> Ready
+                            <FaEdit className="mr-2" />
+                            Edit
                           </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                          {user?.school && (
+                            <button
+                              onClick={(e) => moveReadySingle(student._id)}
+                              className="text-sm px-1 py-2 text-[12px] bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transform transition-all duration-200"
+                            >
+                              <span className=" text-[8px]"> Move to</span>{" "}
+                              Ready
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
               </div>
             </div>
           </div>
@@ -1625,7 +1629,7 @@ const Viewdata = () => {
                             }}
                             className="px-2 py-1 bg-yellow-600 text-[12px] text-white rounded-lg shadow-md hover:bg-yellow-700 transition-all"
                           >
-                        <span className="text-[8px]">    Move to </span>Ready
+                            <span className="text-[8px]"> Move to </span>Ready
                           </button>
                         )}
                       </div>
