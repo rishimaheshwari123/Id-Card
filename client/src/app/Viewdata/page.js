@@ -1345,7 +1345,7 @@ const Viewdata = () => {
                           {student?.parentChanges ? (
                             <p className="text-green-900 flex items-center gap-2 text-sm ">
                               <FaCheckCircle />
-                              Updates By Parent
+                            Verify
                             </p>
                           ) : (
                             <p className=" opacity-0">{"."}</p>
