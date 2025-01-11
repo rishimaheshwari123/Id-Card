@@ -273,42 +273,6 @@ const Viewdata = () => {
     setShowChatBox(!showChatBox);
   };
 
-  const fatchStudent = async (e) => {
-    if (e) e.preventDefault();
-    const response = await axios.post(
-      `/user/students/${currSchool}?status=${status}&page=${pagination.currentPage}&limit=${pagination.pageSize}&search=${searchQuery}&studentClass=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}`,
-      null,
-      config()
-    );
-    setStudentIds([]);
-
-    setstudents(response?.data?.students);
-    console.log(response?.data?.students);
-    setStudentData(response?.data?.students);
-    if (response?.data?.students?.length < 0) {
-      toast.error("No Students Added", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-    }
-  };
-
-  const fatchStaff = async (e) => {
-    if (e) e.preventDefault();
-    const response = await axios.post(
-      `/user/staffs/${currSchool}?status=${status}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}&search=${searchQuery}&page=${pagination.currentPage}&limit=${pagination.pageSize}`,
-      null,
-      config()
-    );
-    setstaffs(response?.data?.staff);
-    setStaffData(response?.data?.staff);
-    console.log(response?.data?.staff);
-  };
 
   const handleFormSubmit = async (e) => {
     if (e) e.preventDefault();
@@ -930,6 +894,127 @@ const Viewdata = () => {
       });
     }
   };
+
+  const moveBackPendingSingle = async (studentId) => {
+    try {
+      // Show loading spinner
+      Swal.fire({
+        title: "Updating...",
+        text: "Please wait while the status is being updated.",
+        icon: "info",
+        showCancelButton: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading(); // Display loading spinner
+        },
+      });
+
+      if (currRole == "student") {
+        // Make the API call
+        const response = await axios.post(
+          `/user/student/change-status/pending/${currSchool}?`,
+          { studentIds: [studentId] }, // Wrap studentId in an array
+          config()
+        );
+
+        // Fetch updated student list
+        handleFormSubmit();
+        setStudentIds([]);
+        // Close the loading spinner and show success message
+        Swal.fire({
+          title: "Success!",
+          text: "Student status has been updated.",
+          icon: "success",
+        });
+      }
+
+      if (currRole == "staff") {
+        const response = await axios.post(
+          `/user/staff/change-status/pending/${currSchool}?`,
+          { staffIds: [studentId] },
+          config()
+        );
+        handleFormSubmit();
+        setStudentIds([]);
+        Swal.fire({
+          title: "Success!",
+          text: "Student status has been updated.",
+          icon: "success",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+
+      // Close the loading spinner and show error message
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to update student status. Please try again later.",
+        icon: "error",
+      });
+    }
+  };
+
+
+  const  moveBackreadytoSingle = async (studentId) => {
+    try {
+      // Show loading spinner
+      Swal.fire({
+        title: "Updating...",
+        text: "Please wait while the status is being updated.",
+        icon: "info",
+        showCancelButton: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading(); // Display loading spinner
+        },
+      });
+
+      if (currRole == "student") {
+        // Make the API call
+        const response = await axios.post(
+          `/user/student/change-status/readyto/${currSchool}?`,
+          { studentIds: [studentId] }, // Wrap studentId in an array
+          config()
+        );
+
+        // Fetch updated student list
+        handleFormSubmit();
+        setStudentIds([]);
+        // Close the loading spinner and show success message
+        Swal.fire({
+          title: "Success!",
+          text: "Student status has been updated.",
+          icon: "success",
+        });
+      }
+
+      if (currRole == "staff") {
+        const response = await axios.post(
+          `/user/staff/change-status/readyto/${currSchool}?`,
+          { staffIds: [studentId] },
+          config()
+        );
+        handleFormSubmit();
+        setStudentIds([]);
+        Swal.fire({
+          title: "Success!",
+          text: "Student status has been updated.",
+          icon: "success",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+
+      // Close the loading spinner and show error message
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to update student status. Please try again later.",
+        icon: "error",
+      });
+    }
+  };
+
+
   const Statuschecker = (value) => {
     const statusObj = statusCount?.find((count) => count._id === value);
     return statusObj ? statusObj.count : 0; // Return count or 0 if not found
@@ -1438,7 +1523,7 @@ const Viewdata = () => {
                         {/* Divider Line */}
                         <div className="h-[2px] w-[100%] bg-blue-500 mx-auto my-4 rounded-full"></div>
 
-                        <ul className="mt-2 text-gray-700   flex gap-1  flex-wrap">
+                        <ul className="mt-2 text-gray-700   flex gap-1  flex-col">
                           {schoolData?.extraFields.map((field, index) => (
                             <li
                               key={index}
@@ -1465,7 +1550,7 @@ const Viewdata = () => {
                             <FaEdit className="mr-2" />
                             Edit
                           </button>
-                          {user?.school && (
+                        
                             <button
                               onClick={(e) => moveReadySingle(student._id)}
                               className="text-sm px-1 py-2 text-[12px] bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transform transition-all duration-200"
@@ -1473,9 +1558,26 @@ const Viewdata = () => {
                               <span className=" text-[8px]"> Move to</span>{" "}
                               Ready
                             </button>
-                          )}
+                        
                         </div>
                       )}
+                      {
+                        status === "Printed" && 
+                        <div className="flex justify-center mt-4 gap-3">
+                        <button
+                    className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                    onClick={()=>moveBackPendingSingle(student._id)}
+                  >
+                    <FaArrowLeft />   Pending
+                  </button>
+                        <button
+                    className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                    onClick={()=>moveBackreadytoSingle(student._id)}
+                  >
+                    <FaArrowLeft />  Ready
+                  </button>
+                        </div> 
+                      }
                     </div>
                   ))}
               </div>
@@ -1594,7 +1696,7 @@ const Viewdata = () => {
 
                       {/* Details */}
                       <div className="text-sm text-gray-700 font-medium">
-                        <ul className="mt-2 text-gray-700   flex gap-1  flex-wrap">
+                        <ul className="mt-2 text-gray-700   flex gap-1  flex-col">
                           {schoolData?.extraFieldsStaff.map((field, index) => (
                             <li key={index} className="flex text-[13px] gap-1">
                               <span className="font-semibold">
@@ -1639,7 +1741,7 @@ const Viewdata = () => {
                         </button>
 
                         {/* Move to Ready Button */}
-                        {user?.school && (
+                      
                           <button
                             onClick={(e) => {
                               moveReadySingle(staff._id);
@@ -1648,9 +1750,26 @@ const Viewdata = () => {
                           >
                             <span className="text-[8px]"> Move to </span>Ready
                           </button>
-                        )}
+                       
                       </div>
                     )}
+                    {
+                        status === "Printed" && 
+                        <div className="flex justify-center mt-4 gap-3">
+                        <button
+                    className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                    onClick={()=>moveBackPendingSingle(staff._id)}
+                  >
+                    <FaArrowLeft />   Pending
+                  </button>
+                        <button
+                    className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                    onClick={()=>moveBackreadytoSingle(staff._id)}
+                  >
+                    <FaArrowLeft />  Ready
+                  </button>
+                        </div> 
+                      }
                   </div>
                 </div>
               ))}
@@ -1727,7 +1846,7 @@ const Viewdata = () => {
                     <FaImages /> Signature Download
                   </button>
                 )}
-                {user?.school && (
+           
                   <>
                     <button
                       className="flex items-center gap-2 bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded-lg shadow-lg"
@@ -1736,7 +1855,7 @@ const Viewdata = () => {
                       <FaCheck /> Move to Ready
                     </button>
                   </>
-                )}
+              
               </>
             )}
 
