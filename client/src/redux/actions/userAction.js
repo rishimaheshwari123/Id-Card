@@ -282,23 +282,66 @@ export const logoutUser = (userData) => async (dispatch) => {
 
 export const addSchool = (userData) => async (dispatch) => {
   try {
-    console.log(userData)
+    console.log(userData);
+    
+    // Show loading spinner while waiting for API response
+    Swal.fire({
+      title: 'Please wait...',
+      text: 'Processing your request...',
+      didOpen: () => {
+        Swal.showLoading(); // Show loading spinner
+      },
+      allowOutsideClick: false, // Disable closing the alert outside
+      showConfirmButton: false, // Hide confirm button
+    });
+
     dispatch(setLoading(true));
+
     const response = await axios.post(`/user/registration/school`, {
       ...userData,
     }, config());
+
     dispatch(setLoading(false));
-    dispatch(currentSchool())
-    console.log(response.data)
-    if (response?.data?.succcess) {
+    dispatch(currentSchool());
+    console.log(response.data);
+
+    if (response?.data?.success) {
+      // Close the loading alert and show success
+      Swal.close(); // Close the loading alert
+      Swal.fire({
+        title: 'Success!',
+        text: response.data.message,
+        icon: 'success',
+        confirmButtonText: 'OK',
+      });
       return response.data.message;
     }
+
+    // Fallback error message from the API
+    Swal.close(); // Close the loading alert
+    Swal.fire({
+      title: 'Oops!',
+      text: response?.data?.message || 'Something went wrong!',
+      icon: 'error',
+      confirmButtonText: 'Try Again',
+    });
     return response.data.message;
+
   } catch (error) {
     dispatch(setLoading(false));
-    dispatch(
-      setError(error?.response?.data?.message || "registerStudent failed")
-    );
+
+    // Close the loading alert
+    Swal.close();
+
+    // Error alert using SweetAlert2
+    Swal.fire({
+      title: 'Error!',
+      text: error?.response?.data?.message || 'Registration failed',
+      icon: 'error',
+      confirmButtonText: 'OK',
+    });
+
+    dispatch(setError(error?.response?.data?.message || 'registerStudent failed'));
   }
 };
 
@@ -730,21 +773,55 @@ export const submitStudentPhotos = (fileData, schooId) => async (dispatch) => {
 
 export const updateSchool = (userData, id) => async (dispatch) => {
   try {
+    // Show loading spinner while waiting for API response
+    Swal.fire({
+      title: 'Please wait...',
+      text: 'Updating school data...',
+      didOpen: () => {
+        Swal.showLoading(); // Show loading spinner
+      },
+      allowOutsideClick: false, // Disable closing the alert outside
+      showConfirmButton: false, // Hide confirm button
+    });
+
     dispatch(setLoading(true));
+
     const response = await axios.post(
       `/user/edit/school/${id}`,
       userData,
       config()
     );
+console.log(response)
     dispatch(currentSchool());
     dispatch(setLoading(false));
+
+    // Close the loading alert and show success message
+    Swal.close(); // Close the loading alert
+    Swal.fire({
+      title: 'Success!',
+      text: response.data.message,
+      icon: 'success',
+      confirmButtonText: 'OK',
+    });
+
+    
+
     return response.data.message;
+
   } catch (error) {
     dispatch(setLoading(false));
     console.error(error);
-    dispatch(
-      setError(error?.response?.data?.message || "get current user failed")
-    );
+
+    // Close the loading alert and show error message
+    Swal.close(); // Close the loading alert
+    Swal.fire({
+      title: 'Error!',
+      text: error?.response?.data?.message || 'Updating school failed',
+      icon: 'error',
+      confirmButtonText: 'OK',
+    });
+
+    dispatch(setError(error?.response?.data?.message || 'get current user failed'));
   }
 };
 

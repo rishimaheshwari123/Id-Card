@@ -72,27 +72,9 @@ const EditSchool = ({ params }) => {
     // Dispatch action to update school data
     const response = await dispatch(updateSchool(updatedSchoolData, schoolId));
     if (response == "School updated successfully") {
-      toast.success(response, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+     
       router.push("/SchoolList");
-    } else {
-      toast.error(response, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-    }
+    } 
   };
 
   const handleChange = (e) => {

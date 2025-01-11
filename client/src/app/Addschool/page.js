@@ -75,28 +75,7 @@ const AddSchool = () => {
     // Add your form submission logic here
     const response = await dispatch(addSchool(data));
     console.log(response);
-    if (response == "successfully Register") {
-      toast.success(response, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-      // router.push("/");
-    } else {
-      toast.error(response, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-    }
+
   };
 
   const handleAddField = (e) => {
