@@ -83,8 +83,19 @@ const Viewdata = () => {
       redirect("/");
     }
     if (user?.role == "school") {
-      console.log(user?.school);
-
+    const schoolId = user?.school?._id;
+      
+        console.log(user?.school);
+        axios
+        .get(`user/getschool/${schoolId}`)
+        .then((response) => {
+          setSchoolData(response.data.data); // Update the state with fetched data
+          console.log(response.data.data);
+        })
+        .catch((err) => {
+          console.log("Error fetching Vendor data"); // Handle error if request fails
+        });
+    
       setCurrSchool(user?.school?._id);
       setloginSchool(true);
     }
@@ -1404,7 +1415,7 @@ const Viewdata = () => {
                             onClick={(e) => moveReadySingle(student._id)}
                             className="text-sm px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transform transition-all duration-200"
                           >
-                            Move to Ready
+                           <span className=" text-[10px]"> Move to</span> Ready
                           </button>
                         )}
                       </div>
@@ -1460,125 +1471,131 @@ const Viewdata = () => {
                   )}
 
                   {/* Photo */}
- <div className=" mt-3">
-   {/* Name */}
-   <h3 className="text-xl font-semibold text-center text-gray-800">
+                  <div className=" mt-3">
+                    {/* Name */}
+                    <h3 className="text-xl font-semibold text-center text-gray-800">
                       {staff?.name}
                     </h3>
-                  <div className="flex flex-col items-center mt-1">
-                    <div className="grid grid-cols-2 gap-2">
-                      <Image
-                        height={100}
-                        width={100}
-                        className="  rounded-full border-4 border-blue-500 shadow-lg"
-                        src={staff?.avatar?.url}
-                        alt={staff?.name}
-                      />
-
-                      <div>
-                      <div className="mt-4 text-gray-700 ">
-                      {staff?.photoNameUnuiq && (
-                        <p className="text-[10px] font-medium">
-                          <span className="font-semibold">Photo No.:</span>{" "}
-                          {staff?.photoNameUnuiq}
-                        </p>
-                      )}
-                      {schoolData?.requiredFieldsStaff?.includes(
-                        "Staff Type"
-                      ) && (
-                        <p className="">
-                          <span className="font-semibold">Staff Type:</span>{" "}
-                      <span className=" text-[13px]">  {staff?.staffType?.split(" ").slice(0, 3).join(" ") || ""}
-                      {staff?.staffType?.split(" ").length > 3 ? " ..." : ""}
-                      </span>   
-                        </p>
-                      )}
-                      {schoolData?.requiredFieldsStaff?.includes(
-                        "Institute"
-                      ) && (
-                        <p className="">
-                          <span className="font-semibold">Institute:</span>{" "}
-                        <span className=" text-[13px]">
-                        {staff?.institute || ""}
-                        </span> 
-                        </p>
-                      )}
-                      
-                      </div>
-                      </div>
-                    </div>
-
-                  
-
-                    {/* Verified Badge */}
-
-                    {/* Divider Line */}
-                    <div className="h-[2px] w-[100%] bg-blue-500 mx-auto my-4 rounded-full"></div>
-
-                    {/* Details */}
-                    <div className="text-sm text-gray-700 font-medium">
-                    
-                      
-                      <ul className="mt-2 text-gray-700   flex gap-1  flex-wrap">
-                        {schoolData?.extraFieldsStaff.map((field, index) => (
-                          <li key={index} className="flex text-[13px] gap-1">
-                            <span className="font-semibold">
-                              {field?.name}:
-                            </span>
-                            <span>
-                              {staff?.extraFieldsStaff &&
-                              staff.extraFieldsStaff[field?.name]
-                                ? staff?.extraFieldsStaff[field?.name]
-                                : ""}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-
-
-                    </div>
-                  </div>
-
-                  {/* Signature */}
-                  {schoolData &&
-                    schoolData?.requiredFieldsStaff.includes(
-                      "Signature Name"
-                    ) && (
-                      <div className="flex justify-center my-4">
-                        <img
-                          src={staff?.signatureImage?.url}
+                    <div className="flex flex-col items-center mt-1">
+                      <div className="grid grid-cols-2 gap-2">
+                        <Image
+                          height={100}
+                          width={100}
+                          className="  rounded-full border-4 border-blue-500 shadow-lg"
+                          src={staff?.avatar?.url}
                           alt={staff?.name}
-                          className="w-[80%] h-auto max-h-[85px] rounded-md border shadow-md"
                         />
+
+                        <div>
+                          <div className="mt-4 text-gray-700 ">
+                            {staff?.photoNameUnuiq && (
+                              <p className="text-[10px] font-medium">
+                                <span className="font-semibold">
+                                  Photo No.:
+                                </span>{" "}
+                                {staff?.photoNameUnuiq}
+                              </p>
+                            )}
+                            {schoolData?.requiredFieldsStaff?.includes(
+                              "Staff Type"
+                            ) && (
+                              <p className="">
+                                <span className="font-semibold">
+                                  Staff Type:
+                                </span>{" "}
+                                <span className=" text-[13px]">
+                                  {" "}
+                                  {staff?.staffType
+                                    ?.split(" ")
+                                    .slice(0, 3)
+                                    .join(" ") || ""}
+                                  {staff?.staffType?.split(" ").length > 3
+                                    ? " ..."
+                                    : ""}
+                                </span>
+                              </p>
+                            )}
+                            {schoolData?.requiredFieldsStaff?.includes(
+                              "Institute"
+                            ) && (
+                              <p className="">
+                                <span className="font-semibold">
+                                  Institute:
+                                </span>{" "}
+                                <span className=" text-[13px]">
+                                  {staff?.institute || ""}
+                                </span>
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Verified Badge */}
+
+                      {/* Divider Line */}
+                      <div className="h-[2px] w-[100%] bg-blue-500 mx-auto my-4 rounded-full"></div>
+
+                      {/* Details */}
+                      <div className="text-sm text-gray-700 font-medium">
+                        <ul className="mt-2 text-gray-700   flex gap-1  flex-wrap">
+                          {schoolData?.extraFieldsStaff.map((field, index) => (
+                            <li key={index} className="flex text-[13px] gap-1">
+                              <span className="font-semibold">
+                                {field?.name}:
+                              </span>
+                              <span>
+                                {staff?.extraFieldsStaff &&
+                                staff.extraFieldsStaff[field?.name]
+                                  ? staff?.extraFieldsStaff[field?.name]
+                                  : ""}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    {/* Signature */}
+                    {schoolData &&
+                      schoolData?.requiredFieldsStaff.includes(
+                        "Signature Name"
+                      ) && (
+                        <div className="flex justify-center my-4">
+                          <img
+                            src={staff?.signatureImage?.url}
+                            alt={staff?.name}
+                            className="w-[80%] h-auto max-h-[85px] rounded-md border shadow-md"
+                          />
+                        </div>
+                      )}
+
+                    {/* Action Buttons */}
+                    {status === "Panding" && (
+                      <div className="flex justify-center gap-4 mt-4">
+                        {/* Edit Button */}
+                        <button
+                          onClick={() => redirectToStaffEdit(staff._id)}
+                          className="px-4 py-2 bg-indigo-700 flex items-center text-white rounded-lg shadow-md hover:bg-indigo-800 transition-all"
+                        >
+                          <FaEdit className="mr-2" />
+                          Edit
+                        </button>
+
+                        {/* Move to Ready Button */}
+                        {user?.school && (
+                          <button
+                            onClick={(e) => {
+                              moveReadySingle(staff._id);
+                            }}
+                            className="px-4 py-2 bg-yellow-600 text-white rounded-lg shadow-md hover:bg-yellow-700 transition-all"
+                          >
+                        <span className="text-[10px]">    Move to </span>Ready
+                          </button>
+                        )}
                       </div>
                     )}
-
-                  {/* Action Buttons */}
-                  {status === "Panding" && (
-                    <div className="flex justify-center gap-4 mt-4">
-                      {/* Edit Button */}
-                      <button
-                        onClick={() => redirectToStaffEdit(staff._id)}
-                        className="px-4 py-2 bg-indigo-700 flex items-center text-white rounded-lg shadow-md hover:bg-indigo-800 transition-all"
-                      >
-                        <FaEdit className="mr-2" />
-                        Edit
-                      </button>
-
-                      {/* Move to Ready Button */}
-                      {user?.school && (
-                        <button
-                          onClick={(e) => {
-                            moveReadySingle(staff._id);
-                          }}
-                          className="px-4 py-2 bg-yellow-600 text-white rounded-lg shadow-md hover:bg-yellow-700 transition-all"
-                        >
-                          Move to Ready
-                        </button>
-                      )}
-                    </div>
-                  )}
- </div>
+                  </div>
                 </div>
               ))}
             </div>
