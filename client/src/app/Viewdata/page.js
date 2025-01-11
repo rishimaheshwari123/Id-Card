@@ -1343,7 +1343,7 @@ const Viewdata = () => {
                                   <span className="font-semibold">Class:</span>{" "}
                                   <span className=" text-[13px]">
                                     {" "}
-                                    {student?.class || "N/A"}
+                                    {student?.class || ""}
                                   </span>
                                 </p>
                               )}
@@ -1356,7 +1356,7 @@ const Viewdata = () => {
                                   </span>{" "}
                                   <span className=" text-[13px]">
                                     {" "}
-                                    {student?.section || "N/A"}
+                                    {student?.section || ""}
                                   </span>
                                 </p>
                               )}
@@ -1365,7 +1365,7 @@ const Viewdata = () => {
                               ) && (
                                 <p>
                                   <span className="font-semibold">Course:</span>{" "}
-                                  {student?.course || "N/A"}
+                                  {student?.course || ""}
                                 </p>
                               )}
                             </div>
@@ -1383,7 +1383,7 @@ const Viewdata = () => {
                             </span>
                             <span>
                               {" "}
-                              {student.extraFields?.[field?.name] || "N/A"}
+                              {student.extraFields?.[field?.name] || ""}
                             </span>
                           </li>
                         ))}
