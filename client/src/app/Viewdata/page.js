@@ -1413,9 +1413,9 @@ const Viewdata = () => {
                         {user?.school && (
                           <button
                             onClick={(e) => moveReadySingle(student._id)}
-                            className="text-sm px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transform transition-all duration-200"
+                            className="text-sm px-2 py-2 text-[13px] bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transform transition-all duration-200"
                           >
-                           <span className=" text-[10px]"> Move to</span> Ready
+                           <span className=" text-[9px]"> Move to</span> Ready
                           </button>
                         )}
                       </div>
@@ -1588,9 +1588,9 @@ const Viewdata = () => {
                             onClick={(e) => {
                               moveReadySingle(staff._id);
                             }}
-                            className="px-4 py-2 bg-yellow-600 text-white rounded-lg shadow-md hover:bg-yellow-700 transition-all"
+                            className="px-2 py-2 bg-yellow-600 text-[13px] text-white rounded-lg shadow-md hover:bg-yellow-700 transition-all"
                           >
-                        <span className="text-[10px]">    Move to </span>Ready
+                        <span className="text-[9px]">    Move to </span>Ready
                           </button>
                         )}
                       </div>
