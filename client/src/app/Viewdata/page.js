@@ -975,18 +975,7 @@ const Viewdata = () => {
                     ))}
                   </select>
 
-                  {submitted && (
-                    <a
-                      href={`https://wa.me/?text=${encodeURIComponent(
-                        `Add Data With Excel: ${window.location.origin}/ShareUpload?vendor=${currSchool}&role=${currRole}`
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-2 inline-block px-4 py-2 rounded-md font-medium bg-green-500 text-white"
-                    >
-                      Share
-                    </a>
-                  )}
+                
                 </div>
               )}
 
@@ -1019,7 +1008,7 @@ const Viewdata = () => {
                     href={`/Adddata?vendor=${currSchool}&role=${currRole}&class=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}`}
                     className={`px-4 py-2 rounded-md font-medium  bg-gray-200 text-gray-700`}
                   >
-                    Add New {currRole}
+                    Add  {currRole}
                   </Link>
                 )}
               </div>
@@ -1054,7 +1043,7 @@ const Viewdata = () => {
                       : "bg-gray-200 text-gray-700"
                   }`}
                 >
-                  Ready to Print
+                  Ready 
                   {statusCount.length > 0 && (
                     <span className="absolute -top-3 right-0 mt-1 mr-1 text-sm font-semibold text-white bg-red-600 rounded-full px-2">
                       {Statuschecker("Ready to print")}

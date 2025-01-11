@@ -505,6 +505,19 @@ const Addexcel = () => {
                     </option>
                   ))}
                 </select>
+
+                {currSchool && currRole  && (
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(
+                        `Add Data With Excel: ${window.location.origin}/ShareUpload?vendor=${currSchool}&role=${currRole}`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-block px-4 py-2 rounded-md font-medium bg-green-500 text-white"
+                    >
+                      Share
+                    </a>
+                  )}
               </div>
             </form>
           )}
