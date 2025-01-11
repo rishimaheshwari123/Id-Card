@@ -41,6 +41,7 @@ const fs = require("fs");
 const getDataUri = require("../middlewares/daraUri");
 const { log } = require("console");
 const getNextSequenceValue = require("./counter");
+const { default: mongoose } = require("mongoose");
 
 exports.currUser = catchAsyncErron(async (req, res, next) => {
   const id = req.id;
@@ -1524,7 +1525,7 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
     // If there is a search term, add the search logic
     if (search) {
       queryObj.$or = [
-        // { name: { $regex: search, $options: "i" } },
+        { name: { $regex: search, $options: "i" } },
         // { rollNo: { $regex: search, $options: "i" } },
         // { section: { $regex: search, $options: "i" } },
         // { class: { $regex: search, $options: "i" } },
@@ -1542,7 +1543,9 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
               {
                 $size: {
                   $filter: {
-                    input: { $objectToArray: "$extraFields" },
+                    input: {
+                      $ifNull: [{ $objectToArray: "$extraFields" }, []], // Ensure this is an array
+                    },
                     as: "field",
                     cond: {
                       $regexMatch: { input: "$$field.v", regex: search, options: "i" },
@@ -1585,8 +1588,30 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
         role: "student",
       };
     });
-    console.log(studentsWithRole);
+    
 
+
+    let staffCountByStatus = {}
+    try {
+       staffCountByStatus = await Student.aggregate([
+        {
+          $match: {
+            school: new  mongoose.Types.ObjectId(schoolId), // Replace with your actual field for school ID
+          },
+        },
+        {
+          $group: {
+            _id: "$status", // Grouping by status
+            count: { $sum: 1 }, // Count the number of documents for each status
+          },
+        },
+      ]);
+  
+      console.log(staffCountByStatus)
+    } catch (error) {
+      console.log(error)
+      
+    }
     // Respond with the list of students and pagination info
     res.status(200).json({
       success: true,
@@ -1601,6 +1626,7 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
       uniqueStudents,
       uniqueSection,
       uniqueCourse,
+      staffCountByStatus
     });
   } catch (error) {
     console.error("Error in getAllStudentsInSchool route:", error);
@@ -1618,32 +1644,7 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
   let queryObj = { school: schoolId };
 
 
-  if (search) {
-    queryObj.$or = [
-      // { name: { $regex: search, $options: "i" } },
-
-      {
-        $expr: {
-          $gt: [
-            {
-              $size: {
-                $filter: {
-                  input: { $objectToArray: "$extraFieldsStaff" },
-                  as: "field",
-                  cond: {
-                    $regexMatch: { input: "$$field.v", regex: search, options: "i" },
-                  },
-                },
-              },
-            },
-            0,
-          ],
-        },
-      },
-
-      // You can add more fields here as needed
-    ];
-  }
+  
 
 
   const StaffData = await School.findById(schoolId);
@@ -1654,6 +1655,36 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
     ? await Staff.distinct("institute", queryObj)
     : [];
 
+ if (search) {
+  queryObj.$or = [
+    { name: { $regex: search, $options: "i" } },
+
+    {
+      $expr: {
+        $gt: [
+          {
+            $size: {
+              $filter: {
+                input: {
+                  $ifNull: [{ $objectToArray: "$extraFieldsStaff" }, []], // Ensure this is an array
+                },
+                as: "field",
+                cond: {
+                  $regexMatch: { input: "$$field.v", regex: search, options: "i" },
+                },
+              },
+            },
+          },
+          0,
+        ],
+      },
+    },
+
+    // You can add more fields here as needed
+  ];
+}
+
+    
   if (status) {
     queryObj.status = status; // Assuming your student schema has a 'state' field
   }
@@ -1699,13 +1730,53 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
     };
   });
 
+  
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+    const limit = parseInt(req.query.limit) || 10; // Default to 10 students per page
+
+    // Find all students based on the queryObj
+
+    const totalStudents = await Staff.countDocuments(queryObj); // Count total students for pagination
+    const students = await Staff.find(queryObj)
+      .skip((page - 1) * limit) // Skip the results based on the page number
+      .limit(limit); // Limit the number of results per page
+
+      let staffCountByStatus = {}
+    try {
+       staffCountByStatus = await Staff.aggregate([
+        {
+          $match: {
+            school: new  mongoose.Types.ObjectId(schoolId), // Replace with your actual field for school ID
+          },
+        },
+        {
+          $group: {
+            _id: "$status", // Grouping by status
+            count: { $sum: 1 }, // Count the number of documents for each status
+          },
+        },
+      ]);
+  
+      
+    } catch (error) {
+      console.log(error)
+      
+    }
   // Respond with the list of staff found in the school
   res.status(200).json({
     success: true,
     role: "Staff",
     message: "Students found for the provided school ID",
     staff: staffWithRole,
+    pagination: {
+      totalStudents,
+      totalPages: Math.ceil(totalStudents / limit),
+      currentPage: page,
+      pageSize: limit,
+    },
     staffTypes,
+    staffCountByStatus,
     instituteUni
   });
 });

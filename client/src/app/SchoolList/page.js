@@ -55,9 +55,9 @@ const SchoolList = () => {
                   <strong>Contact:</strong> {school.contact}
                 </p>
               )}
-              {school?.showPassword && (
+              {school?.email && (
                 <p className="text-sm text-gray-600 mb-2">
-                  <strong>Password:</strong> {school.showPassword}
+                  <strong>Email:</strong> {school.email}
                 </p>
               )}
               {school?.address && (
@@ -70,13 +70,13 @@ const SchoolList = () => {
                   href={`/SchoolList/${school._id}`}
                   className="bg-blue-500 text-sm text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
                 >
-                  Edit School
+                  Edit Vendor
                 </Link>
                 <button
                   className="bg-red-500 text-sm text-white py-2 px-4 rounded-lg hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
                   onClick={() => handleDelete(school._id)}
                 >
-                  Delete School
+                  Vendor School
                 </button>
               </div>
             </div>

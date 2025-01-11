@@ -3,9 +3,13 @@ import React, { useState, useEffect } from "react";
 import Nav from "../../components/Nav";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import {  updateSchool } from "@/redux/actions/userAction";
+import { updateSchool } from "@/redux/actions/userAction";
 import { RiContactsBook2Line } from "react-icons/ri";
 import { FaRegAddressCard } from "react-icons/fa";
+
+import { FiUser } from "react-icons/fi"; // For Vendor Name icon
+import { AiOutlineMail } from "react-icons/ai"; // For Email icon
+import { MdCode } from "react-icons/md"; // For Code icon
 
 import "react-toastify/dist/ReactToastify.css";
 
@@ -159,98 +163,119 @@ const EditSchool = ({ params }) => {
               </a>
             </div>
             <div className="relative flex items-center mt-8">
+              <label
+                htmlFor="vendorName"
+                className="absolute left-0 -top-6 text-gray-700 dark:text-gray-300"
+              >
+                Vendor Name
+              </label>
               <span className="absolute">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-6 h-6 mx-3 text-gray-300 dark:text-gray-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
+                <FiUser className="w-6 h-6 mx-3 text-gray-300 dark:text-gray-500" />
               </span>
               <input
                 type="text"
+                id="vendorName"
                 className="block w-full py-3 text-gray-700 bg-white border rounded-lg px-11 dark:bg-gray-900 dark:text-gray-400 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
                 placeholder="Vendor Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
             </div>
+
             <div className="relative flex items-center mt-6">
+              <label
+                htmlFor="email"
+                className="absolute left-0 -top-6 text-gray-700 dark:text-gray-300"
+              >
+                Email Address
+              </label>
               <span className="absolute">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-6 h-6 mx-3 text-gray-300 dark:text-gray-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
+                <AiOutlineMail className="w-6 h-6 mx-3 text-gray-300 dark:text-gray-500" />
               </span>
               <input
                 type="email"
+                id="email"
                 className="block w-full py-3 text-gray-700 bg-white border rounded-lg px-11 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
+
+            <div className="relative flex items-center mt-6">
+              <label
+                htmlFor="email"
+                className="absolute left-0 -top-6 text-gray-700 dark:text-gray-300"
+              >
+                Password
+              </label>
+              <span className="absolute">
+                <AiOutlineMail className="w-6 h-6 mx-3 text-gray-300 dark:text-gray-500" />
+              </span>
+              <input
+                type="email"
+                id="email"
+                className="block w-full py-3 text-gray-700 bg-white border rounded-lg px-11 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
             <div className="relative flex items-center mt-8">
+              <label
+                htmlFor="contact"
+                className="absolute left-0 -top-6 text-gray-700 dark:text-gray-300"
+              >
+                Contact
+              </label>
               <span className="absolute">
                 <RiContactsBook2Line className="text-gray-300 ms-3 text-xl" />
               </span>
               <input
                 type="text"
+                id="contact"
                 className="block w-full py-3 text-gray-700 bg-white border rounded-lg px-11 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
                 placeholder="Contact"
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
               />
             </div>
+
             <div className="relative flex items-center mt-8">
+              <label
+                htmlFor="address"
+                className="absolute left-0 -top-6 text-gray-700 dark:text-gray-300"
+              >
+                Address
+              </label>
               <span className="absolute">
                 <FaRegAddressCard className="text-gray-300 ms-3 text-xl" />
               </span>
               <input
                 type="text"
+                id="address"
                 className="block w-full py-3 text-gray-700 bg-white border rounded-lg px-11 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
                 placeholder="Address"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
               />
             </div>
+
             <div className="relative flex items-center mt-8">
+              <label
+                htmlFor="code"
+                className="absolute left-0 -top-6 text-gray-700 dark:text-gray-300"
+              >
+                Password
+              </label>
               <span className="absolute">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-6 h-6 mx-3 text-gray-300 dark:text-gray-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
+                <MdCode className="w-6 h-6 mx-3 text-gray-300 dark:text-gray-500" />
               </span>
               <input
                 type="text"
+                id="code"
+                disabled
                 className="block w-full py-3 text-gray-700 bg-white border rounded-lg px-11 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
                 placeholder="Code"
                 value={code}
@@ -258,9 +283,7 @@ const EditSchool = ({ params }) => {
               />
             </div>
 
-            <h2 className="mt-5 font-semibold text-xl ">
-              Student Required 
-            </h2>
+            <h2 className="mt-5 font-semibold text-xl ">Student Required</h2>
             <div className="mt-1 flex flex-col space-x-4">
               <label
                 htmlFor="studentName"
@@ -356,9 +379,7 @@ const EditSchool = ({ params }) => {
               </div>
             </div>
 
-            <h2 className="mt-5 font-semibold text-xl">
-              Staff Required 
-            </h2>
+            <h2 className="mt-5 font-semibold text-xl">Staff Required</h2>
             <div className="mt-1 flex flex-col space-x-4">
               <label htmlFor="name" className="flex items-center space-x-2">
                 <input

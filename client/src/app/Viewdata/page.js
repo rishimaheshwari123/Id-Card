@@ -71,6 +71,8 @@ const Viewdata = () => {
   const [studentData, setStudentData] = useState([]);
   const [staffData, setStaffData] = useState([]);
 
+  const[statusCount,setSatusCount] = useState([])
+  
   const resetState = () => {
     setstudents([]);
     setStudentData([]);
@@ -142,7 +144,7 @@ const Viewdata = () => {
         { studentIds },
         config()
       );
-      fatchStudent(e);
+      handleFormSubmit(e);
       setStudentIds([]);
     }
     if (currRole == "staff") {
@@ -151,7 +153,7 @@ const Viewdata = () => {
         { staffIds },
         config()
       );
-      fatchStaff(e);
+      handleFormSubmit(e);
     }
   };
 
@@ -163,7 +165,7 @@ const Viewdata = () => {
         { studentIds },
         config()
       );
-      fatchStudent(e);
+      handleFormSubmit(e);
       setStudentIds([]);
     }
     if (currRole == "staff") {
@@ -172,7 +174,7 @@ const Viewdata = () => {
         { staffIds },
         config()
       );
-      fatchStaff(e);
+      handleFormSubmit(e);
     }
   };
 
@@ -184,7 +186,7 @@ const Viewdata = () => {
         { studentIds },
         config()
       );
-      fatchStudent(e);
+      handleFormSubmit(e);
       setStudentIds([]);
     }
     if (currRole == "staff") {
@@ -193,7 +195,7 @@ const Viewdata = () => {
         { staffIds },
         config()
       );
-      fatchStaff(e);
+      handleFormSubmit(e);
     }
   };
 
@@ -295,7 +297,7 @@ const Viewdata = () => {
   const fatchStaff = async (e) => {
     if (e) e.preventDefault();
     const response = await axios.post(
-      `/user/staffs/${currSchool}?status=${status}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}&search=${searchQuery}`,
+      `/user/staffs/${currSchool}?status=${status}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}&search=${searchQuery}&page=${pagination.currentPage}&limit=${pagination.pageSize}`,
       null,
       config()
     );
@@ -315,7 +317,7 @@ const Viewdata = () => {
       const isStudent = currRole === "student";
       const endpoint = isStudent
         ? `/user/students/${currSchool}?status=${status}&page=${pagination.currentPage}&limit=${pagination.pageSize}&search=${searchQuery}&studentClass=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}`
-        : `/user/staffs/${currSchool}?status=${status}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}&search=${searchQuery}`;
+        : `/user/staffs/${currSchool}?status=${status}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}&search=${searchQuery}&page=${pagination.currentPage}&limit=${pagination.pageSize}`;
       const noDataMessage = isStudent
         ? "No students found for the provided Vendor ID"
         : "No staff found for the provided Vendor ID";
@@ -354,10 +356,19 @@ const Viewdata = () => {
         setClassname(response?.data?.uniqueStudents || []);
         setSections(response?.data?.uniqueSection || []);
         setUnqiueCourse(response?.data?.uniqueCourse || []);
+        setSatusCount(response.data.staffCountByStatus || [])
+
       } else {
         setstaffs(response?.data?.staff || []);
         console.log(response?.data?.staff);
-
+        setPagination({
+          ...pagination,
+          totalStudents: response.data.pagination.totalStudents,
+          totalPages: response.data.pagination.totalPages,
+        });
+        setSatusCount(response?.data?.staffCountByStatus || [])
+        console.log(statusCount)
+        console.log(response.data.staffCountByStatus)
         setStaffData(response?.data?.staff || []);
         console.log(response?.data?.staffTypes);
         setUnqiueStaff(response?.data?.staffTypes || []);
@@ -723,7 +734,7 @@ const Viewdata = () => {
           { studentIds },
           config()
         );
-        fatchStudent();
+        handleFormSubmit();
         setStudentIds([]);
         setStaffIds([]);
         setIsAllSelected(false);
@@ -759,7 +770,7 @@ const Viewdata = () => {
           { staffIds },
           config()
         );
-        fatchStaff();
+        handleFormSubmit();
         setStudentIds([]);
         setStaffIds([]);
         // Show success alert after successful deletion
@@ -881,7 +892,7 @@ const Viewdata = () => {
         );
 
         // Fetch updated student list
-        fatchStudent();
+        handleFormSubmit();
         setStudentIds([]);
         // Close the loading spinner and show success message
         Swal.fire({
@@ -897,7 +908,7 @@ const Viewdata = () => {
           { staffIds: [studentId] },
           config()
         );
-        fatchStaff();
+        handleFormSubmit();
         setStudentIds([]);
         Swal.fire({
           title: "Success!",
@@ -916,7 +927,10 @@ const Viewdata = () => {
       });
     }
   };
-
+  const Statuschecker = (value) => {
+    const statusObj = statusCount?.find(count => count._id === value);
+    return statusObj ? statusObj.count : 0; // Return count or 0 if not found
+  };
   return (
     <div>
       <Nav />
@@ -997,18 +1011,23 @@ const Viewdata = () => {
                       : "bg-gray-200 text-gray-700"
                   }`}
                 >
-                  Pending
+                  Pending 
+                  {
+                  statusCount.length > 0 &&  Statuschecker("Panding")
+                  }
                 </button>
                 <button
                   type="button"
                   onClick={() => setstatus("Ready to print")}
-                  className={`px-3 py-1 rounded-md font-medium ${
+                  className={`px-3 py-1 rounded-md font-medium  ${
                     status === "Ready to print"
                       ? "bg-green-600 text-white"
                       : "bg-gray-200 text-gray-700"
                   }`}
                 >
-                  Ready to Print
+                <p className=" flex gap-2">  Ready to Print{
+                  statusCount.length > 0 &&  Statuschecker("Ready to print")
+                  }</p>
                 </button>
                 <button
                   type="button"
@@ -1019,7 +1038,9 @@ const Viewdata = () => {
                       : "bg-gray-200 text-gray-700"
                   }`}
                 >
-                  Printed
+                  Printed {
+                  statusCount.length > 0 &&  Statuschecker("Printed")
+                  }
                 </button>
               </div>
             </form>
@@ -1080,7 +1101,7 @@ const Viewdata = () => {
                           : "Search staff..."
                       }
                       value={searchQuery}
-                      onChange={(e) => handleSearch(e.target.value)}
+                      onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full p-2 sm:p-3 border-none focus:outline-none rounded-r-md text-sm sm:text-base"
                     />
                   </div>
@@ -1270,7 +1291,7 @@ const Viewdata = () => {
           </div>
         )}
 
-        {submitted && students?.length > 0 && (
+        {submitted &&  (
           <div className="container mx-auto px-16 ">
             {pagination.totalPages > 0 && (
               <Pagination
@@ -1279,10 +1300,11 @@ const Viewdata = () => {
                 setPage={setPage}
               />
             )}
+         
 
             <div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {students?.map((student) => (
+                {students?.length > 0  && students?.map((student) => (
                   <div
                     key={student?._id}
                     className={`relative shadow-lg p-6 rounded-xl border-2 w-full bg-gradient-to-b from-blue-400 via-blue-300 to-blue-100 transform  transition-all duration-300 ${
@@ -1413,9 +1435,9 @@ const Viewdata = () => {
                         {user?.school && (
                           <button
                             onClick={(e) => moveReadySingle(student._id)}
-                            className="text-sm px-2 py-2 text-[13px] bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transform transition-all duration-200"
+                            className="text-sm px-1 py-2 text-[12px] bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transform transition-all duration-200"
                           >
-                           <span className=" text-[9px]"> Move to</span> Ready
+                           <span className=" text-[8px]"> Move to</span> Ready
                           </button>
                         )}
                       </div>
@@ -1588,9 +1610,9 @@ const Viewdata = () => {
                             onClick={(e) => {
                               moveReadySingle(staff._id);
                             }}
-                            className="px-2 py-2 bg-yellow-600 text-[13px] text-white rounded-lg shadow-md hover:bg-yellow-700 transition-all"
+                            className="px-2 py-1 bg-yellow-600 text-[12px] text-white rounded-lg shadow-md hover:bg-yellow-700 transition-all"
                           >
-                        <span className="text-[9px]">    Move to </span>Ready
+                        <span className="text-[8px]">    Move to </span>Ready
                           </button>
                         )}
                       </div>
