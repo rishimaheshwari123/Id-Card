@@ -257,6 +257,7 @@ const Viewdata = () => {
     setSectionValueSearch("");
     setValueStaff("");
     setValueStaffInsi("");
+    setSearchQuery("");
     setPagination({
       totalStudents: 0,
       totalPages: 0,

@@ -854,7 +854,6 @@ exports.addStudent = catchAsyncErron(async (req, res, next) => {
     console.log(req.body);
     if (!name) return next(new errorHandler("name is Required"));
 
-
     let currStudent = {
       name,
     };
@@ -1027,7 +1026,6 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
 
     console.log(req.body);
 
-    
     const user = await User.findById(id);
 
     if (user) {
@@ -1125,7 +1123,7 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
       }
       if (req.body.extraField2) {
         currStaff.institute = req.body.extraField2;
-      }else {
+      } else {
         currStaff.institute = null;
       }
 
@@ -1144,11 +1142,11 @@ exports.addStaff = catchAsyncErron(async (req, res, next) => {
         publicId: publicId,
         url: url,
       };
-      if(req.body.SignatureData){
-        staff.signatureImage ={
-          publicId:req.body.SignatureData.publicId,
-          url:req.body.SignatureData.url
-        }
+      if (req.body.SignatureData) {
+        staff.signatureImage = {
+          publicId: req.body.SignatureData.publicId,
+          url: req.body.SignatureData.url,
+        };
       }
 
       await staff.save();
@@ -1292,7 +1290,6 @@ exports.editStaff = catchAsyncErron(async (req, res, next) => {
   console.log(req.body);
   const updates = req.body; // The updates from the request body.
 
- 
   const updatedStudent = await Staff.findByIdAndUpdate(staffId, updates, {
     new: true,
   });
@@ -1302,7 +1299,7 @@ exports.editStaff = catchAsyncErron(async (req, res, next) => {
   if (req.files && req.files[0]) {
     file = req.files[0];
   }
-console.log(file)
+  console.log(file);
 
   if (file) {
     const currStudent = await Staff.findById(staffId);
@@ -1479,6 +1476,7 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
     console.log(course);
     let queryObj = { school: new mongoose.Types.ObjectId(schoolId) };
     const SchoolData = await School.findById(schoolId);
+    let statusObj =  { school: new mongoose.Types.ObjectId(schoolId)  }
 
     const uniqueStudents = await Student.distinct("class", queryObj);
     // Replace "studentID" with the field you consider unique
@@ -1504,22 +1502,27 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
     if (studentClass) {
       if (studentClass === "no-class" || studentClass === "") {
         queryObj.class = null; // Logic to filter for "Without Class Name"
+        statusObj.class = null; // Logic to filter for "Without Class Name"
       } else {
         const escapedClassName = escapeRegex(studentClass); // Escape special characters
         queryObj.class = { $regex: `^${escapedClassName}$`, $options: "i" }; // Exact match with regex
+        statusObj.class = { $regex: `^${escapedClassName}$`, $options: "i" }; // Exact match with regex
       }
     }
     if (course) {
       if (course === "no-class" || course === "") {
         queryObj.course = null; // Logic to filter for "Without Class Name"
+        statusObj.course = null; // Logic to filter for "Without Class Name"
       } else {
         const escapedcourseName = escapeRegex(course); // Escape special characters
         queryObj.course = { $regex: `^${escapedcourseName}$`, $options: "i" }; // Exact match with regex
+        statusObj.course = { $regex: `^${escapedcourseName}$`, $options: "i" }; // Exact match with regex
       }
     }
 
     if (section) {
       queryObj.section = { $regex: section, $options: "i" };
+      statusObj.section = { $regex: section, $options: "i" };
     }
 
     // If there is a search term, add the search logic
@@ -1548,7 +1551,51 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
                     },
                     as: "field",
                     cond: {
-                      $regexMatch: { input: "$$field.v", regex: search, options: "i" },
+                      $regexMatch: {
+                        input: "$$field.v",
+                        regex: search,
+                        options: "i",
+                      },
+                    },
+                  },
+                },
+              },
+              0,
+            ],
+          },
+        },
+
+        // You can add more fields here as needed
+      ];
+      statusObj.$or = [
+        { name: { $regex: search, $options: "i" } },
+        // { rollNo: { $regex: search, $options: "i" } },
+        // { section: { $regex: search, $options: "i" } },
+        // { class: { $regex: search, $options: "i" } },
+        // { fatherName: { $regex: search, $options: "i" } },
+        // { motherName: { $regex: search, $options: "i" } },
+        // { contact: { $regex: search, $options: "i" } },
+        // { email: { $regex: search, $options: "i" } },
+        // { admissionNo: { $regex: search, $options: "i" } },
+        // { studentID: { $regex: search, $options: "i" } },
+        // { aadharNo: { $regex: search, $options: "i" } },
+        // { regNo: { $regex: search, $options: "i" } },
+        {
+          $expr: {
+            $gt: [
+              {
+                $size: {
+                  $filter: {
+                    input: {
+                      $ifNull: [{ $objectToArray: "$extraFields" }, []], // Ensure this is an array
+                    },
+                    as: "field",
+                    cond: {
+                      $regexMatch: {
+                        input: "$$field.v",
+                        regex: search,
+                        options: "i",
+                      },
                     },
                   },
                 },
@@ -1588,14 +1635,12 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
         role: "student",
       };
     });
-    
 
-
-    let staffCountByStatus = {}
+    let staffCountByStatus = {};
     try {
-       staffCountByStatus = await Student.aggregate([
+      staffCountByStatus = await Student.aggregate([
         {
-          $match:queryObj,
+          $match: statusObj,
         },
         {
           $group: {
@@ -1604,11 +1649,10 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
           },
         },
       ]);
-  
-      console.log(staffCountByStatus)
+
+      console.log(staffCountByStatus);
     } catch (error) {
-      console.log(error)
-      
+      console.log(error);
     }
     // Respond with the list of students and pagination info
     res.status(200).json({
@@ -1624,7 +1668,7 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
       uniqueStudents,
       uniqueSection,
       uniqueCourse,
-      staffCountByStatus
+      staffCountByStatus,
     });
   } catch (error) {
     console.error("Error in getAllStudentsInSchool route:", error);
@@ -1639,11 +1683,9 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
   const institute = req.query.institute; // Search term from query parameters
   const search = req.query.search; // Search term from query parameters
 
-  let queryObj = { school: new mongoose.Types.ObjectId(schoolId)  };
+  let queryObj = { school: new mongoose.Types.ObjectId(schoolId) };
 
-
-  
-
+  let statusObj = { school: new mongoose.Types.ObjectId(schoolId) };
 
   const StaffData = await School.findById(schoolId);
   const staffTypes = StaffData.requiredFieldsStaff.includes("Staff Type")
@@ -1653,36 +1695,71 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
     ? await Staff.distinct("institute", queryObj)
     : [];
 
- if (search) {
-  queryObj.$or = [
-    { name: { $regex: search, $options: "i" } },
+  if (search) {
+    queryObj.$or = [
+      { name: { $regex: search, $options: "i" } },
 
-    {
-      $expr: {
-        $gt: [
-          {
-            $size: {
-              $filter: {
-                input: {
-                  $ifNull: [{ $objectToArray: "$extraFieldsStaff" }, []], // Ensure this is an array
-                },
-                as: "field",
-                cond: {
-                  $regexMatch: { input: "$$field.v", regex: search, options: "i" },
+      {
+        $expr: {
+          $gt: [
+            {
+              $size: {
+                $filter: {
+                  input: {
+                    $ifNull: [{ $objectToArray: "$extraFieldsStaff" }, []], // Ensure this is an array
+                  },
+                  as: "field",
+                  cond: {
+                    $regexMatch: {
+                      input: "$$field.v",
+                      regex: search,
+                      options: "i",
+                    },
+                  },
                 },
               },
             },
-          },
-          0,
-        ],
+            0,
+          ],
+        },
       },
-    },
 
-    // You can add more fields here as needed
-  ];
-}
+      // You can add more fields here as needed
+    ];
+  }
+  if (search) {
+    statusObj.$or = [
+      { name: { $regex: search, $options: "i" } },
 
-    
+      {
+        $expr: {
+          $gt: [
+            {
+              $size: {
+                $filter: {
+                  input: {
+                    $ifNull: [{ $objectToArray: "$extraFieldsStaff" }, []], // Ensure this is an array
+                  },
+                  as: "field",
+                  cond: {
+                    $regexMatch: {
+                      input: "$$field.v",
+                      regex: search,
+                      options: "i",
+                    },
+                  },
+                },
+              },
+            },
+            0,
+          ],
+        },
+      },
+
+      // You can add more fields here as needed
+    ];
+  }
+
   if (status) {
     queryObj.status = status; // Assuming your student schema has a 'state' field
   }
@@ -1693,17 +1770,21 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
   if (staffType) {
     if (staffType === "no-staff" || staffType === "") {
       queryObj.staffType = null; // Logic to filter for "Without Class Name"
+      statusObj.staffType = null; // Logic to filter for "Without Class Name"
     } else {
       const escapedClassName = escapeRegex(staffType); // Escape special characters
       queryObj.staffType = { $regex: `^${escapedClassName}$`, $options: "i" }; // Exact match with regex
+      statusObj.staffType = { $regex: `^${escapedClassName}$`, $options: "i" }; // Exact match with regex
     }
   }
   if (institute) {
     if (institute === "no-staff" || institute === "") {
       queryObj.institute = null; // Logic to filter for "Without Class Name"
+      statusObj.institute = null; // Logic to filter for "Without Class Name"
     } else {
       const escapedClassName = escapeRegex(institute); // Escape special characters
       queryObj.institute = { $regex: `^${escapedClassName}$`, $options: "i" }; // Exact match with regex
+      statusObj.institute = { $regex: `^${escapedClassName}$`, $options: "i" }; // Exact match with regex
     }
   }
   // Find all staff in the given school using the school ID
@@ -1728,37 +1809,33 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
     };
   });
 
-  
-    // Pagination parameters
-    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
-    const limit = parseInt(req.query.limit) || 10; // Default to 10 students per page
+  // Pagination parameters
+  const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+  const limit = parseInt(req.query.limit) || 10; // Default to 10 students per page
 
-    // Find all students based on the queryObj
+  // Find all students based on the queryObj
 
-    const totalStudents = await Staff.countDocuments(queryObj); // Count total students for pagination
-    const students = await Staff.find(queryObj)
-      .skip((page - 1) * limit) // Skip the results based on the page number
-      .limit(limit); // Limit the number of results per page
+  const totalStudents = await Staff.countDocuments(queryObj); // Count total students for pagination
+  const students = await Staff.find(queryObj)
+    .skip((page - 1) * limit) // Skip the results based on the page number
+    .limit(limit); // Limit the number of results per page
 
-      let staffCountByStatus = {}
-    try {
-       staffCountByStatus = await Staff.aggregate([
-        {
-          $match: queryObj,
+  let staffCountByStatus = {};
+  try {
+    staffCountByStatus = await Staff.aggregate([
+      {
+        $match: statusObj,
+      },
+      {
+        $group: {
+          _id: "$status", // Grouping by status
+          count: { $sum: 1 }, // Count the number of documents for each status
         },
-        {
-          $group: {
-            _id: "$status", // Grouping by status
-            count: { $sum: 1 }, // Count the number of documents for each status
-          },
-        },
-      ]);
-  
-      
-    } catch (error) {
-      console.log(error)
-      
-    }
+      },
+    ]);
+  } catch (error) {
+    console.log(error);
+  }
   // Respond with the list of staff found in the school
   res.status(200).json({
     success: true,
@@ -1773,7 +1850,7 @@ exports.getAllStaffInSchool = catchAsyncErron(async (req, res, next) => {
     },
     staffTypes,
     staffCountByStatus,
-    instituteUni
+    instituteUni,
   });
 });
 
@@ -2577,22 +2654,21 @@ exports.StudentsAvatars = catchAsyncErron(async (req, res, next) => {
       return res.end();
     }
 
+    //     // Get the total number of students
+    //     const totalStudents = await Student.countDocuments({ school: studentId });
+    //     const totalPhotos = req.files.length;
+    // console.log(totalStudents)
+    //     // Check if the number of photos exceeds the number of students
+    //     if (totalStudents < totalPhotos) {
+    //       res.write(
+    //         `data: ${JSON.stringify({
+    //           success: false,
+    //           message: `There are only ${totalStudents} students. Please add students first to match the number of photos.`,
+    //         })}\n\n`
+    //       );
+    //       return res.end(); // Stop processing and return
+    //     }
 
-  //     // Get the total number of students
-  //     const totalStudents = await Student.countDocuments({ school: studentId });
-  //     const totalPhotos = req.files.length;
-  // console.log(totalStudents)
-  //     // Check if the number of photos exceeds the number of students
-  //     if (totalStudents < totalPhotos) {
-  //       res.write(
-  //         `data: ${JSON.stringify({
-  //           success: false,
-  //           message: `There are only ${totalStudents} students. Please add students first to match the number of photos.`,
-  //         })}\n\n`
-  //       );
-  //       return res.end(); // Stop processing and return
-  //     }
-  
     const files = req.files;
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     const students = [];
@@ -2672,7 +2748,6 @@ exports.StudentsAvatars = catchAsyncErron(async (req, res, next) => {
   }
 });
 
-
 exports.StaffAvatars = catchAsyncErron(async (req, res, next) => {
   console.log("enter");
 
@@ -2689,8 +2764,6 @@ exports.StaffAvatars = catchAsyncErron(async (req, res, next) => {
       );
       return res.end();
     }
-
-
 
     const files = req.files;
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -2771,7 +2844,6 @@ exports.StaffAvatars = catchAsyncErron(async (req, res, next) => {
   }
 });
 
-
 exports.StaffSignature = catchAsyncErron(async (req, res, next) => {
   console.log("enter");
 
@@ -2788,8 +2860,6 @@ exports.StaffSignature = catchAsyncErron(async (req, res, next) => {
       );
       return res.end();
     }
-
-
 
     const files = req.files;
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -2811,7 +2881,9 @@ exports.StaffSignature = catchAsyncErron(async (req, res, next) => {
       if (currStaff) {
         if (currStaff.signatureImage.publicId !== "") {
           try {
-            await cloudinary.v2.uploader.destroy(currStaff.signatureImage.publicId);
+            await cloudinary.v2.uploader.destroy(
+              currStaff.signatureImage.publicId
+            );
             console.log("File deleted successfully");
           } catch (error) {
             console.error("Error deleting file from Cloudinary:", error);
@@ -2869,8 +2941,6 @@ exports.StaffSignature = catchAsyncErron(async (req, res, next) => {
     res.end();
   }
 });
-
-
 
 // exports.StaffAvatars = catchAsyncErron(async (req, res, next) => {
 //   const studentId = req.params.id;
@@ -3162,7 +3232,9 @@ exports.StaffAvatarsDownload = catchAsyncErron(async (req, res, next) => {
     }
 
     const studentAvatars = students.map((student, index) => ({
-      url: student?.avatar?.url || "https://plus.unsplash.com/premium_photo-1699534403319-978d740f9297?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      url:
+        student?.avatar?.url ||
+        "https://plus.unsplash.com/premium_photo-1699534403319-978d740f9297?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       name: `${student.photoNameUnuiq}`,
     }));
 
@@ -3257,7 +3329,9 @@ exports.StaffNewAvatarsDownload = catchAsyncErron(async (req, res, next) => {
     }
 
     const studentAvatars = students.map((student, index) => ({
-      url: student.avatar?.url || "https://plus.unsplash.com/premium_photo-1699534403319-978d740f9297?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      url:
+        student.avatar?.url ||
+        "https://plus.unsplash.com/premium_photo-1699534403319-978d740f9297?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       name: `IMG${student.photoNameUnuiq}`,
     }));
 
@@ -3352,7 +3426,9 @@ exports.StaffSignatureDownload = catchAsyncErron(async (req, res, next) => {
     }
 
     const studentAvatars = students.map((student, index) => ({
-      url: student.signatureImage?.url || "https://plus.unsplash.com/premium_photo-1699534403319-978d740f9297?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      url:
+        student.signatureImage?.url ||
+        "https://plus.unsplash.com/premium_photo-1699534403319-978d740f9297?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       name: `SIG${student.signatureNameUnuiq}`,
     }));
 
@@ -3424,8 +3500,6 @@ exports.StaffSignatureDownload = catchAsyncErron(async (req, res, next) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
-
-
 
 // exports.StaffNewAvatarsDownload = catchAsyncErron(async (req, res, next) => {
 //   const schoolId = req.params.id;
