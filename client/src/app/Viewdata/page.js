@@ -1376,14 +1376,14 @@ const Viewdata = () => {
                       <div className="h-[2px] w-[100%] bg-blue-500 mx-auto my-4 rounded-full"></div>
 
                       <ul className="mt-2 text-gray-700   flex gap-1  flex-wrap">
-                        {schoolData.extraFields.map((field, index) => (
+                        {schoolData?.extraFields.map((field, index) => (
                           <li key={index} className="flex text-[13px] gap-1  ">
                             <span className="font-semibold text-w  ">
                               {field?.name}:
                             </span>
                             <span>
                               {" "}
-                              {student.extraFields?.[field?.name] || ""}
+                              {student?.extraFields?.[field?.name] || ""}
                             </span>
                           </li>
                         ))}
@@ -1468,9 +1468,9 @@ const Viewdata = () => {
                   <div className="flex flex-col items-center mt-1">
                     <div className="grid grid-cols-2 gap-2">
                       <Image
-                        height={80}
-                        width={80}
-                        className="min-w-[95%] max-w-[95%] min-h-[100px] max-h-[100px] rounded-full border-4 border-blue-500 shadow-lg"
+                        height={100}
+                        width={100}
+                        className="  rounded-full border-4 border-blue-500 shadow-lg"
                         src={staff?.avatar?.url}
                         alt={staff?.name}
                       />
