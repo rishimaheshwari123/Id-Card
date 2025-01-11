@@ -255,6 +255,8 @@ const Viewdata = () => {
     setclassNameValue("");
     setCourseValueSearch("");
     setSectionValueSearch("");
+    setValueStaff("");
+    setValueStaffInsi("");
     setPagination({
       totalStudents: 0,
       totalPages: 0,
