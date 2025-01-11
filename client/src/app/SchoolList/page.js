@@ -76,7 +76,7 @@ const SchoolList = () => {
                   className="bg-red-500 text-sm text-white py-2 px-4 rounded-lg hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
                   onClick={() => handleDelete(school._id)}
                 >
-                  Vendor School
+                 Delete Vendor 
                 </button>
               </div>
             </div>

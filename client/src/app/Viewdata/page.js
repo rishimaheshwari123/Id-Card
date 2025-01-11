@@ -1002,47 +1002,60 @@ const Viewdata = () => {
 
               {/* Status Selection Buttons */}
               <div className="mb-4 flex space-x-4">
-                <button
-                  type="button"
-                  onClick={() => setstatus("Panding")}
-                  className={`px-3 py-1 rounded-md font-medium ${
-                    status === "Panding"
-                      ? "bg-green-600 text-white"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
-                >
-                  Pending 
-                  {
-                  statusCount.length > 0 &&  Statuschecker("Panding")
-                  }
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setstatus("Ready to print")}
-                  className={`px-3 py-1 rounded-md font-medium  ${
-                    status === "Ready to print"
-                      ? "bg-green-600 text-white"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
-                >
-                <p className=" flex gap-2">  Ready to Print{
-                  statusCount.length > 0 &&  Statuschecker("Ready to print")
-                  }</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setstatus("Printed")}
-                  className={`px-2 py-1 rounded-md font-medium ${
-                    status === "Printed"
-                      ? "bg-green-600 text-white"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
-                >
-                  Printed {
-                  statusCount.length > 0 &&  Statuschecker("Printed")
-                  }
-                </button>
-              </div>
+  <button
+    type="button"
+    onClick={() => setstatus("Panding")}
+    className={`px-3 py-1 rounded-md font-medium ${
+      status === "Panding"
+        ? "bg-green-600 text-white"
+        : "bg-gray-200 text-gray-700"
+    }`}
+  >
+    Pending
+    {statusCount.length > 0 && (
+      <span className="ml-2 text-sm ">
+        {Statuschecker("Panding")}
+      </span>
+    )}
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setstatus("Ready to print")}
+    className={`px-3 py-1 rounded-md font-medium ${
+      status === "Ready to print"
+        ? "bg-green-600 text-white"
+        : "bg-gray-200 text-gray-700"
+    }`}
+  >
+    <p className="flex gap-2">
+      Ready to Print
+      {statusCount.length > 0 && (
+        <span className="ml-2 text-sm ">
+          {Statuschecker("Ready to print")}
+        </span>
+      )}
+    </p>
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setstatus("Printed")}
+    className={`px-3 py-1 rounded-md font-medium ${
+      status === "Printed"
+        ? "bg-green-600 text-white"
+        : "bg-gray-200 text-gray-700"
+    }`}
+  >
+    Printed
+    {statusCount.length > 0 && (
+      <span className="ml-2 text-sm ">
+        {Statuschecker("Printed")}
+      </span>
+    )}
+  </button>
+</div>
+
             </form>
           )}
 

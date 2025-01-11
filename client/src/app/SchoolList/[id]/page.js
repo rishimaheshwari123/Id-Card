@@ -202,25 +202,7 @@ const EditSchool = ({ params }) => {
               />
             </div>
 
-            <div className="relative flex items-center mt-6">
-              <label
-                htmlFor="email"
-                className="absolute left-0 -top-6 text-gray-700 dark:text-gray-300"
-              >
-                Password
-              </label>
-              <span className="absolute">
-                <AiOutlineMail className="w-6 h-6 mx-3 text-gray-300 dark:text-gray-500" />
-              </span>
-              <input
-                type="email"
-                id="email"
-                className="block w-full py-3 text-gray-700 bg-white border rounded-lg px-11 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
+           
 
             <div className="relative flex items-center mt-8">
               <label
