@@ -114,9 +114,9 @@ router.post("/edit/student/:id", upload, editStudent);
 
 router.post("/edit/staff/:id", upload, editStaff);
 
-router.post("/student/avatars/:id", upload, isAuthenticated , StudentsAvatars);
+router.post("/student/avatars/:id", upload,  StudentsAvatars);
 
-router.post("/staff/avatars/:id", upload, isAuthenticated , StaffAvatars);
+router.post("/staff/avatars/:id", upload,  StaffAvatars);
 router.post("/staff/signature/:id", upload, isAuthenticated , StaffSignature);
 
 router.post("/delete/student/:id", isAuthenticated ,deleteStudent);

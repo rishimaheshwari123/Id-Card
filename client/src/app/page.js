@@ -26,6 +26,9 @@ export default function Home() {
     if (!user) {
       dispatch(currentUser());
     }
+    if (user?.role == "school") {
+      router.push("/Viewdata")
+    }
   }, [user, dispatch]);
 
 
@@ -104,12 +107,12 @@ export default function Home() {
       icon: <FaFileExcel />,
       visibleFor: "school", // Only show for users who are not "school"
     },
-    {
-      href: "/Adddata",
-      label: "Add Data Manually",
-      icon: <FaUser />,
-      visibleFor: "all", // Visible for all users
-    },
+    // {
+    //   href: "/Adddata",
+    //   label: "Add Data Manually",
+    //   icon: <FaUser />,
+    //   visibleFor: "all", // Visible for all users
+    // },
     {
       href: "/Viewdata",
       label: "View Data",
@@ -246,14 +249,14 @@ export default function Home() {
                     </div>
                   )}
 
-                  <div>
+                  {/* <div>
                     <Link
                       href="/Adddata"
                       className="lg:text-2xl text-xl font-semibold hover:text-white rounded-full py-1.5 px-2 cursor-pointer bg-gray-900 bg-opacity-90 flex items-center justify-center gap-2"
                     >
                       <FaUser /> Add Data Manually
                     </Link>
-                  </div>
+                  </div> */}
                   <div>
                     <Link
                       href="/Viewdata"

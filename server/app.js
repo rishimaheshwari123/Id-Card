@@ -72,7 +72,7 @@ const errorHandler = require("./utils/errorHandler");
 app.post(
   "/upload-excel/:id",
   upload,
-  isAuthenticated,
+ 
   async (req, res, next) => {
     const file = req.files[0];
     const mappings = JSON.parse(req.body.data); // Mapping data sent from frontend
@@ -318,7 +318,7 @@ app.post(
 app.post(
   "/upload-excel/staff/:id",
   upload,
-  isAuthenticated,
+ 
   async (req, res) => {
     const file = req.files[0];
 

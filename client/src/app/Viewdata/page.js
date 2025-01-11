@@ -24,6 +24,7 @@ import {
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 import Pagination from "@/component/Pagination";
+import Link from "next/link";
 
 const Viewdata = () => {
   const { user, schools, error } = useSelector((state) => state.user);
@@ -957,9 +958,10 @@ const Viewdata = () => {
               className="mt-6 w-full flex justify-between flex-wrap"
               onSubmit={handleFormSubmit}
             >
+            
               {/* School Dropdown */}
               {!loginSchool && (
-                <div className="mb-4">
+                <div className="mb-4 flex gap-3 items-center">
                   <select
                     id="school"
                     onChange={handleSchoolSelect}
@@ -973,6 +975,15 @@ const Viewdata = () => {
                       </option>
                     ))}
                   </select>
+
+                  {
+                submitted &&   <Link
+                href={`/ShareUpload?vendor=${currSchool}&role=${currRole}`}
+                    className={`px-4 py-2 rounded-md font-medium  bg-gray-200 text-gray-700`}
+                >
+         Share 
+                </Link>
+              }
                 </div>
               )}
 
@@ -1000,61 +1011,77 @@ const Viewdata = () => {
                 >
                   Staff
                 </button>
+                {
+                submitted &&   <Link
+                href={`/Adddata?vendor=${currSchool}&role=${currRole}&class=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}`}
+                    className={`px-4 py-2 rounded-md font-medium  bg-gray-200 text-gray-700`}
+                >
+                Add New {currRole}
+                </Link>
+              }
+               
               </div>
 
               {/* Status Selection Buttons */}
               <div className="mb-4 flex space-x-4 relative">
-  {/* Pending Button */}
-  <button
-    type="button"
-    onClick={() => setstatus("Panding")}
-    className={`px-4 py-2 rounded-md font-medium relative ${
-      status === "Panding" ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700"
-    }`}
-  >
-    Pending
-    {statusCount.length > 0 && (
-      <span className="absolute -top-2 right-0 mt- mr-1 text-sm font-semibold text-white bg-red-600 rounded-full px-2">
-        {Statuschecker("Panding")}
-      </span>
-    )}
-  </button>
+                {/* Pending Button */}
+                <button
+                  type="button"
+                  onClick={() => setstatus("Panding")}
+                  className={`px-4 py-2 rounded-md font-medium relative ${
+                    status === "Panding"
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  Pending
+                  {statusCount.length > 0 && (
+                    <span className="absolute -top-2 right-0 mt- mr-1 text-sm font-semibold text-white bg-red-600 rounded-full px-2">
+                      {Statuschecker("Panding")}
+                    </span>
+                  )}
+                </button>
 
-  {/* Ready to Print Button */}
-  <button
-    type="button"
-    onClick={() => setstatus("Ready to print")}
-    className={`px-4 py-2 rounded-md font-medium relative ${
-      status === "Ready to print" ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700"
-    }`}
-  >
-    Ready to Print
-    {statusCount.length > 0 && (
-      <span className="absolute -top-3 right-0 mt-1 mr-1 text-sm font-semibold text-white bg-red-600 rounded-full px-2">
-        {Statuschecker("Ready to print")}
-      </span>
-    )}
-  </button>
+                {/* Ready to Print Button */}
+                <button
+                  type="button"
+                  onClick={() => setstatus("Ready to print")}
+                  className={`px-4 py-2 rounded-md font-medium relative ${
+                    status === "Ready to print"
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  Ready to Print
+                  {statusCount.length > 0 && (
+                    <span className="absolute -top-3 right-0 mt-1 mr-1 text-sm font-semibold text-white bg-red-600 rounded-full px-2">
+                      {Statuschecker("Ready to print")}
+                    </span>
+                  )}
+                </button>
 
-  {/* Printed Button */}
-  <button
-    type="button"
-    onClick={() => setstatus("Printed")}
-    className={`px-4 py-2 rounded-md font-medium relative ${
-      status === "Printed" ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700"
-    }`}
-  >
-    Printed
-    {statusCount.length > 0 && (
-      <span className="absolute -top-3 right-0 mt-1 mr-1 text-sm font-semibold text-white bg-red-600 rounded-full px-2">
-        {Statuschecker("Printed")}
-      </span>
-    )}
-  </button>
-</div>
+                {/* Printed Button */}
+                <button
+                  type="button"
+                  onClick={() => setstatus("Printed")}
+                  className={`px-4 py-2 rounded-md font-medium relative ${
+                    status === "Printed"
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  Printed
+                  {statusCount.length > 0 && (
+                    <span className="absolute -top-3 right-0 mt-1 mr-1 text-sm font-semibold text-white bg-red-600 rounded-full px-2">
+                      {Statuschecker("Printed")}
+                    </span>
+                  )}
+                </button>
 
+             
 
-
+                
+              </div>
             </form>
           )}
 
