@@ -2,13 +2,12 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Nav from "../components/Nav";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
   aadExcel,
   aadExcelstaff,
-  submitStudentPhotos,
-} from "@/redux/actions/userAction";
+ } from "@/redux/actions/userAction";
 import axios from "../../../axiosconfig";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
@@ -22,9 +21,7 @@ const Addexcel = () => {
   let currentExcel = {};
   const [selectedPhotos, setSelectedPhotos] = useState([]);
   const [headings, setHeadings] = useState([]); // State to store Excel headings
-
   const [fileName, setFileName] = useState(""); // State to store file name
-
   const [schoolData, setSchoolData] = useState(null);
   //student
   const [mapping, setMapping] = useState({});
@@ -294,7 +291,6 @@ const Addexcel = () => {
     console.log([...selectedPhotos, ...files]);
   };
 
- 
   const fetchStudentAndStaffCount = async (schoolId) => {
     try {
       const [studentCountResponse, staffCountResponse] = await Promise.all([
@@ -506,18 +502,18 @@ const Addexcel = () => {
                   ))}
                 </select>
 
-                {currSchool && currRole  && (
-                    <a
-                      href={`https://wa.me/?text=${encodeURIComponent(
-                        `Add Data With Excel: ${window.location.origin}/ShareUpload?vendor=${currSchool}&role=${currRole}`
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-2 inline-block px-4 py-2 rounded-md font-medium bg-green-500 text-white"
-                    >
-                      Share
-                    </a>
-                  )}
+                {currSchool && currRole && (
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(
+                      `Add Data With Excel: ${window.location.origin}/ShareUpload?vendor=${currSchool}&role=${currRole}`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-block px-4 py-2 rounded-md font-medium bg-green-500 text-white"
+                  >
+                    Share
+                  </a>
+                )}
               </div>
             </form>
           )}
@@ -574,7 +570,7 @@ const Addexcel = () => {
                 ) : (
                   <h2 className="mx-3 text-gray-400">Excel File</h2>
                 )}
-              
+
                 <input
                   id="excelFile"
                   type="file"
@@ -583,7 +579,7 @@ const Addexcel = () => {
                   onChange={handleExcelFileSelect}
                 />
               </label>
-          
+
               <div className="flex justify-center p-5">
                 {headings.length > 0 && currRole == "student" && (
                   <div className="w-full max-w-2xl bg-gray-100 p-6 rounded-lg shadow-md">
@@ -643,11 +639,11 @@ const Addexcel = () => {
                           htmlFor={extraField.name}
                           className="block text-lg font-medium mb-2"
                         >
-                          {extraField.name}:
+                          {extraField?.name}:
                         </label>
                         <select
-                          id={extraField.name}
-                          name={extraField.name}
+                          id={extraField?.name}
+                          name={extraField?.name}
                           onChange={(e) =>
                             handleInputChange(
                               extraField.name,
@@ -694,45 +690,46 @@ const Addexcel = () => {
                         </option>
                       ))}
                     </select>
-                    {schoolData && schoolData?.requiredFieldsStaff?.map((field, index) => (
-                      <div className="mb-4" key={index}>
-                        <label
-                          htmlFor={field}
-                          className="block text-lg font-medium mb-2"
-                        >
-                          {field}:
-                        </label>
-                        <select
-                          id={field}
-                          name={field}
-                          onChange={(e) =>
-                            handleInputChangeStaff(field, e.target.value)
-                          }
-                          value={mappingStaff[field] || ""}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="">Select a heading</option>
-                          {headings.map((head, idx) => (
-                            <option key={idx} value={head}>
-                              {head}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    ))}
+                    {schoolData &&
+                      schoolData?.requiredFieldsStaff?.map((field, index) => (
+                        <div className="mb-4" key={index}>
+                          <label
+                            htmlFor={field}
+                            className="block text-lg font-medium mb-2"
+                          >
+                            {field}:
+                          </label>
+                          <select
+                            id={field}
+                            name={field}
+                            onChange={(e) =>
+                              handleInputChangeStaff(field, e.target.value)
+                            }
+                            value={mappingStaff[field] || ""}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="">Select a heading</option>
+                            {headings.map((head, idx) => (
+                              <option key={idx} value={head}>
+                                {head}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      ))}
 
                     {/* Dynamically Render Extra Fields */}
                     {schoolData?.extraFieldsStaff?.map((extraField, index) => (
                       <div className="mb-4" key={index}>
                         <label
-                          htmlFor={extraField.name}
+                          htmlFor={extraField?.name}
                           className="block text-lg font-medium mb-2"
                         >
-                          {extraField.name}:
+                          {extraField?.name}:
                         </label>
                         <select
-                          id={extraField.name}
-                          name={extraField.name}
+                          id={extraField?.name}
+                          name={extraField?.name}
                           onChange={(e) =>
                             handleInputChangeStaff(
                               extraField.name,
@@ -769,9 +766,11 @@ const Addexcel = () => {
             </form>
           )}
 
-          {
-         currRole==="staff" &&    schoolData &&    schoolData?.requiredFieldsStaff.includes("Signature Name") && <SignatureUpload currRole={currRole} currSchool={currSchool} />
-                }
+          {currRole === "staff" &&
+            schoolData &&
+            schoolData?.requiredFieldsStaff.includes("Signature Name") && (
+              <SignatureUpload currRole={currRole} currSchool={currSchool} />
+            )}
           {currRole && currSchool && (
             <form
               className="mt-6 w-full max-w-md"
