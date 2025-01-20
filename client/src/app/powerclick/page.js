@@ -1,4 +1,8 @@
 "use client";
+
+
+
+
 import React, { useState, useEffect, useRef } from "react";
 import Webcam from "react-webcam";
 import Cropper from "react-cropper";
@@ -105,6 +109,32 @@ const StudentDisplay = () => {
   const [studentClass, setStudentClass] = useState("");
   const [stuSection, setSection] = useState("");
   const [stuCourse, setCourse] = useState("");
+  const [cameraPermission, setCameraPermission] = useState(null)
+
+
+  useEffect(() => {
+    checkCameraPermission()
+
+  }, [])
+
+  const checkCameraPermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+      stream.getTracks().forEach((track) => track.stop())
+      setCameraPermission("granted")
+    } catch (err) {
+      setCameraPermission("denied")
+    }
+  }
+
+  const requestCameraPermission = async () => {
+    try {
+      await navigator.mediaDevices.getUserMedia({ video: true })
+      setCameraPermission("granted")
+    } catch (err) {
+      console.error("Error requesting camera permission:", err)
+    }
+  }
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -216,6 +246,12 @@ const StudentDisplay = () => {
     }
   };
   
+  if(!cameraPermission){
+   return(
+    <button onClick={requestCameraPermission}>Allow Camera Access</button>
+
+   );
+  }
 
   if (students.length === 0) {
     return (
