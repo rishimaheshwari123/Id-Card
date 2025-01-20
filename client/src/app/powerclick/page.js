@@ -11,7 +11,7 @@ const StudentPhotoCapture = ({ setCroppedPhoto, aspectRatio }) => {
   const [photo, setPhoto] = useState(null);
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const cropperRef = useRef(null);
-  const [cameraFacingMode, setCameraFacingMode] = useState("environment"); 
+  const [cameraFacingMode, setCameraFacingMode] = useState("environment");
   const [isCameraAccessible, setIsCameraAccessible] = useState(true);
   const webcamRef = useRef(null);
 
@@ -54,33 +54,33 @@ const StudentPhotoCapture = ({ setCroppedPhoto, aspectRatio }) => {
 
   if (!isCameraAccessible) {
     return (
-      <div className="text-center">
-        <p className="text-red-500">Camera access is blocked. Please enable camera access to use the feature.</p>
+      <div className="text-center mt-6 text-red-600">
+        <p>Camera access is blocked. Please enable camera access to use this feature.</p>
       </div>
     );
   }
 
   return (
-    <div className="text-center">
+    <div className="text-center mt-6">
       <Webcam
         ref={webcamRef}
         audio={false}
-        className="rounded-lg border border-gray-300 shadow-lg"
+        className="rounded-lg border-2 border-gray-300 shadow-lg"
         screenshotFormat="image/jpeg"
         videoConstraints={{
           facingMode: cameraFacingMode,
         }}
       />
-      <div className="mt-4 flex justify-center gap-4">
+      <div className="mt-6 flex justify-center gap-6">
         <button
           onClick={handleCaptureClick}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700"
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
         >
           Capture Photo
         </button>
         <button
           onClick={handleCameraSwitch}
-          className="px-6 py-2 bg-gray-600 text-white rounded-lg shadow-md hover:bg-gray-700"
+          className="px-6 py-2 bg-gray-600 text-white rounded-lg shadow-md hover:bg-gray-700 transition duration-300"
         >
           Switch Camera
         </button>
@@ -88,8 +88,8 @@ const StudentPhotoCapture = ({ setCroppedPhoto, aspectRatio }) => {
 
       {isCropModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 shadow-lg w-11/12 max-w-lg">
-            <h3 className="text-xl font-semibold mb-4">Crop Your Photo</h3>
+          <div className="bg-white rounded-lg p-6 shadow-lg w-11/12 max-w-md">
+            <h3 className="text-2xl font-semibold mb-6 text-center">Crop Your Photo</h3>
             <Cropper
               src={photo}
               className="w-full h-64 rounded border"
@@ -98,16 +98,16 @@ const StudentPhotoCapture = ({ setCroppedPhoto, aspectRatio }) => {
               guides={false}
               ref={cropperRef}
             />
-            <div className="mt-4 flex justify-between">
+            <div className="mt-6 flex justify-between">
               <button
                 onClick={() => setIsCropModalOpen(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition duration-300"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCrop}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition duration-300"
               >
                 Crop & Save
               </button>
@@ -211,6 +211,26 @@ const StudentDisplay = () => {
     }
   };
 
+
+  const handleShare = () => {
+    if (window.navigator.share) {
+      window.navigator
+        .share({
+          title: "Student Photo Update",
+          text: `Check out the new student photo update for ${currentStudent?.name}!`,
+          url: window.location.href,
+        })
+        .catch((error) => console.error("Error sharing:", error));
+    } else {
+      Swal.fire({
+        icon: "info",
+        title: "Share Feature",
+        text: "Sharing is not supported on your device or browser.",
+      });
+    }
+  };
+
+
   if (students.length === 0) {
     return (
       <div className="text-center mt-8 text-gray-600">
@@ -223,69 +243,79 @@ const StudentDisplay = () => {
   const upcomingStudents = students.slice(currentStudentIndex + 1, currentStudentIndex + 4);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="bg-white shadow-lg rounded-lg p-6 w-11/12 max-w-md">
-        <h2 className="text-2xl font-bold">{currentStudent?.name}</h2>
-        <div className="flex w-full justify-center mt-4">
-          <img src={currentStudent?.avatar.url} alt="" className="h-[100px]" />
-          <div className="ml-4 text-start">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 py-8">
+      <div className="bg-white shadow-lg rounded-lg p-8 w-11/12 max-w-lg">
+        <h2 className="text-3xl font-semibold text-center mb-6">{currentStudent?.name}</h2>
+        <div className="flex justify-center mt-4 mb-6">
+          <img src={currentStudent?.avatar.url} alt="" className="h-24 w-24 rounded-full border-4 border-gray-300" />
+          <div className="ml-4 text-left">
             {currentStudent?.class && (
-              <p>
-                <span className="text-xl font-semibold">Class:</span> {currentStudent?.class}
-              </p>
+              <p className="text-lg font-medium">Class: {currentStudent?.class}</p>
             )}
             {currentStudent?.section && (
-              <p>
-                <span className="text-xl font-semibold">Section:</span> {currentStudent?.section}
-              </p>
+              <p className="text-lg font-medium">Section: {currentStudent?.section}</p>
             )}
           </div>
         </div>
-        <p className="text-gray-600 mt-2">
-          School: {currentStudent?.school?.name}
-        </p>
-        <select onChange={handleAspectRatioChange} className="mt-4 p-2 border rounded w-full">
+        <p className="text-gray-600 text-center mb-6">School: {currentStudent?.school?.name}</p>
+
+        <select
+          onChange={handleAspectRatioChange}
+          className="w-full p-3 mb-6 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+        >
           <option value="passport">Passport</option>
           <option value="square">Square</option>
         </select>
+
         <StudentPhotoCapture setCroppedPhoto={setCroppedPhoto} aspectRatio={aspectRatio} />
 
         {croppedPhoto && (
-          <div className="mt-4">
-            <h3 className="text-lg font-semibold">Cropped Photo Preview:</h3>
+          <div className="mt-6">
+            <h3 className="text-xl font-semibold">Cropped Photo Preview:</h3>
             <img
               src={croppedPhoto}
               alt="Cropped Preview"
-              className="mt-2 rounded-lg border"
+              className="mt-2 rounded-lg border-2 border-gray-300"
             />
             <button
               onClick={() => handleUpdatePhoto(currentStudent._id)}
-              className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700"
+              className="mt-6 w-full px-6 py-3 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition duration-300"
             >
               Update Photo
             </button>
           </div>
         )}
-        <div className="mt-4">
+
+        <div className="mt-6">
           <h4 className="font-semibold">Upcoming Students:</h4>
           <ul>
             {upcomingStudents.map((student, index) => (
-              <li key={index}>{student.name}</li>
+              <li key={index} className="text-gray-600">{student.name}</li>
             ))}
           </ul>
         </div>
-        <div className="flex justify-between mt-6">
+
+        <div className="flex justify-between mt-8">
           <button
             onClick={handlePreviousStudent}
-            className="px-6 py-2 bg-gray-600 text-white rounded-lg shadow-md hover:bg-gray-700"
+            className="w-28 px-6 py-2 bg-gray-600 text-white rounded-lg shadow-md hover:bg-gray-700 transition duration-300"
           >
-            Previous Student
+            Previous
           </button>
           <button
             onClick={handleNextStudent}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700"
+            className="w-28 px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
           >
-            Next Student
+            Next
+          </button>
+        </div>
+
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={handleShare}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
+          >
+            Share
           </button>
         </div>
       </div>
