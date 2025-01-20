@@ -19,7 +19,7 @@ const Signin = () => {
 
   useEffect(() => {
     if (user) {
-      if(user?.isAdmin) {
+      if (user?.isAdmin) {
         redirect("/Admin/Dashbord");
       }
       redirect("/");
@@ -34,19 +34,34 @@ const Signin = () => {
 
   return (
     <>
-      <section className="bg-gradient-to-r from-blue-500 to-indigo-600 min-h-screen flex items-center justify-center pb-12 pt-5 px-6">
-        <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-          <div className="flex justify-center mb-6">
-            <Image className="h-24" src="/idcordlogo.jpg" alt="logo" height={550} width={350} />
+      <section className="bg-gradient-to-r from-blue-500  min-h-screen flex items-center justify-center pb-12 pt-5 px-6">
+        <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 border border-blue-700">
+          <div className="grid grid-cols-2">
+            <div className="flex">
+              <Image
+                src="/login1.png"
+                alt=""
+                className="w-auto lg:h-32 h-16"
+                height={200}
+                width={200}
+              />
+            </div>
+            <div className="flex items-center justify-center mt-6">
+              <a
+                href="#"
+                className="pb-4 text-2xl font-medium text-center text-blue-800 capitalize border-b-2 border-indigo-600 dark:border-blue-400 dark:text-white"
+              >
+                Distributor Sign in
+              </a>
+            </div>
           </div>
-
-          <h1 className="text-3xl font-semibold text-center text-gray-900 dark:text-white mb-6">
-            Sign in
-          </h1>
 
           <form onSubmit={Submitsignin}>
             <div className="mb-4">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Your Email
               </label>
               <input
@@ -60,7 +75,10 @@ const Signin = () => {
             </div>
 
             <div className="mb-6">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Password
               </label>
               <input
@@ -75,14 +93,17 @@ const Signin = () => {
 
             <button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+              className="w-full bg-transparent text-blue-900 border border-black font-serif   font-semibold rounded-lg py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600"
             >
               Sign In
             </button>
 
             <p className="text-sm text-center mt-4 text-gray-600 dark:text-gray-400">
               Don’t have an account?{" "}
-              <Link href="/Signup" className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-500">
+              <Link
+                href="/Signup"
+                className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-500"
+              >
                 Sign Up
               </Link>
             </p>
@@ -92,7 +113,7 @@ const Signin = () => {
           <div className="mt-6 text-center">
             <button
               onClick={() => router.push("/")}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-lg py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full bg-transparent text-black border border-black font-serif font-semibold rounded-lg py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               Back to Home
             </button>

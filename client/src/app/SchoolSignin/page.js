@@ -48,21 +48,25 @@ const SchoolSignin = () => {
     <>
       <section className="bg-gradient-to-r from-blue-500 to-indigo-600 min-h-screen flex items-center justify-center py-12">
         <div className="w-full max-w-md bg-white rounded-lg shadow-lg dark:bg-gray-800 p-8">
-          <div className="text-center mb-8">
-            <Image
-              className="h-24 mx-auto mb-4"
-              src="/idcordlogo.jpg"
-              alt="Logo"
-              height={50}
-              width={450}
-            />
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white border-b-2 border-indigo-600 pb-3">
-              Vendor Sign In
-            </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Please sign in to your account
-            </p>
-          </div>
+   <div className="grid grid-cols-2">
+              <div className="flex">
+                <Image
+                  src="/login1.png"
+                  alt=""
+                  className="w-auto lg:h-32 h-16"
+                  height={200}
+                  width={200}
+                />
+              </div>
+              <div className="flex items-center justify-center mt-6">
+                <a
+                  href="#"
+                  className="pb-4 text-2xl font-medium text-center text-blue-800 capitalize border-b-2 border-indigo-600 dark:border-blue-400 dark:text-white"
+                >
+               Vendor Sign In
+                </a>
+              </div>
+            </div>
 
           <form className="space-y-6" onSubmit={Submitsignin}>
             <div>
@@ -102,7 +106,8 @@ const SchoolSignin = () => {
             <div className="mt-6">
               <button
                 type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm px-5 py-2.5 focus:ring-4 focus:outline-none focus:ring-indigo-300 transition-colors"
+                className="w-full bg-transparent text-blue-900 border border-black font-serif font-semibold rounded-lg py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+
               >
                 Sign In
               </button>
@@ -112,7 +117,9 @@ const SchoolSignin = () => {
           <div className="mt-6 text-center">
             <button
               onClick={() => router.push("/")}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-lg py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              
+              className="w-full bg-transparent text-black border border-black font-serif font-semibold rounded-lg py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+
             >
               Back to Home
             </button>
