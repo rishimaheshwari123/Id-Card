@@ -148,7 +148,7 @@ const StudentDisplay = () => {
     if (vendor) {
       axios
         .get(`/user/students/no-photo/${vendor}?studentClass=${studentClass}&section=${stuSection}&course=${stuCourse}`)
-        .then((response) => setStudents(response.data))
+        .then((response) => {console.log(response.data) ; setStudents(response.data)})
         .catch((error) => console.error("Error fetching students:", error));
     }
   }, [currentStudentIndex]);
@@ -189,10 +189,11 @@ const StudentDisplay = () => {
         if (uploadResponse.data.success) {
           const { public_id, url } = uploadResponse.data.thumbnailImage;
 
-          await axios.put(`/user/students/${studentId}/avatar`, {
+        const res =   await axios.put(`/user/students/${studentId}/avatar`, {
             publicId: public_id,
             url: url,
           });
+          console.log(res)
         }
       } catch (error) {
         Swal.close();

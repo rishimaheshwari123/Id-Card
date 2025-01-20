@@ -224,56 +224,46 @@ router.get('/students/count/:schoolId', async (req, res, next) => {
 
   router.get("/students/no-photo/:schoolId", async (req, res) => {
     try {
+      console.log(req.params)
       const { schoolId } = req.params; // Extract schoolId from URL parameters
-      const status = req.query.status; // Status from query parameters
-      const studentClass = req.query.studentClass; // Search term from query parameters
-      const section = req.query.section; // Search term from query parameters
-      const course = req.query.course; // Search term from query parameters
+      const { status, studentClass, section, course, limit = 50, offset = 0 } = req.query; // Add limit and offset
       
-      
-    
       let queryObj = {
         school: schoolId,
         "avatar.url": "https://plus.unsplash.com/premium_photo-1699534403319-978d740f9297?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       };
-
+  
       function escapeRegex(value) {
         return value.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
       }
-
+  
       if (status) {
         queryObj.status = status;
       }
       if (studentClass) {
-        if (studentClass === "no-class" || studentClass === "") {
-          queryObj.class = null; // Logic to filter for "Without Class Name"
-        
-        } else {
-          const escapedClassName = escapeRegex(studentClass); // Escape special characters
-          queryObj.class = { $regex: `^${escapedClassName}$`, $options: "i" }; // Exact match with regex
-      
-        }
+        queryObj.class =
+          studentClass === "no-class" || studentClass === ""
+            ? null
+            : { $regex: `^${escapeRegex(studentClass)}$`, $options: "i" };
       }
       if (course) {
-        if (course === "no-class" || course === "") {
-          queryObj.course = null; // Logic to filter for "Without Class Name"
-        
-        } else {
-          const escapedcourseName = escapeRegex(course); // Escape special characters
-          queryObj.course = { $regex: `^${escapedcourseName}$`, $options: "i" }; // Exact match with regex
-                }
+        queryObj.course =
+          course === "no-class" || course === ""
+            ? null
+            : { $regex: `^${escapeRegex(course)}$`, $options: "i" };
       }
-  
       if (section) {
         queryObj.section = { $regex: section, $options: "i" };
-      
       }
   
-       const students = await Student.find(queryObj)
-      .populate({
-        path: "school", // Populate the 'school' field
-        select: "name", // Select only the 'name' field from the School model
-      });
+      // Add pagination with limit and offset
+      const students = await Student.find(queryObj)
+        .populate({
+          path: "school", // Populate the 'school' field
+          select: "name", // Select only the 'name' field from the School model
+        })
+        .skip(parseInt(offset)) // Skip documents for pagination
+        .limit(parseInt(limit)); // Limit the number of documents returned
   
       if (students.length === 0) {
         return res.status(404).json({ message: "No students without a photo found." });
@@ -285,6 +275,7 @@ router.get('/students/count/:schoolId', async (req, res, next) => {
       return res.status(500).json({ message: "Server Error", error: error.message });
     }
   });
+  
 
 
   router.put("/students/:id/avatar", async (req, res) => {
