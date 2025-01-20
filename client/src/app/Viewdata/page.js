@@ -1045,8 +1045,8 @@ const Viewdata = () => {
               onSubmit={handleFormSubmit}
             >
               {/* School Dropdown */}
-             
-            <div className="flex items-center justify-center   gap-4">
+             {
+!loginSchool &&   <div className="flex items-center justify-center   gap-4">
             {!loginSchool && (
                 <div className="mb-4 flex gap-3 items-center">
                   <select
@@ -1077,6 +1077,8 @@ const Viewdata = () => {
                   </Link>
                 )}
             </div>
+             }
+          
 
               {/* Role Selection Buttons */}
               <div className="mb-4 flex space-x-4">
