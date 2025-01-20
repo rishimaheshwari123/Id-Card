@@ -1068,7 +1068,7 @@ const Viewdata = () => {
               )}
 
 
-              {submitted && (
+              {submitted && !user.school && (
                   <Link
                     href={`/powerclick?vendor=${currSchool}&role=${currRole}&class=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}`}
                     className={`px-4 py-2 mb-3 rounded-md font-medium  bg-blue-900 text-gray-100`}
