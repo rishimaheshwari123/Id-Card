@@ -84,7 +84,7 @@ const Navbar = () => {
                       <span className="sr-only">Open user menu</span>
                       <Image
                         className="h-8 w-8"
-                        src="/idcordlogo.jpg"
+                        src="/login1.png"
                         alt=""
                         height={50}
                         width={50}

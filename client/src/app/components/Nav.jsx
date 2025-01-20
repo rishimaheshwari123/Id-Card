@@ -332,11 +332,11 @@ const Nav = () => {
 
         <>
           <div className="wrapper relative">
-            <div className="logo">
+            <div className="log mt-2">
               <Link href={"/"}>
-                <Image  src={"/idcordlogo.jpg"} className="w-[100px]"
-                height={50}
-                width={50} alt="logo" />
+                <Image  src={"/login1.png"} className="w-[80px]"
+                height={500}
+                width={500} alt="logo" />
               </Link>
             </div>
             <ul className="nav-links flex gap-4 ">
@@ -476,10 +476,10 @@ const Nav = () => {
               <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 bg-[#FEFAF6]">
                 <Image
                 alt="logo"
-                height={50}
-                width={50}
+                height={500}
+                width={500}
                   className="w-[120px] mx-auto"
-                  src="/idcordlogo.jpg"
+                  src="/login1.png"
                 ></Image>
                 <ul className="space-y-2 font-medium  py-[20px]">
                   {user?.isAdmin && (
