@@ -1,8 +1,5 @@
 "use client";
 
-
-
-
 import React, { useState, useEffect, useRef } from "react";
 import Webcam from "react-webcam";
 import Cropper from "react-cropper";
@@ -11,13 +8,31 @@ import axios from "../../../axiosconfig";
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
 
-const StudentPhotoCapture = ({ onPhotoCaptured,setCroppedPhoto }) => {
+const StudentPhotoCapture = ({ onPhotoCaptured, setCroppedPhoto }) => {
   const [photo, setPhoto] = useState(null);
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const cropperRef = useRef(null);
   const [cameraFacingMode, setCameraFacingMode] = useState("user"); // "user" for front camera, "environment" for back camera
-
+  const [isCameraAccessible, setIsCameraAccessible] = useState(true); // State to track if camera access is granted
   const webcamRef = useRef(null);
+
+  // Request camera permission
+  useEffect(() => {
+    const requestCameraPermission = async () => {
+      try {
+        await navigator.mediaDevices.getUserMedia({ video: true });
+        setIsCameraAccessible(true); // Camera access granted
+      } catch (error) {
+        setIsCameraAccessible(false); // Camera access denied
+        Swal.fire({
+          title: "Camera Permission Denied",
+          text: "Please enable camera access in your browser settings to capture photos.",
+          icon: "error",
+        });
+      }
+    };
+    requestCameraPermission();
+  }, []);
 
   const handleCaptureClick = () => {
     if (webcamRef.current) {
@@ -29,9 +44,7 @@ const StudentPhotoCapture = ({ onPhotoCaptured,setCroppedPhoto }) => {
 
   const handleCrop = () => {
     if (cropperRef.current && cropperRef.current.cropper) {
-      const croppedDataUrl = cropperRef.current.cropper
-        .getCroppedCanvas()
-        .toDataURL();
+      const croppedDataUrl = cropperRef.current.cropper.getCroppedCanvas().toDataURL();
       setCroppedPhoto(croppedDataUrl); // Update cropped photo
       setIsCropModalOpen(false); // Close crop modal
     }
@@ -41,9 +54,17 @@ const StudentPhotoCapture = ({ onPhotoCaptured,setCroppedPhoto }) => {
     setCameraFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
   };
 
+  if (!isCameraAccessible) {
+    return (
+      <div className="text-center">
+        <p>Camera access is blocked. Please enable camera access to use the feature.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="text-center">
-  <Webcam
+      <Webcam
         ref={webcamRef}
         audio={false}
         className="rounded-lg border border-gray-300 shadow-md"
@@ -104,37 +125,9 @@ const StudentDisplay = () => {
   const [currentStudentIndex, setCurrentStudentIndex] = useState(0);
   const [capturedPhoto, setCapturedPhoto] = useState(null);
   const [croppedPhoto, setCroppedPhoto] = useState(null); // Cropped photo state
-
-
   const [studentClass, setStudentClass] = useState("");
   const [stuSection, setSection] = useState("");
   const [stuCourse, setCourse] = useState("");
-  const [cameraPermission, setCameraPermission] = useState(null)
-
-
-  useEffect(() => {
-    checkCameraPermission()
-
-  }, [])
-
-  const checkCameraPermission = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true })
-      stream.getTracks().forEach((track) => track.stop())
-      setCameraPermission("granted")
-    } catch (err) {
-      setCameraPermission("denied")
-    }
-  }
-
-  const requestCameraPermission = async () => {
-    try {
-      await navigator.mediaDevices.getUserMedia({ video: true })
-      setCameraPermission("granted")
-    } catch (err) {
-      console.error("Error requesting camera permission:", err)
-    }
-  }
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -148,30 +141,24 @@ const StudentDisplay = () => {
     const staffType = query.get("staffType");
     const institute = query.get("institute");
 
- 
-
-
     if (className) setStudentClass(className);
     if (section) setSection(section);
     if (course) setCourse(course);
 
     if (institute) setExtraField2(institute);
 
-    if(vendor){
+    if (vendor) {
       axios
-      .get(`/user/students/no-photo/${vendor}?studentClass=${studentClass}&section=${stuSection}&course=${stuCourse}`) // API endpoint
-      .then((response) => {
-        setStudents(response.data);
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching students:", error);
-      });
+        .get(`/user/students/no-photo/${vendor}?studentClass=${studentClass}&section=${stuSection}&course=${stuCourse}`) // API endpoint
+        .then((response) => {
+          setStudents(response.data);
+          console.log(response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching students:", error);
+        });
     }
-}, [currentStudentIndex]); 
-
-
-
+  }, [currentStudentIndex]);
 
   const handlePhotoCaptured = (photoUrl) => {
     setCapturedPhoto(photoUrl);
@@ -197,7 +184,7 @@ const StudentDisplay = () => {
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
       });
-  
+
       try {
         // Prepare form data
         const formData = new FormData();
@@ -206,21 +193,21 @@ const StudentDisplay = () => {
         formData.append("file", new File([blob], "photo.jpg"));
 
         // Make the API call to upload the image
-        const uploadResponse  = await axios.post("/image/upload", formData, {
+        const uploadResponse = await axios.post("/image/upload", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-  
+
         Swal.close(); // Close the loading indicator
-  
+
         if (uploadResponse.data.success) {
           const { public_id, url } = uploadResponse.data.thumbnailImage;
-  
+
           // Update the student's avatar using the PUT request
           await axios.put(`/user/students/${studentId}/avatar`, {
             publicId: public_id, // Send public_id
             url: url, // Send URL
           });
-  
+
           Swal.fire({
             icon: "success",
             title: "Uploaded",
@@ -230,7 +217,7 @@ const StudentDisplay = () => {
       } catch (error) {
         Swal.close(); // Close the loading indicator
         console.error("Error uploading image:", error);
-  
+
         Swal.fire({
           icon: "error",
           title: "Upload Failed",
@@ -245,13 +232,6 @@ const StudentDisplay = () => {
       });
     }
   };
-  
-  if(!cameraPermission){
-   return(
-    <button onClick={requestCameraPermission}>Allow Camera Access</button>
-
-   );
-  }
 
   if (students.length === 0) {
     return (
@@ -269,18 +249,18 @@ const StudentDisplay = () => {
         <h2 className="text-2xl font-bold">{currentStudent?.name}</h2>
         <div className=" flex w-full justify-center ">
           <img src={currentStudent?.avatar.url} alt="" className="h-[100px]" />
-         <div className=" ml-4 text-start">
-         {currentStudent?.class && (
-            <p>
-              <span className=" text-xl text-gray-950">Class :</span> {currentStudent?.class}
-            </p>
-          )}
-          {currentStudent?.section && (
-            <p>
-              <span className=" text-xl text-gray-950">Section :</span> {currentStudent?.section}
-            </p>
-          )}
-         </div>
+          <div className=" ml-4 text-start">
+            {currentStudent?.class && (
+              <p>
+                <span className=" text-xl text-gray-950">Class :</span> {currentStudent?.class}
+              </p>
+            )}
+            {currentStudent?.section && (
+              <p>
+                <span className=" text-xl text-gray-950">Section :</span> {currentStudent?.section}
+              </p>
+            )}
+          </div>
         </div>
         <p className="text-gray-600 mt-2">
           School: {currentStudent?.school?.name}
@@ -289,34 +269,34 @@ const StudentDisplay = () => {
         <StudentPhotoCapture onPhotoCaptured={handlePhotoCaptured} setCroppedPhoto={setCroppedPhoto} />
 
         {croppedPhoto && (
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold">Cropped Photo Preview:</h3>
-          <img
-            src={croppedPhoto}
-            alt="Cropped Preview"
-            className="mt-2 rounded-lg border"
-          />
-          <button
-            onClick={()=>handleUpdatePhoto(currentStudent?._id)}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Upload Photo
-          </button>
-        </div>
-      )}
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold">Cropped Photo Preview:</h3>
+            <img
+              src={croppedPhoto}
+              alt="Cropped Preview"
+              className="mt-2 rounded-lg border"
+            />
+            <button
+              onClick={() => handleUpdatePhoto(currentStudent._id)}
+              className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            >
+              Update Photo
+            </button>
+          </div>
+        )}
 
-        <div className="mt-6 flex justify-between">
+        <div className="flex justify-between mt-6">
           <button
             onClick={handlePreviousStudent}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
           >
-            Previous
+            Previous Student
           </button>
           <button
             onClick={handleNextStudent}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            Next
+            Next Student
           </button>
         </div>
       </div>
