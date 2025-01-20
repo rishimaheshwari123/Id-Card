@@ -11,6 +11,7 @@ const StudentPhotoCapture = ({ onPhotoCaptured,setCroppedPhoto }) => {
   const [photo, setPhoto] = useState(null);
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const cropperRef = useRef(null);
+  const [cameraFacingMode, setCameraFacingMode] = useState("user"); // "user" for front camera, "environment" for back camera
 
   const webcamRef = useRef(null);
 
@@ -32,21 +33,32 @@ const StudentPhotoCapture = ({ onPhotoCaptured,setCroppedPhoto }) => {
     }
   };
 
-  
+  const handleCameraSwitch = () => {
+    setCameraFacingMode((prevMode) => (prevMode === "user" ? "environment" : "user"));
+  };
 
   return (
     <div className="text-center">
-      <Webcam
+  <Webcam
         ref={webcamRef}
         audio={false}
         className="rounded-lg border border-gray-300 shadow-md"
         screenshotFormat="image/jpeg"
+        videoConstraints={{
+          facingMode: cameraFacingMode, // Change camera mode here
+        }}
       />
       <button
         onClick={handleCaptureClick}
         className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
       >
         Capture Photo
+      </button>
+      <button
+        onClick={handleCameraSwitch}
+        className="mt-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+      >
+        Switch Camera
       </button>
 
       {/* Crop Modal */}
