@@ -11,7 +11,7 @@ const StudentPhotoCapture = ({ setCroppedPhoto, aspectRatio }) => {
   const [photo, setPhoto] = useState(null);
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const cropperRef = useRef(null);
-  const [cameraFacingMode, setCameraFacingMode] = useState("environment");
+  const [cameraFacingMode, setCameraFacingMode] = useState("user");
   const [isCameraAccessible, setIsCameraAccessible] = useState(true);
   const webcamRef = useRef(null);
 
