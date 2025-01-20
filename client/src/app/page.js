@@ -120,6 +120,12 @@ export default function Home() {
       visibleFor: "all", // Visible for all users
     },
     {
+      href: "/Viewdata",
+      label: "Powerclick",
+      icon: <FaFileExcel />,
+      visibleFor: "all", // Visible for all users
+    },
+    {
       href: "/",
       label: "Logout",
       icon: <FaHome />,
@@ -257,6 +263,14 @@ export default function Home() {
                       <FaUser /> Add Data Manually
                     </Link>
                   </div> */}
+                  <div>
+                    <Link
+                      href="/powerclick"
+                      className="lg:text-2xl text-xl font-semibold hover:text-white rounded-full py-1.5 px-6 cursor-pointer bg-gray-900 bg-opacity-90 flex items-center justify-center gap-2"
+                    >
+                      <FaFileExcel /> PowerClick
+                    </Link>
+                  </div>
                   <div>
                     <Link
                       href="/Viewdata"

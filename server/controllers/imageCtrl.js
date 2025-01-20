@@ -3,6 +3,7 @@ const getDataUri = require("../middlewares/daraUri");
 
 exports.imageUpload = async (req, res) => {
   try {
+    console.log("first")
     // console.log(req.files[0])
     // console.log(req.file)
 
@@ -19,6 +20,8 @@ exports.imageUpload = async (req, res) => {
       message: "Image upload successfully",
       thumbnailImage,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
 };
 

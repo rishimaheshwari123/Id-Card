@@ -28,7 +28,6 @@ import Link from "next/link";
 
 const Viewdata = () => {
   const { user, schools, error } = useSelector((state) => state.user);
-  const [currSchool, setCurrSchool] = useState("");
   const [currRole, setCurrRole] = useState("");
   const [status, setstatus] = useState("");
   const [submitted, setsubmited] = useState(false);
@@ -38,7 +37,9 @@ const Viewdata = () => {
   const [studentIds, setStudentIds] = useState([]);
   const [staffIds, setStaffIds] = useState([]);
   const [showFilterBox, setShowFilterBox] = useState(false);
+  const [currSchool, setCurrSchool] = useState("");
   const [loginSchool, setloginSchool] = useState(false);
+  const [schoolData, setSchoolData] = useState(null);
   const [classValue, setClassValue] = useState("");
   const [sectionValue, setSectionValue] = useState("");
   const router = useRouter();
@@ -56,7 +57,6 @@ const Viewdata = () => {
   const [sections, setSections] = useState([]);
   const [sectionValueSearch, setSectionValueSearch] = useState([]);
   const [classNameValue, setclassNameValue] = useState("");
-  const [schoolData, setSchoolData] = useState(null);
 
   // Course for
   const [unqiueCourse, setUnqiueCourse] = useState([]);
@@ -80,6 +80,7 @@ const Viewdata = () => {
     setstaffs([]);
     setStaffData([]);
   };
+  
   useEffect(() => {
     console.log(user);
     if (!user) {
@@ -1044,7 +1045,9 @@ const Viewdata = () => {
               onSubmit={handleFormSubmit}
             >
               {/* School Dropdown */}
-              {!loginSchool && (
+             
+            <div className="flex items-center justify-center   gap-4">
+            {!loginSchool && (
                 <div className="mb-4 flex gap-3 items-center">
                   <select
                     id="school"
@@ -1063,6 +1066,17 @@ const Viewdata = () => {
                 
                 </div>
               )}
+
+
+              {submitted && (
+                  <Link
+                    href={`/powerclick?vendor=${currSchool}&role=${currRole}&class=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}`}
+                    className={`px-4 py-2 mb-3 rounded-md font-medium  bg-blue-900 text-gray-100`}
+                  >
+                  Power Click
+                  </Link>
+                )}
+            </div>
 
               {/* Role Selection Buttons */}
               <div className="mb-4 flex space-x-4">
