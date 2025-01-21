@@ -1578,7 +1578,7 @@ const Viewdata = () => {
                           </button>
                         </div>
                       )}
-                      {status === "Printed" && (
+                      {status === "Printed" && !user?.school && (
                         <div className="flex justify-center mt-4 gap-3">
                           <button
                             className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
@@ -1814,12 +1814,12 @@ const Viewdata = () => {
                 onClose={setShowPopup}
               />
             )}
-            <button
+        {!user?.school &&   <button
               className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg shadow-lg"
               onClick={() => setShowPopup(true)}
             >
               Share
-            </button>
+            </button>}
             {!user?.school && (
               <>
                 <button

@@ -119,9 +119,11 @@ router.post("/student/avatars/:id", upload,  StudentsAvatars);
 router.post("/staff/avatars/:id", upload,  StaffAvatars);
 router.post("/staff/signature/:id", upload, isAuthenticated , StaffSignature);
 
-router.post("/delete/student/:id", isAuthenticated ,deleteStudent);
 
-router.post("/delete/staff/:id", isAuthenticated ,deleteStaffcurr);
+// delete routes
+router.post("/delete/student/:id", deleteStudent);
+router.post("/delete/staff/:id", deleteStaffcurr);
+
 
 router.post("/school/search", isAuthenticated ,SerchSchool);
 
@@ -129,22 +131,21 @@ router.post("/school/imagesData/:id",isAuthenticated,setImagesData)
 router.post("/school/excleData/:id",isAuthenticated,setExcleData)
 
 
-router.post("/student/change-status/readyto/:id", isAuthenticated ,updateStudentStatusToPrint);
 
-router.post("/student/change-status/pending/:id", isAuthenticated ,updateStudentStatusToPending);
+// Student Status
+router.post("/student/change-status/readyto/:id", updateStudentStatusToPrint);
+router.post("/student/change-status/pending/:id", updateStudentStatusToPending);
+router.post("/student/change-status/printed/:id", updateStudentStatusToPrinted);
+// Staff Status
+router.post("/staff/change-status/readyto/:id", updateStaffStatusToPrint);
+router.post("/staff/change-status/pending/:id", updateStaffStatusToPending);
+router.post("/staff/change-status/Printed/:id", updateStaffStatusToPrinted);
 
 
-router.post("/student/change-status/printed/:id", isAuthenticated ,updateStudentStatusToPrinted);
+// Multiple Delete
+router.post("/students/delete/:id", deleteStudents);
+router.post("/staffs/delete/:id", deleteStaff);
 
-router.post("/staff/change-status/readyto/:id", isAuthenticated ,updateStaffStatusToPrint);
-
-router.post("/staff/change-status/pending/:id", isAuthenticated ,updateStaffStatusToPending);
-
-router.post("/staff/change-status/Printed/:id", isAuthenticated ,updateStaffStatusToPrinted);
-
-router.post("/students/delete/:id", isAuthenticated ,deleteStudents);
-
-router.post("/staffs/delete/:id", isAuthenticated ,deleteStaff);
 
 router.post("/studentlist/excel/:id", isAuthenticated ,studentListExcel);
 

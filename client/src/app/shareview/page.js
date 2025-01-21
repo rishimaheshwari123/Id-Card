@@ -1523,7 +1523,7 @@ console.log(role)
                         </ul>
                       </div>
 
-                      {status === "Panding" && (
+                      {status === "Panding" &&  (
                         <div className="flex justify-center mt-4 gap-3">
                           <button
                             onClick={() => redirectToStudentEdit(student._id)}
@@ -1541,7 +1541,7 @@ console.log(role)
                           </button>
                         </div>
                       )}
-                      {status === "Printed" && (
+                      {/* {status === "Printed" && !user?.school && (
                         <div className="flex justify-center mt-4 gap-3">
                           <button
                             className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
@@ -1556,7 +1556,7 @@ console.log(role)
                             <FaArrowLeft /> Ready
                           </button>
                         </div>
-                      )}
+                      )} */}
                     </div>
                   ))}
               </div>
@@ -1757,7 +1757,7 @@ console.log(role)
       <div>
         {/* Chat Box Button */}
         {/* {submitted} */}
-        {false && (
+        {submitted && (
           <button
             className={`fixed bottom-4 left-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full shadow-lg ${
               !showChatBox ? "button-bounce" : ""
@@ -1772,7 +1772,7 @@ console.log(role)
 
         {showChatBox && (
           <div className="fixed bottom-16 left-4 flex flex-col gap-3">
-            {!user.school && (
+            {!user?.school && (
               <>
                 <button
                   className={`flex items-center gap-2 ${
@@ -1839,7 +1839,7 @@ console.log(role)
             {/* Ready to Print status */}
             {status === "Ready to print" && (
               <>
-                {!user.school && (
+                {!user?.school && (
                   <button
                     className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg shadow-lg"
                     onClick={modeToPrinted}
@@ -1847,7 +1847,7 @@ console.log(role)
                     <FaCheck /> Move to Printed
                   </button>
                 )}
-                {user.school && (
+                {user?.school && (
                   <button
                     className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
                     onClick={modeToPending}
