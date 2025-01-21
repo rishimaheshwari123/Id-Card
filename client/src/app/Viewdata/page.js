@@ -1814,12 +1814,12 @@ const Viewdata = () => {
                 onClose={setShowPopup}
               />
             )}
-        {!user?.school &&   <button
+       <button
               className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg shadow-lg"
               onClick={() => setShowPopup(true)}
             >
               Share
-            </button>}
+            </button>
             {!user?.school && (
               <>
                 <button
