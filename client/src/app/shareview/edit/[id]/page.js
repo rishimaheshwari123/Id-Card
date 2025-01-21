@@ -221,13 +221,13 @@ function Page({ params }) {
     );
   }
 
-  if (!loading && !isPending) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-red-200 text-red-800 p-4 rounded-lg shadow-md">
-        <div className="text-lg font-semibold">Link Expire</div>
-      </div>
-    );
-  }
+  // if (!loading && !isPending) {
+  //   return (
+  //     <div className="flex items-center justify-center h-screen bg-red-200 text-red-800 p-4 rounded-lg shadow-md">
+  //       <div className="text-lg font-semibold">Link Expire</div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <section className="bg-white dark:bg-gray-900 py-10 w-full flex justify-center items-center pt-16 ">

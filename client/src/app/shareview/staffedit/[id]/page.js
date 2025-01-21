@@ -223,15 +223,15 @@ function Page({ params }) {
 
 
   
-  if (!isPending) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-red-200 text-red-800 p-4 rounded-lg shadow-md">
-        <div className="text-lg font-semibold">
-        Link Expired
-        </div>
-      </div>
-    );
-  }
+  // if (!isPending) {
+  //   return (
+  //     <div className="flex items-center justify-center h-screen bg-red-200 text-red-800 p-4 rounded-lg shadow-md">
+  //       <div className="text-lg font-semibold">
+  //       Link Expired
+  //       </div>
+  //     </div>
+  //   );
+  // }
   
   return (
     <div>
