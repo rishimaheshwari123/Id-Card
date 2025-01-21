@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation"; // Correct hook for query parameters
-import axios from "../../../../axiosconfig";
+import axios from "../../../../../axiosconfig";
 import Swal from "sweetalert2";
 import Image from "next/image";
 import ImageUploaderWithCrop from "@/component/ImageUpload";
