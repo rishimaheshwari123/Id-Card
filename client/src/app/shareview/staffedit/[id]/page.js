@@ -1,25 +1,18 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import Nav from "../../../components/Nav";
-import { useRouter } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  currentUser,
-  editStaff,
-  editStudent,
-  updateSchool,
-} from "@/redux/actions/userAction";
-import { RiContactsBook2Line } from "react-icons/ri";
-import { FaRegAddressCard } from "react-icons/fa";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import axios from "../../../../../axiosconfig";
+import React, { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation"; // Correct hook for query parameters
+import axios from "../../../../axiosconfig";
 import Swal from "sweetalert2";
 import Image from "next/image";
 import ImageUploaderWithCrop from "@/component/ImageUpload";
+import { useDispatch } from "react-redux";
+import { editStaff } from "@/redux/actions/userAction";
 
-const Editsatff = ({ params }) => {
+function Page({ params }) {
+  const searchParams = useSearchParams(); // Get query parameters
+  const [error, setError] = useState(null); // State to track errors
   const [currSchool, setcurrschool] = useState();
+
   const [name, setName] = useState("");
   const [fatherName, setFatherName] = useState("");
   const [husbandName, setHusbandName] = useState("");
@@ -52,17 +45,28 @@ const Editsatff = ({ params }) => {
   const [id, setID] = useState();
   const [imageData, setImageData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
   const [selectedImage, setSelectedImage] = useState(null); // Base64 image data
-  const [SignatureData, setSignatureData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
+  const [extraFieldsStaff, setExtraFieldsStaff] = useState({});
+  const [isPending, setIsPending] = useState(false);
+ const [SignatureData, setSignatureData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
   const [selectedImageSig, setSelectedImageSig] = useState(null); // Base64 image data
 
-  const router = useRouter();
   const dispatch = useDispatch();
-  const StudentlId = params ? params?.id : null; // Assuming you have a route
 
-  const [extraFieldsStaff, setExtraFieldsStaff] = useState({});
+  const schoolId = searchParams.get("schoolid"); // Access query param
 
-  // Assuming you have stored the school data in your Redux store
-  const { user, schools, error } = useSelector((state) => state.user);
+  useEffect(() => {
+    if (schoolId) {
+      // Fetch school data by schoolId from backend
+      axios
+        .get(`user/getschool/${schoolId}`)
+        .then((response) => {
+          setcurrschool(response.data.data); // Update the state with fetched data
+        })
+        .catch((err) => {
+          setError("Error fetching school data"); // Handle error if request fails
+        });
+    }
+  }, [schoolId]); // Re-run effect when schoolId changes
 
   useEffect(() => {
     const staffId = params ? params.id : null;
@@ -77,7 +81,6 @@ const Editsatff = ({ params }) => {
       };
       const response = await axios.get(`/user/staff/${staffId}`, config());
       const staffData = response.data.staff;
-      console.log(staffData);
       if (staffData) {
         setName(staffData?.name);
         setFatherName(staffData?.fatherName);
@@ -115,20 +118,15 @@ const Editsatff = ({ params }) => {
         setPanCardNo(staffData?.panCardNo); // New field
         setAadharCardNo(staffData?.adharNo); // New field
         setExtraField1(staffData?.extraField1); // New field
-        setExtraField2(staffData?.institute); // New field
+        setExtraField2(staffData?.extraField2); // New field
         setExtraFieldsStaff(staffData?.extraFieldsStaff);
-      }
-      if (user?.role == "school") {
-        setcurrschool(user?.school);
-      } else {
-        let school = schools?.find(
-          (school) => school?._id == staffData?.school
-        );
-        setcurrschool(school);
+        if (staffData?.status === "Panding") {
+          setIsPending(true);
+        }
       }
     };
     factchstudent();
-  }, [user]);
+  }, []);
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -143,7 +141,9 @@ const Editsatff = ({ params }) => {
           Swal.showLoading();
         },
       });
-      const formData = {};
+
+      
+      const formData = {  };
 
       // Add non-empty fields to formData
       formData.avatar = imageData;
@@ -174,12 +174,11 @@ const Editsatff = ({ params }) => {
       if (panCardNo) formData.panCardNo = panCardNo.trim();
       if (aadharCardNo) formData.adharNo = aadharCardNo.trim();
       if (extraField1) formData.extraField1 = extraField1.trim();
-      if (extraField2) formData.institute = extraField2.trim();
-      if (extraFieldsStaff) formData.extraFieldsStaff = extraFieldsStaff;
-      if (SignatureData) formData.signatureImage = SignatureData;
-
+      if (extraField2) formData.extraField2 = extraField2.trim();
       console.log(formData);
       console.log(id);
+      if (extraFieldsStaff) formData.extraFieldsStaff = extraFieldsStaff;
+      if (SignatureData) formData.signatureImage = SignatureData;
 
       const response = await dispatch(editStaff(formData, id));
       if (response === "Staff updated successfully") {
@@ -190,7 +189,6 @@ const Editsatff = ({ params }) => {
           icon: "success",
           title: "Staff Updated Successfully",
         });
-        router.push("/Viewdata");
       } else {
         // Show error alert
         Swal.fire({
@@ -216,17 +214,28 @@ const Editsatff = ({ params }) => {
       });
     }
   };
-
   const handleExtraFieldChange = (e, fieldName) => {
     setExtraFieldsStaff((prevState) => ({
       ...prevState,
       [fieldName]: e.target.value,
     }));
   };
+
+
+  
+  if (!isPending) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-red-200 text-red-800 p-4 rounded-lg shadow-md">
+        <div className="text-lg font-semibold">
+        Link Expired
+        </div>
+      </div>
+    );
+  }
+  
   return (
-    <>
-      <Nav />
-      <section className="bg-white dark:bg-gray-900 py-10 w-full flex justify-center items-center pt-16 ">
+    <div>
+     <section className="bg-white dark:bg-gray-900 py-10 w-full flex justify-center items-center pt-16 ">
         <div className="w-[320px]">
           <form action="mt-3 w-[320px]" onSubmit={handleFormSubmit}>
             <h3 className="text-center text-xl py-3 border-b-2 mb-4 border-indigo-500">
@@ -361,8 +370,8 @@ const Editsatff = ({ params }) => {
           </form>
         </div>
       </section>
-    </>
+    </div>
   );
-};
+}
 
-export default Editsatff;
+export default Page;

@@ -49,7 +49,7 @@ const Viewdata = () => {
     totalStudents: 0,
     totalPages: 0,
     currentPage: 1,
-    pageSize: 500,
+    pageSize: 50,
   });
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -80,58 +80,45 @@ const Viewdata = () => {
     setstaffs([]);
     setStaffData([]);
   };
-  
-
-    useEffect(() => {
-      const query = new URLSearchParams(window.location.search);
-  
-      // Extracting all query parameters
-      const vendor = query.get("vendor");
-      const role = query.get("role");
-      const className = query.get("class");
-      const section = query.get("section");
-      const course = query.get("course");
-      const staffType = query.get("staffType");
-      const institute = query.get("institute");
-  
-      // Setting states based on query parameters
-      if (vendor) {
-          const school = schools?.find((school) => school._id == vendor);
-          setCurrSchool(school);
-      }
-  
-      if (role) setCurrRole(role);
-      if (className) setclassNameValue(className);
-      if (section) setSectionValueSearch(section);
-      if (course) setCourseValueSearch(course);
-      if (staffType) setValueStaff(staffType);
-      if (institute) setUnqiueStaffInsi(institute);
-  }, []);
-
 
   useEffect(() => {
-    console.log(user);
-    if (!user) {
-      redirect("/");
-    }
-    if (user?.role == "school") {
-      const schoolId = user?.school?._id;
+    const query = new URLSearchParams(window.location.search);
 
-      console.log(user?.school);
+    // Extracting all query parameters
+    const vendor = query.get("vendor");
+    const status = query.get("status");
+    const role = query.get("role");
+    const className = query.get("class");
+    const section = query.get("section");
+    const course = query.get("course");
+    const staffType = query.get("staffType");
+    const institute = query.get("institute");
+console.log(role)
+    // Setting states based on query parameters
+    if (vendor) {
+    
       axios
-        .get(`user/getschool/${schoolId}`)
+        .get(`user/getschool/${vendor}`)
         .then((response) => {
           setSchoolData(response.data.data); // Update the state with fetched data
-          console.log(response.data.data);
+          console.log(response.data.data.name);
         })
         .catch((err) => {
           console.log("Error fetching Vendor data"); // Handle error if request fails
         });
 
-      setCurrSchool(user?.school?._id);
+      setCurrSchool(vendor);
       setloginSchool(true);
     }
-  }, [user]);
+
+    if (role) setCurrRole(role);
+    if (status) setstatus(status);
+    if (className) setclassNameValue(className);
+    if (section) setSectionValueSearch(section);
+    if (course) setCourseValueSearch(course);
+    if (staffType) setValueStaff(staffType);
+    if (institute) setUnqiueStaffInsi(institute);
+  }, []);
 
   // Function to handle selection of a student
   const handleStudentSelect = (studentId) => {
@@ -302,7 +289,6 @@ const Viewdata = () => {
     setShowChatBox(!showChatBox);
   };
 
-
   const handleFormSubmit = async (e) => {
     if (e) e.preventDefault();
     setSatusCount([]);
@@ -316,26 +302,31 @@ const Viewdata = () => {
         ? `/user/students/${currSchool}?status=${status}&page=${pagination.currentPage}&limit=${pagination.pageSize}&search=${searchQuery}&studentClass=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}`
         : `/user/staffs/${currSchool}?status=${status}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}&search=${searchQuery}&page=${pagination.currentPage}&limit=${pagination.pageSize}`;
       const noDataMessage = isStudent
-        ? "No students found for the provided Vendor ID"
-        : "No staff found for the provided Vendor ID";
+        ? "No students found for the provided school ID"
+        : "No staff found for the provided school ID";
       const toastMessage = isStudent
         ? "No Students Added In This Vendor"
         : "No Staff Member Added In This Vendor";
 
       // Make the API request
       const response = await axios.post(endpoint, null, config());
+      console.log(response.data);
       // Handle "No data found" scenario
       if (response?.data?.message === noDataMessage) {
-        toast.error(toastMessage, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-        setError(noDataMessage);
+        // toast.error(toastMessage, {
+        //   position: "top-right",
+        //   autoClose: 5000,
+        //   hideProgressBar: false,
+        //   closeOnClick: true,
+        //   pauseOnHover: true,
+        //   draggable: true,
+        //   progress: undefined,
+        // });
+        setError("No Record Found");
+        setsubmited(true); // Mark form as submitted
+
+        setSatusCount(response.data.staffCountByStatus || []);
+
         resetState(); // Reset state again for safety
         return;
       }
@@ -345,8 +336,8 @@ const Viewdata = () => {
         setstudents(response?.data?.students || []);
         setPagination({
           ...pagination,
-          totalStudents: response.data.pagination.totalStudents,
-          totalPages: response.data.pagination.totalPages,
+          totalStudents: response?.data?.pagination?.totalStudents || 0,
+          totalPages: response?.data?.pagination?.totalPages || 0,
         });
         setStudentData(response?.data?.students || []);
         console.log(response?.data);
@@ -359,8 +350,8 @@ const Viewdata = () => {
         console.log(response?.data?.staff);
         setPagination({
           ...pagination,
-          totalStudents: response.data.pagination.totalStudents,
-          totalPages: response.data.pagination.totalPages,
+          totalStudents: response?.data?.pagination?.totalStudents || 0,
+          totalPages: response?.data?.pagination?.totalPages || 0,
         });
         setSatusCount(response?.data?.staffCountByStatus || []);
         console.log(statusCount);
@@ -581,7 +572,7 @@ const Viewdata = () => {
     }
   };
   const redirectToStudentEdit = (id) => {
-    router.push(`/Viewdata/edit/${id}`);
+    router.push(`/shareview/edit/${id}?schoolid=${currSchool}`);
   };
 
   const deleteStudent = async (id) => {
@@ -666,7 +657,7 @@ const Viewdata = () => {
   };
 
   const redirectToStaffEdit = (id) => {
-    router.push(`/Viewdata/staffedit/${id}`);
+    router.push(`/shareview/staffedit/${id}`);
   };
 
   const [filterActive, setFilterActive] = useState(false);
@@ -796,37 +787,7 @@ const Viewdata = () => {
     setIsAllSelected(!isAllSelected); // Toggle the state
   };
 
-  useEffect(() => {
-    const savedSchool = localStorage.getItem("currSchool");
-    const savedRole = localStorage.getItem("currRole");
-    const savedStatus = localStorage.getItem("status");
-    const classValuelocal = localStorage.getItem("classValuelocal");
-    const sectionValueSearchLocal = localStorage.getItem("sectionValuelocal");
-    const searchLocal = localStorage.getItem("searchLocal");
-    const CourseLocal = localStorage.getItem("courseLocal");
 
-    const schoolId = savedSchool;
-    if (schoolId) {
-      // Fetch school data by schoolId from backend
-      axios
-        .get(`user/getschool/${schoolId}`)
-        .then((response) => {
-          setSchoolData(response.data.data); // Update the state with fetched data
-          console.log(response.data.data);
-        })
-        .catch((err) => {
-          console.log("Error fetching Vendor data"); // Handle error if request fails
-        });
-    }
-    console.log(savedStatus);
-    if (savedSchool) setCurrSchool(savedSchool);
-    if (savedRole) setCurrRole(savedRole);
-    if (savedStatus) setstatus(savedStatus);
-    if (classValuelocal) setclassNameValue(classValuelocal);
-    if (sectionValueSearchLocal) setSectionValueSearch(sectionValueSearchLocal);
-    if (searchLocal) setSearchQuery(searchLocal);
-    if (CourseLocal) setCourseValueSearch(CourseLocal);
-  }, []);
 
   // Update localStorage whenever values change
   useEffect(() => {
@@ -983,8 +944,7 @@ const Viewdata = () => {
     }
   };
 
-
-  const  moveBackreadytoSingle = async (studentId) => {
+  const moveBackreadytoSingle = async (studentId) => {
     try {
       // Show loading spinner
       Swal.fire({
@@ -1043,7 +1003,6 @@ const Viewdata = () => {
     }
   };
 
-
   const Statuschecker = (value) => {
     const statusObj = statusCount?.find((count) => count._id === value);
     return statusObj ? statusObj.count : 0; // Return count or 0 if not found
@@ -1067,77 +1026,52 @@ const Viewdata = () => {
         )}
 
         <div className="container flex flex-col items-center mt-6 justify-center px-6 mx-auto">
-          {user && (
+          { (
             <form
               className="mt-6 w-full flex justify-between flex-wrap"
               onSubmit={handleFormSubmit}
             >
               {/* School Dropdown */}
-             
-            <div className="flex items-center justify-center   gap-4">
-            {!loginSchool && (
-                <div className="mb-4 flex gap-3 items-center">
-                  <select
-                    id="school"
-                    onChange={handleSchoolSelect}
-                    value={currSchool}
-                    className="mt-1 h-10 px-3 border block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  >
-                    <option value="">Select Vendor</option>
-                    {schools?.map((school) => (
-                      <option key={school._id} value={school._id}>
-                        {school.name}
-                      </option>
-                    ))}
-                  </select>
 
-                
-                </div>
-              )}
-
-
-              {submitted && (
-                  <Link
-                    href={`/powerclick?vendor=${currSchool}&role=${currRole}&class=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}`}
-                    className={`px-4 py-2 mb-3 rounded-md font-medium  bg-blue-900 text-gray-100`}
-                  >
-                  Power Click
-                  </Link>
-                )}
-            </div>
-
+{schoolData?.name}
               {/* Role Selection Buttons */}
               <div className="mb-4 flex space-x-4">
-                <button
-                  type="button"
-                  onClick={() => setCurrRole("student")}
-                  className={`px-4 py-1 rounded-md font-medium ${
-                    currRole === "student"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
-                >
-                  Student
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCurrRole("staff")}
-                  className={`px-4 py-1 rounded-md font-medium ${
-                    currRole === "staff"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
-                >
-                  Staff
-                </button>
-                {submitted && (
+                {currRole === "student" && (
+                  <button
+                    type="button"
+                    disabled
+                    onClick={() => setCurrRole("student")}
+                    className={`px-4 py-1 rounded-md font-medium ${
+                      currRole === "student"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-200 text-gray-700"
+                    }`}
+                  >
+                    Student
+                  </button>
+                )}
+                {currRole === "staff" && (
+                  <button
+                    type="button"
+                    disabled
+                    onClick={() => setCurrRole("staff")}
+                    className={`px-4 py-1 rounded-md font-medium ${
+                      currRole === "staff"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-200 text-gray-700"
+                    }`}
+                  >
+                    Staff
+                  </button>
+                )}
+                {/* {submitted && (
                   <Link
                     href={`/Adddata?vendor=${currSchool}&role=${currRole}&class=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}`}
                     className={`px-4 py-2 rounded-md font-medium  bg-gray-200 text-gray-700`}
                   >
                     Add  {currRole}
                   </Link>
-                )}
+                )} */}
               </div>
 
               {/* Status Selection Buttons */}
@@ -1153,7 +1087,7 @@ const Viewdata = () => {
                   }`}
                 >
                   Pending
-                  {statusCount.length > 0 && (
+                  {submitted && (
                     <span className="absolute -top-2 right-0 mt- mr-1 text-sm font-semibold text-white bg-red-600 rounded-full px-2">
                       {Statuschecker("Panding")}
                     </span>
@@ -1170,8 +1104,8 @@ const Viewdata = () => {
                       : "bg-gray-200 text-gray-700"
                   }`}
                 >
-                  Ready 
-                  {statusCount.length > 0 && (
+                  Ready
+                  {submitted && (
                     <span className="absolute -top-3 right-0 mt-1 mr-1 text-sm font-semibold text-white bg-red-600 rounded-full px-2">
                       {Statuschecker("Ready to print")}
                     </span>
@@ -1277,8 +1211,10 @@ const Viewdata = () => {
                         {/* Dropdown */}
                         <select
                           value={classNameValue || ""} // Ensure value is always a string
+                          disabled
                           onChange={(e) => {
                             setclassNameValue(e.target.value);
+
                             setPagination({
                               totalStudents: 0,
                               totalPages: 0,
@@ -1313,6 +1249,7 @@ const Viewdata = () => {
                         {/* Dropdown */}
                         <select
                           value={courseValueSearch || ""} // Ensure value is always a string
+                          disabled
                           onChange={(e) => {
                             setCourseValueSearch(e.target.value);
                             setPagination({
@@ -1349,6 +1286,7 @@ const Viewdata = () => {
                         {/* Dropdown */}
                         <select
                           value={sectionValueSearch || ""} // Ensure value is always a string
+                          disabled
                           onChange={(e) => {
                             setSectionValueSearch(e.target.value);
                             setPagination({
@@ -1381,6 +1319,7 @@ const Viewdata = () => {
                         {/* Dropdown */}
                         <select
                           value={staffValueSearch || ""} // Ensure value is always a string
+                          disabled
                           onChange={(e) => {
                             setValueStaff(e.target.value);
                             setPagination({
@@ -1412,6 +1351,7 @@ const Viewdata = () => {
                       <div className="flex items-center gap-4">
                         {/* Dropdown */}
                         <select
+                          disabled
                           value={staffValueSearchInsi || ""} // Ensure value is always a string
                           onChange={(e) => {
                             setValueStaffInsi(e.target.value);
@@ -1472,7 +1412,7 @@ const Viewdata = () => {
                           {student?.parentChanges ? (
                             <p className="text-green-900 flex items-center gap-2 text-sm ">
                               <FaCheckCircle />
-                            Verify
+                              Verify
                             </p>
                           ) : (
                             <p className=" opacity-0">{"."}</p>
@@ -1592,34 +1532,31 @@ const Viewdata = () => {
                             <FaEdit className="mr-2" />
                             Edit
                           </button>
-                        
-                            <button
-                              onClick={(e) => moveReadySingle(student._id)}
-                              className="text-sm px-1 py-2 text-[12px] bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transform transition-all duration-200"
-                            >
-                              <span className=" text-[8px]"> Move to</span>{" "}
-                              Ready
-                            </button>
-                        
+
+                          <button
+                            onClick={(e) => moveReadySingle(student._id)}
+                            className="text-sm px-1 py-2 text-[12px] bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transform transition-all duration-200"
+                          >
+                            <span className=" text-[8px]"> Move to</span> Ready
+                          </button>
                         </div>
                       )}
-                      {
-                        status === "Printed" && 
+                      {status === "Printed" && (
                         <div className="flex justify-center mt-4 gap-3">
-                        <button
-                    className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
-                    onClick={()=>moveBackPendingSingle(student._id)}
-                  >
-                    <FaArrowLeft />   Pending
-                  </button>
-                        <button
-                    className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
-                    onClick={()=>moveBackreadytoSingle(student._id)}
-                  >
-                    <FaArrowLeft />  Ready
-                  </button>
-                        </div> 
-                      }
+                          <button
+                            className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                            onClick={() => moveBackPendingSingle(student._id)}
+                          >
+                            <FaArrowLeft /> Pending
+                          </button>
+                          <button
+                            className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                            onClick={() => moveBackreadytoSingle(student._id)}
+                          >
+                            <FaArrowLeft /> Ready
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))}
               </div>
@@ -1783,35 +1720,33 @@ const Viewdata = () => {
                         </button>
 
                         {/* Move to Ready Button */}
-                      
-                          <button
-                            onClick={(e) => {
-                              moveReadySingle(staff._id);
-                            }}
-                            className="px-2 py-1 bg-yellow-600 text-[12px] text-white rounded-lg shadow-md hover:bg-yellow-700 transition-all"
-                          >
-                            <span className="text-[8px]"> Move to </span>Ready
-                          </button>
-                       
+
+                        <button
+                          onClick={(e) => {
+                            moveReadySingle(staff._id);
+                          }}
+                          className="px-2 py-1 bg-yellow-600 text-[12px] text-white rounded-lg shadow-md hover:bg-yellow-700 transition-all"
+                        >
+                          <span className="text-[8px]"> Move to </span>Ready
+                        </button>
                       </div>
                     )}
-                    {
-                        status === "Printed" && 
-                        <div className="flex justify-center mt-4 gap-3">
+                    {status === "Printed" && (
+                      <div className="flex justify-center mt-4 gap-3">
                         <button
-                    className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
-                    onClick={()=>moveBackPendingSingle(staff._id)}
-                  >
-                    <FaArrowLeft />   Pending
-                  </button>
+                          className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                          onClick={() => moveBackPendingSingle(staff._id)}
+                        >
+                          <FaArrowLeft /> Pending
+                        </button>
                         <button
-                    className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
-                    onClick={()=>moveBackreadytoSingle(staff._id)}
-                  >
-                    <FaArrowLeft />  Ready
-                  </button>
-                        </div> 
-                      }
+                          className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                          onClick={() => moveBackreadytoSingle(staff._id)}
+                        >
+                          <FaArrowLeft /> Ready
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -1821,7 +1756,8 @@ const Viewdata = () => {
       </section>
       <div>
         {/* Chat Box Button */}
-        {submitted && (
+        {/* {submitted} */}
+        {false && (
           <button
             className={`fixed bottom-4 left-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full shadow-lg ${
               !showChatBox ? "button-bounce" : ""
@@ -1888,16 +1824,15 @@ const Viewdata = () => {
                     <FaImages /> Signature Download
                   </button>
                 )}
-           
-                  <>
-                    <button
-                      className="flex items-center gap-2 bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded-lg shadow-lg"
-                      onClick={modeToReadytoprint}
-                    >
-                      <FaCheck /> Move to Ready
-                    </button>
-                  </>
-              
+
+                <>
+                  <button
+                    className="flex items-center gap-2 bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                    onClick={modeToReadytoprint}
+                  >
+                    <FaCheck /> Move to Ready
+                  </button>
+                </>
               </>
             )}
 
@@ -1999,6 +1934,9 @@ const Viewdata = () => {
           </div>
         )}
       </div>
+
+
+
     </div>
   );
 };

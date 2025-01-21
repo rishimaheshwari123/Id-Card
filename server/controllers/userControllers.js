@@ -1622,13 +1622,7 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
       .skip((page - 1) * limit) // Skip the results based on the page number
       .limit(limit); // Limit the number of results per page
 
-    if (!students || students.length === 0) {
-      return res.json({
-        success: false,
-        role: "student",
-        message: "No students found for the provided school ID",
-      });
-    }
+  
 
     const studentsWithRole = students.map((student) => {
       return {
@@ -1655,6 +1649,17 @@ exports.getAllStudentsInSchool = catchAsyncErron(async (req, res, next) => {
       console.log(staffCountByStatus);
     } catch (error) {
       console.log(error);
+    }
+
+
+    if (!students || students.length === 0) {
+      return res.json({
+        success: false,
+        role: "student",
+        message: "No students found for the provided school ID",
+      staffCountByStatus,
+
+      });
     }
     // Respond with the list of students and pagination info
     res.status(200).json({

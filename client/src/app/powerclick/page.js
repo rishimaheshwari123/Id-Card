@@ -130,7 +130,7 @@ const StudentDisplay = () => {
   const [aspectRatio, setAspectRatio] = useState(1);
 
   const handleAspectRatioChange = (e) => {
-    const selectedRatio = e.target.value === "passport" ? 1.34 : 1;
+    const selectedRatio = e.target.value === "passport" ? 0.8 : 1;
     setAspectRatio(selectedRatio);
   };
 
@@ -264,8 +264,8 @@ const StudentDisplay = () => {
           onChange={handleAspectRatioChange}
           className="w-full p-3 mb-6 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
         >
-          <option value="passport">Passport</option>
           <option value="square">Square</option>
+          <option value="passport">Passport</option>
         </select>
 
         <StudentPhotoCapture setCroppedPhoto={setCroppedPhoto} aspectRatio={aspectRatio} />

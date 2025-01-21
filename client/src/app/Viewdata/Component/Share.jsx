@@ -1,0 +1,51 @@
+import React from "react";
+import { QRCodeCanvas } from "qrcode.react";
+
+const SharePopup = ({ link , onClose }) => {
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator
+        .share({
+          title: "Check this out!",
+          text: "Here's the link:",
+          url: link,
+        })
+        .then(() => console.log("Shared successfully"))
+        .catch((error) => console.error("Error sharing:", error));
+    } else {
+      alert("Web Share API is not supported in this browser.");
+    }
+  };
+
+  console.log("QR Code Link:", link); // Debug link value
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-80 flex flex-col justify-center items-center w-f z-50">
+        <h3 className="text-lg font-bold mb-4">Share or QR Code</h3>
+        <div className="mb-4">
+          <p className="text-sm mb-2">Share this link:</p>
+       
+          <button
+            onClick={handleShare}
+            className="mt-2 bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Share
+          </button>
+        </div>
+        <div>
+          <p className="text-sm mb-2">Scan QR Code:</p>
+          <QRCodeCanvas value={encodeURIComponent(link)} size={128} />
+        </div>
+        <button
+          onClick={()=>onClose(false)} // Close without specifying false
+          className="mt-4 bg-gray-500 text-white px-4 py-2 rounded w-full"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default SharePopup;

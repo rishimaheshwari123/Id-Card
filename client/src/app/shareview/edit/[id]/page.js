@@ -1,23 +1,17 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import Nav from "../../../components/Nav";
-import { useRouter } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  currentUser,
-  editStudent,
-  updateSchool,
-} from "@/redux/actions/userAction";
-import { RiContactsBook2Line } from "react-icons/ri";
-import { FaRegAddressCard } from "react-icons/fa";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import axios from "../../../../../axiosconfig";
+import React, { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation"; // Correct hook for query parameters
+import axios from "../../../../../axiosconfig"; // Make sure this is your axios configuration
+import { useDispatch } from "react-redux";
+import ImageUploaderWithCrop from "@/component/ImageUpload";
 import Image from "next/image";
 import Swal from "sweetalert2";
-import ImageUploaderWithCrop from "@/component/ImageUpload";
+import { editStudent } from "@/redux/actions/userAction";
+function Page({ params }) {
+  const searchParams = useSearchParams(); // Get query parameters
+  const [extraFields, setExtraFields] = useState({});
 
-const EditStudent = ({ params }) => {
+  const [error, setError] = useState(null); // State to track errors
   const [currSchool, setcurrschool] = useState();
   const [currRole, setCurrRole] = useState("");
   const [husbandName, setHusbandName] = useState("");
@@ -51,29 +45,38 @@ const EditStudent = ({ params }) => {
   const [extraField2, setExtraField2] = useState("");
   const [selectedImage, setSelectedImage] = useState(null); // Base64 image data
 
-  const [extraFields, setExtraFields] = useState({});
-
+  const [isPending, setIsPending] = useState(false);
   const [imageData, setImageData] = useState({ publicId: "", url: "" }); // State to store only public_id and url
-
-  const router = useRouter();
   const dispatch = useDispatch();
-  const StudentlId = params ? params?.id : null; // Assuming you have a route
 
-  // Assuming you have stored the school data in your Redux store
-  const { user, schools, error } = useSelector((state) => state.user);
+  const studentId = params.id; // Access dynamic route param
+  const schoolId = searchParams.get("schoolid"); // Access query param
+
+  const [loading, setLoding] = useState(true);
 
   useEffect(() => {
-    const studentId = params ? params.id : null;
+
+ 
+    if (schoolId) {
+      // Fetch school data by schoolId from backend
+      axios
+        .get(`user//getschool/${schoolId}`)
+        .then((response) => {
+          setcurrschool(response.data.data); // Update the state with fetched data
+        })
+        .catch((err) => {
+          setError("Error fetching school data"); // Handle error if request fails
+        });
+    }
+  }, [schoolId]); // Re-run effect when schoolId changes
+
+  useEffect(() => {
+    console.log(studentId)
+    console.log(schoolId)
     const factchstudent = async () => {
-      const config = () => {
-        return {
-          headers: {
-            authorization: localStorage.getItem("token") || "", // Ensure token is always a string
-          },
-          withCredentials: true,
-        };
-      };
-      const response = await axios.get(`/user/student/${studentId}`, config());
+      setLoding(true);
+      const response = await axios.post(`/user/student/${studentId}`);
+      console.log(response);
       const temuser = response.data.student;
       console.log(temuser);
       if (temuser) {
@@ -98,7 +101,9 @@ const EditStudent = ({ params }) => {
         setRouteNo(temuser?.routeNo);
         setHouseName(temuser?.houseName);
         setExtraFields(temuser?.extraFields);
-
+        if (temuser?.status === "Panding") {
+          setIsPending(true);
+        }
         setImageData({
           publicId: temuser?.avatar?.publicId,
           url: temuser?.avatar?.url,
@@ -122,17 +127,11 @@ const EditStudent = ({ params }) => {
         setRegNo(temuser?.regNo);
         setExtraField1(temuser?.extraField1);
         setExtraField2(temuser?.extraField2);
-      }
-      if (user?.role == "school") {
-        setcurrschool(user?.school);
-      } else {
-        let school = schools?.find((school) => school?._id == temuser?.school);
-        console.log(school);
-        setcurrschool(school);
+        setLoding(false);
       }
     };
     factchstudent();
-  }, [user]);
+  }, []);
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -145,6 +144,7 @@ const EditStudent = ({ params }) => {
         Swal.showLoading();
       },
     });
+
     const formData = { name };
     formData.avatar = imageData;
 
@@ -177,7 +177,6 @@ const EditStudent = ({ params }) => {
 
     console.log(formData);
     console.log(ID);
-    console.log(StudentlId, "param");
 
     // Show loading alert
 
@@ -193,7 +192,6 @@ const EditStudent = ({ params }) => {
         icon: "success",
         title: "Student Updated Successfully",
       });
-      router.push("/Viewdata");
     } else {
       // Show error alert
       Swal.fire({
@@ -208,17 +206,6 @@ const EditStudent = ({ params }) => {
     }
   };
 
-  // useEffect(() => {
-  //   if (currSchool?.extraFields) {
-  //     const initialFields = {};
-  //     currSchool.extraFields.forEach((field) => {
-  //       initialFields[field.name] = field.value || ""; // Set initial value if available
-  //     });
-  //     setExtraFields(initialFields);
-  //   }
-  // }, [currSchool]);
-
-  // Handle change in any extra field
   const handleExtraFieldChange = (e, fieldName) => {
     setExtraFields((prevState) => ({
       ...prevState,
@@ -226,140 +213,153 @@ const EditStudent = ({ params }) => {
     }));
   };
 
+  if (loading) {
+    return (
+      <div className="grid min-h-[calc(100vh-3.5rem)] place-items-center">
+        <div className="spinner"></div>
+      </div>
+    );
+  }
+
+  if (!loading && !isPending) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-red-200 text-red-800 p-4 rounded-lg shadow-md">
+        <div className="text-lg font-semibold">Link Expire</div>
+      </div>
+    );
+  }
+
   return (
-    <>
-      <Nav />
-      <section className="bg-white dark:bg-gray-900 py-10 w-full flex justify-center items-center pt-16 ">
-        <div className="w-[320px]">
-          <form action="mt-3 w-[320px]" onSubmit={handleFormSubmit}>
-            <h3 className="text-center text-xl py-3 border-b-2 mb-4 border-indigo-500">
-              Edit Student
-            </h3>
+    <section className="bg-white dark:bg-gray-900 py-10 w-full flex justify-center items-center pt-16 ">
+    <div className="w-[320px]">
+      <form action="mt-3 w-[320px]" onSubmit={handleFormSubmit}>
+        <h3 className="text-center text-xl py-3 border-b-2 mb-4 border-indigo-500">
+          Edit Student
+        </h3>
 
-            <div className="w-full flex justify-center items-center flex-col">
-              <Image
-                src={imageData.url}
-                className="w-[100px]"
-                height={550}
-                width={550}
-                alt="logo"
-              />
-              <ImageUploaderWithCrop
-                setImageData={setImageData}
-                setSelectedImage={setSelectedImage}
-                selectedImage={selectedImage}
-              />
-            </div>
-            <div className="mb-4 w-[320px]">
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Student Name
-              </label>
-
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Student Name"
-                className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                required
-              />
-            </div>
-          
-            {currSchool?.requiredFields?.includes("Class") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="class"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Class
-                </label>
-                <input
-                  type="text"
-                  id="class"
-                  value={studentClass}
-                  placeholder="Class"
-                  onChange={(e) => setStudentClass(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-            {currSchool?.requiredFields?.includes("Section") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="section"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Section
-                </label>
-                <input
-                  type="text"
-                  id="section"
-                  value={section}
-                  placeholder="Section"
-                  onChange={(e) => setSection(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-
-          
-            {currSchool?.requiredFields?.includes("Course") && (
-              <div className="mb-4">
-                <label
-                  htmlFor="course"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Course
-                </label>
-                <input
-                  type="text"
-                  id="course"
-                  value={course}
-                  placeholder="Course"
-                  onChange={(e) => setCourse(e.target.value)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            )}
-         
-
-            {currSchool?.extraFields?.length > 0 && currSchool?.extraFields?.map((field, index) => (
-              <div key={index} className="mb-4">
-              <label
-                  htmlFor="extraField2"
-                  className="block text-sm font-medium text-gray-700"
-                >
-             {field.name}
-                </label>
-                <input
-                  type="text"
-                  id={field.name}
-                  value={extraFields?.[field.name]} // Use existing value or empty string
-                  placeholder={field.name}
-                  onChange={(e) => handleExtraFieldChange(e, field.name)}
-                  className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-            ))}
-
-            
-            <div className="w-full flex justify-center items-center">
-              <button
-                type="submit"
-                className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              >
-                Save
-              </button>
-            </div>
-          </form>
+        <div className="w-full flex justify-center items-center flex-col">
+          <Image
+            src={imageData.url}
+            className="w-[100px]"
+            height={550}
+            width={550}
+            alt="logo"
+          />
+          <ImageUploaderWithCrop
+            setImageData={setImageData}
+            setSelectedImage={setSelectedImage}
+            selectedImage={selectedImage}
+          />
         </div>
-      </section>
-    </>
-  );
-};
+        <div className="mb-4 w-[320px]">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Student Name
+          </label>
 
-export default EditStudent;
+          <input
+            type="text"
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Student Name"
+            className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            required
+          />
+        </div>
+      
+        {currSchool?.requiredFields?.includes("Class") && (
+          <div className="mb-4">
+            <label
+              htmlFor="class"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Class
+            </label>
+            <input
+              type="text"
+              id="class"
+              value={studentClass}
+              placeholder="Class"
+              onChange={(e) => setStudentClass(e.target.value)}
+              className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+        )}
+        {currSchool?.requiredFields?.includes("Section") && (
+          <div className="mb-4">
+            <label
+              htmlFor="section"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Section
+            </label>
+            <input
+              type="text"
+              id="section"
+              value={section}
+              placeholder="Section"
+              onChange={(e) => setSection(e.target.value)}
+              className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+        )}
+
+      
+        {currSchool?.requiredFields?.includes("Course") && (
+          <div className="mb-4">
+            <label
+              htmlFor="course"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Course
+            </label>
+            <input
+              type="text"
+              id="course"
+              value={course}
+              placeholder="Course"
+              onChange={(e) => setCourse(e.target.value)}
+              className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+        )}
+     
+
+        {currSchool?.extraFields?.length > 0 && currSchool?.extraFields?.map((field, index) => (
+          <div key={index} className="mb-4">
+          <label
+              htmlFor="extraField2"
+              className="block text-sm font-medium text-gray-700"
+            >
+         {field.name}
+            </label>
+            <input
+              type="text"
+              id={field.name}
+              value={extraFields?.[field.name]} // Use existing value or empty string
+              placeholder={field.name}
+              onChange={(e) => handleExtraFieldChange(e, field.name)}
+              className="mt-1 block h-10 px-3 border w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+        ))}
+
+        
+        <div className="w-full flex justify-center items-center">
+          <button
+            type="submit"
+            className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+  );
+}
+
+export default Page;

@@ -25,6 +25,7 @@ import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 import Pagination from "@/component/Pagination";
 import Link from "next/link";
+import SharePopup from "./Component/Share";
 
 const Viewdata = () => {
   const { user, schools, error } = useSelector((state) => state.user);
@@ -51,6 +52,7 @@ const Viewdata = () => {
     currentPage: 1,
     pageSize: 500,
   });
+  const [showPopup, setShowPopup] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [className, setClassname] = useState([]);
@@ -80,7 +82,7 @@ const Viewdata = () => {
     setstaffs([]);
     setStaffData([]);
   };
-  
+
   useEffect(() => {
     console.log(user);
     if (!user) {
@@ -274,7 +276,6 @@ const Viewdata = () => {
     setShowChatBox(!showChatBox);
   };
 
-
   const handleFormSubmit = async (e) => {
     if (e) e.preventDefault();
     setSatusCount([]);
@@ -288,26 +289,31 @@ const Viewdata = () => {
         ? `/user/students/${currSchool}?status=${status}&page=${pagination.currentPage}&limit=${pagination.pageSize}&search=${searchQuery}&studentClass=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}`
         : `/user/staffs/${currSchool}?status=${status}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}&search=${searchQuery}&page=${pagination.currentPage}&limit=${pagination.pageSize}`;
       const noDataMessage = isStudent
-        ? "No students found for the provided Vendor ID"
-        : "No staff found for the provided Vendor ID";
+        ? "No students found for the provided school ID"
+        : "No staff found for the provided school ID";
       const toastMessage = isStudent
         ? "No Students Added In This Vendor"
         : "No Staff Member Added In This Vendor";
 
       // Make the API request
       const response = await axios.post(endpoint, null, config());
+      console.log(response.data);
       // Handle "No data found" scenario
       if (response?.data?.message === noDataMessage) {
-        toast.error(toastMessage, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-        setError(noDataMessage);
+        // toast.error(toastMessage, {
+        //   position: "top-right",
+        //   autoClose: 5000,
+        //   hideProgressBar: false,
+        //   closeOnClick: true,
+        //   pauseOnHover: true,
+        //   draggable: true,
+        //   progress: undefined,
+        // });
+        setError("No Record Found");
+        setsubmited(true); // Mark form as submitted
+
+        setSatusCount(response.data.staffCountByStatus || []);
+
         resetState(); // Reset state again for safety
         return;
       }
@@ -317,8 +323,8 @@ const Viewdata = () => {
         setstudents(response?.data?.students || []);
         setPagination({
           ...pagination,
-          totalStudents: response.data.pagination.totalStudents,
-          totalPages: response.data.pagination.totalPages,
+          totalStudents: response?.data?.pagination?.totalStudents || 0,
+          totalPages: response?.data?.pagination?.totalPages || 0,
         });
         setStudentData(response?.data?.students || []);
         console.log(response?.data);
@@ -331,8 +337,8 @@ const Viewdata = () => {
         console.log(response?.data?.staff);
         setPagination({
           ...pagination,
-          totalStudents: response.data.pagination.totalStudents,
-          totalPages: response.data.pagination.totalPages,
+          totalStudents: response?.data?.pagination?.totalStudents || 0,
+          totalPages: response?.data?.pagination?.totalPages || 0,
         });
         setSatusCount(response?.data?.staffCountByStatus || []);
         console.log(statusCount);
@@ -955,8 +961,7 @@ const Viewdata = () => {
     }
   };
 
-
-  const  moveBackreadytoSingle = async (studentId) => {
+  const moveBackreadytoSingle = async (studentId) => {
     try {
       // Show loading spinner
       Swal.fire({
@@ -1015,9 +1020,11 @@ const Viewdata = () => {
     }
   };
 
-
   const Statuschecker = (value) => {
+    console.log(value);
+
     const statusObj = statusCount?.find((count) => count._id === value);
+    console.log(statusObj);
     return statusObj ? statusObj.count : 0; // Return count or 0 if not found
   };
   return (
@@ -1045,40 +1052,36 @@ const Viewdata = () => {
               onSubmit={handleFormSubmit}
             >
               {/* School Dropdown */}
-             {
-!loginSchool &&   <div className="flex items-center justify-center   gap-4">
-            {!loginSchool && (
-                <div className="mb-4 flex gap-3 items-center">
-                  <select
-                    id="school"
-                    onChange={handleSchoolSelect}
-                    value={currSchool}
-                    className="mt-1 h-10 px-3 border block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  >
-                    <option value="">Select Vendor</option>
-                    {schools?.map((school) => (
-                      <option key={school._id} value={school._id}>
-                        {school.name}
-                      </option>
-                    ))}
-                  </select>
+              {!loginSchool && (
+                <div className="flex items-center justify-center   gap-4">
+                  {!loginSchool && (
+                    <div className="mb-4 flex gap-3 items-center">
+                      <select
+                        id="school"
+                        onChange={handleSchoolSelect}
+                        value={currSchool}
+                        className="mt-1 h-10 px-3 z-0 border block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      >
+                        <option value="">Select Vendor</option>
+                        {schools?.map((school) => (
+                          <option key={school._id} value={school._id}>
+                            {school.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
-                
+                  {submitted && !user?.school && (
+                    <Link
+                      href={`/powerclick?vendor=${currSchool}&role=${currRole}&class=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}`}
+                      className={`px-4 py-2 mb-3 rounded-md font-medium  bg-blue-900 text-gray-100`}
+                    >
+                      Power Click
+                    </Link>
+                  )}
                 </div>
               )}
-
-
-              {submitted && !user.school && (
-                  <Link
-                    href={`/powerclick?vendor=${currSchool}&role=${currRole}&class=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}`}
-                    className={`px-4 py-2 mb-3 rounded-md font-medium  bg-blue-900 text-gray-100`}
-                  >
-                  Power Click
-                  </Link>
-                )}
-            </div>
-             }
-          
 
               {/* Role Selection Buttons */}
               <div className="mb-4 flex space-x-4">
@@ -1109,7 +1112,7 @@ const Viewdata = () => {
                     href={`/Adddata?vendor=${currSchool}&role=${currRole}&class=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}`}
                     className={`px-4 py-2 rounded-md font-medium  bg-gray-200 text-gray-700`}
                   >
-                    Add  {currRole}
+                    Add {currRole}
                   </Link>
                 )}
               </div>
@@ -1127,7 +1130,7 @@ const Viewdata = () => {
                   }`}
                 >
                   Pending
-                  {statusCount.length > 0 && (
+                  {submitted && (
                     <span className="absolute -top-2 right-0 mt- mr-1 text-sm font-semibold text-white bg-red-600 rounded-full px-2">
                       {Statuschecker("Panding")}
                     </span>
@@ -1144,8 +1147,8 @@ const Viewdata = () => {
                       : "bg-gray-200 text-gray-700"
                   }`}
                 >
-                  Ready 
-                  {statusCount.length > 0 && (
+                  Ready
+                  {submitted && (
                     <span className="absolute -top-3 right-0 mt-1 mr-1 text-sm font-semibold text-white bg-red-600 rounded-full px-2">
                       {Statuschecker("Ready to print")}
                     </span>
@@ -1163,7 +1166,7 @@ const Viewdata = () => {
                   }`}
                 >
                   Printed
-                  {statusCount.length > 0 && (
+                  {submitted && (
                     <span className="absolute -top-3 right-0 mt-1 mr-1 text-sm font-semibold text-white bg-red-600 rounded-full px-2">
                       {Statuschecker("Printed")}
                     </span>
@@ -1207,7 +1210,7 @@ const Viewdata = () => {
         )}
 
         {submitted && (
-          <div className="container mx-auto px-4 sm:px-8 lg:px-16">
+          <div className="container mx-auto px-4 sm:px-8 lg:px-16 z-0">
             {/* Heading */}
 
             {/* Search Section */}
@@ -1260,7 +1263,7 @@ const Viewdata = () => {
                               pageSize: 50,
                             });
                           }}
-                          className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                          className="w-full sm:w-auto p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base "
                           style={{ maxHeight: "200px", overflowY: "auto" }}
                         >
                           <option value=""> All Class</option>
@@ -1446,7 +1449,7 @@ const Viewdata = () => {
                           {student?.parentChanges ? (
                             <p className="text-green-900 flex items-center gap-2 text-sm ">
                               <FaCheckCircle />
-                            Verify
+                              Verify
                             </p>
                           ) : (
                             <p className=" opacity-0">{"."}</p>
@@ -1566,34 +1569,31 @@ const Viewdata = () => {
                             <FaEdit className="mr-2" />
                             Edit
                           </button>
-                        
-                            <button
-                              onClick={(e) => moveReadySingle(student._id)}
-                              className="text-sm px-1 py-2 text-[12px] bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transform transition-all duration-200"
-                            >
-                              <span className=" text-[8px]"> Move to</span>{" "}
-                              Ready
-                            </button>
-                        
+
+                          <button
+                            onClick={(e) => moveReadySingle(student._id)}
+                            className="text-sm px-1 py-2 text-[12px] bg-yellow-500 text-white rounded-lg hover:bg-yellow-400 transform transition-all duration-200"
+                          >
+                            <span className=" text-[8px]"> Move to</span> Ready
+                          </button>
                         </div>
                       )}
-                      {
-                        status === "Printed" && 
+                      {status === "Printed" && (
                         <div className="flex justify-center mt-4 gap-3">
-                        <button
-                    className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
-                    onClick={()=>moveBackPendingSingle(student._id)}
-                  >
-                    <FaArrowLeft />   Pending
-                  </button>
-                        <button
-                    className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
-                    onClick={()=>moveBackreadytoSingle(student._id)}
-                  >
-                    <FaArrowLeft />  Ready
-                  </button>
-                        </div> 
-                      }
+                          <button
+                            className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                            onClick={() => moveBackPendingSingle(student._id)}
+                          >
+                            <FaArrowLeft /> Pending
+                          </button>
+                          <button
+                            className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                            onClick={() => moveBackreadytoSingle(student._id)}
+                          >
+                            <FaArrowLeft /> Ready
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))}
               </div>
@@ -1757,35 +1757,33 @@ const Viewdata = () => {
                         </button>
 
                         {/* Move to Ready Button */}
-                      
-                          <button
-                            onClick={(e) => {
-                              moveReadySingle(staff._id);
-                            }}
-                            className="px-2 py-1 bg-yellow-600 text-[12px] text-white rounded-lg shadow-md hover:bg-yellow-700 transition-all"
-                          >
-                            <span className="text-[8px]"> Move to </span>Ready
-                          </button>
-                       
+
+                        <button
+                          onClick={(e) => {
+                            moveReadySingle(staff._id);
+                          }}
+                          className="px-2 py-1 bg-yellow-600 text-[12px] text-white rounded-lg shadow-md hover:bg-yellow-700 transition-all"
+                        >
+                          <span className="text-[8px]"> Move to </span>Ready
+                        </button>
                       </div>
                     )}
-                    {
-                        status === "Printed" && 
-                        <div className="flex justify-center mt-4 gap-3">
+                    {status === "Printed" && (
+                      <div className="flex justify-center mt-4 gap-3">
                         <button
-                    className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
-                    onClick={()=>moveBackPendingSingle(staff._id)}
-                  >
-                    <FaArrowLeft />   Pending
-                  </button>
+                          className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                          onClick={() => moveBackPendingSingle(staff._id)}
+                        >
+                          <FaArrowLeft /> Pending
+                        </button>
                         <button
-                    className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
-                    onClick={()=>moveBackreadytoSingle(staff._id)}
-                  >
-                    <FaArrowLeft />  Ready
-                  </button>
-                        </div> 
-                      }
+                          className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                          onClick={() => moveBackreadytoSingle(staff._id)}
+                        >
+                          <FaArrowLeft /> Ready
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -1810,7 +1808,19 @@ const Viewdata = () => {
 
         {showChatBox && (
           <div className="fixed bottom-16 left-4 flex flex-col gap-3">
-            {!user.school && (
+            {showPopup && (
+              <SharePopup
+                link={`/shareview?vendor=${currSchool}&role=${currRole}&status=${status}&class=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}&page=${pagination.currentPage}&limit=${pagination.pageSize}`}
+                onClose={setShowPopup}
+              />
+            )}
+            <button
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg shadow-lg"
+              onClick={() => setShowPopup(true)}
+            >
+              Share
+            </button>
+            {!user?.school && (
               <>
                 <button
                   className={`flex items-center gap-2 ${
@@ -1862,23 +1872,22 @@ const Viewdata = () => {
                     <FaImages /> Signature Download
                   </button>
                 )}
-           
-                  <>
-                    <button
-                      className="flex items-center gap-2 bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded-lg shadow-lg"
-                      onClick={modeToReadytoprint}
-                    >
-                      <FaCheck /> Move to Ready
-                    </button>
-                  </>
-              
+
+                <>
+                  <button
+                    className="flex items-center gap-2 bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded-lg shadow-lg"
+                    onClick={modeToReadytoprint}
+                  >
+                    <FaCheck /> Move to Ready
+                  </button>
+                </>
               </>
             )}
 
             {/* Ready to Print status */}
             {status === "Ready to print" && (
               <>
-                {!user.school && (
+                {!user?.school && (
                   <button
                     className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg shadow-lg"
                     onClick={modeToPrinted}
@@ -1886,7 +1895,7 @@ const Viewdata = () => {
                     <FaCheck /> Move to Printed
                   </button>
                 )}
-                {user.school && (
+                {user?.school && (
                   <button
                     className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
                     onClick={modeToPending}

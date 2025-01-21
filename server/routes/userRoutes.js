@@ -98,9 +98,9 @@ router.post("/edit/school/:id",upload, isAuthenticated ,editSchool);
 
 router.post("/delete/school/:id", isAuthenticated ,deleteSchool);
 
-router.post("/students/:id", isAuthenticated ,getAllStudentsInSchool);
+router.post("/students/:id", getAllStudentsInSchool);
 
-router.post("/staffs/:id", isAuthenticated ,getAllStaffInSchool);
+router.post("/staffs/:id", getAllStaffInSchool);
 
 router.post("/registration/student/:id", upload, isAuthenticated ,addStudent);
 
