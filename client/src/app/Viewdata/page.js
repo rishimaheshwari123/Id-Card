@@ -1810,7 +1810,7 @@ const Viewdata = () => {
           <div className="fixed bottom-16 left-4 flex flex-col gap-3">
             {showPopup && (
               <SharePopup
-                link={`/shareview?vendor=${currSchool}&role=${currRole}&status=${status}&class=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}&page=${pagination.currentPage}&limit=${pagination.pageSize}`}
+                link={`https://cardpro.co.in/shareview?vendor=${currSchool}&role=${currRole}&status=${status}&class=${classNameValue}&section=${sectionValueSearch}&course=${courseValueSearch}&staffType=${staffValueSearch}&institute=${staffValueSearchInsi}&page=${pagination.currentPage}&limit=${pagination.pageSize}`}
                 onClose={setShowPopup}
               />
             )}
