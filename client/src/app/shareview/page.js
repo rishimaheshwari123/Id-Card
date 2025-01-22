@@ -1757,7 +1757,7 @@ console.log(role)
       <div>
         {/* Chat Box Button */}
         {/* {submitted} */}
-        {submitted && (
+        {submitted && (status === "Panding" ||  status === "Ready to print") && (
           <button
             className={`fixed bottom-4 left-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full shadow-lg ${
               !showChatBox ? "button-bounce" : ""
@@ -1772,7 +1772,7 @@ console.log(role)
 
         {showChatBox && (
           <div className="fixed bottom-16 left-4 flex flex-col gap-3">
-            {!user?.school && (
+            {!user?.school && status ==="Panding" && (
               <>
                 <button
                   className={`flex items-center gap-2 ${
