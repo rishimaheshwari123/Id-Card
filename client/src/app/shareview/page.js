@@ -1839,15 +1839,8 @@ console.log(role)
             {/* Ready to Print status */}
             {status === "Ready to print" && (
               <>
+          
                 {!user?.school && (
-                  <button
-                    className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg shadow-lg"
-                    onClick={modeToPrinted}
-                  >
-                    <FaCheck /> Move to Printed
-                  </button>
-                )}
-                {user?.school && (
                   <button
                     className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg shadow-lg"
                     onClick={modeToPending}

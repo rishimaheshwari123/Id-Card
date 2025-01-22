@@ -1,14 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 
 const SharePopup = ({ link, onClose }) => {
+  // Replace spaces with %20 for proper URL encoding
+  const formattedLink = link.replace(/ /g, "%20");
+
+  useEffect(() => {
+    console.log("Formatted Link:", formattedLink);
+  }, [formattedLink]);
+
   const handleShare = () => {
     if (navigator.share) {
       navigator
         .share({
           title: "Check this out!",
           text: "Here's the link:",
-          url: link,
+          url: formattedLink,
         })
         .then(() => console.log("Shared successfully"))
         .catch((error) => console.error("Error sharing:", error));
@@ -16,8 +23,6 @@ const SharePopup = ({ link, onClose }) => {
       alert("Web Share API is not supported in this browser.");
     }
   };
-
-  console.log("QR Code Link:", link);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -34,22 +39,11 @@ const SharePopup = ({ link, onClose }) => {
         </div>
         <div>
           <p className="text-sm mb-2">Scan QR Code:</p>
-          <div className="relative">
-            {/* QR Code with increased size */}
-            <QRCodeCanvas
-              value={link}
-              size={180} // Increased size
-              includeMargin={true} // Adds quiet zone
-            />
-            {/* Logo */}
-            <div className="absolute inset-0 flex justify-center items-center">
-              <img
-                src="/login.jpg" // Replace with your logo path
-                alt="Logo"
-                className="w-10 h-10 bg-white p-1 rounded-full" // Reduced size and added padding
-              />
-            </div>
-          </div>
+          <QRCodeCanvas
+            value={formattedLink}
+            size={180}
+            includeMargin={true}
+          />
         </div>
         <button
           onClick={() => onClose(false)}
